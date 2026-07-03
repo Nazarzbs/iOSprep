@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iOS Interview Prep — Swift · SwiftUI · UIKit</title>
+<style>
+  :root {
+    --ground: #FAFBFC; --card: #FFFFFF; --ink: #1B2430; --muted: #5A6B7E;
+    --line: #E3E8EE; --accent: #F05138; --accent-deep: #C93C27;
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--ground); font-family: var(--sans); color: var(--ink); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 72px 22px 90px; }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 12px; }
+  h1 { font-size: clamp(28px, 5vw, 40px); font-weight: 800; letter-spacing: -.02em; line-height: 1.12; margin-bottom: 12px; }
+  .lede { font-size: 16.5px; color: var(--muted); margin-bottom: 36px; max-width: 56ch; }
+  a.card { display: block; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px 24px; margin-bottom: 14px; text-decoration: none; color: inherit; transition: border-color .15s, transform .15s; }
+  a.card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  a.card h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  a.card h2 span { color: var(--accent-deep); }
+  a.card p { font-size: 14px; color: var(--muted); max-width: 60ch; }
+  .meta { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-top: 8px; }
+  footer { margin-top: 48px; font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; }
+  footer a { color: var(--accent-deep); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">iOS · Swift · SwiftUI · UIKit</div>
+  <h1>Підготовка до iOS-співбесід</h1>
+  <p class="lede">Конспект теорії та тренажер лайв-кодінгу для підготовки до співбесід middle iOS-розробника. Прогрес зберігається у браузері.</p>
+
+  <a class="card" href="prep.html">
+    <h2>📖 Теорія — <span>36 тем углиб</span></h2>
+    <p>Swift, SwiftUI, UIKit + мережа, сховище, тести й архітектура. Кожна тема: як працює, яку проблему вирішує, де застосовується, код, пастки та контрольні питання.</p>
+    <div class="meta">фільтри за розділом і пріоритетом · трекер прогресу</div>
+  </a>
+
+  <a class="card" href="trainer.html">
+    <h2>⌨️ Лайв-кодінг — <span>22 завдання</span></h2>
+    <p>Реальні задачі зі співбесід: delegate pattern, reuse-баги, витоки памʼяті, потокобезпечність, @StateObject vs @ObservedObject — з підказками і повними розвʼязками під спойлерами.</p>
+    <div class="meta">UIKit · SwiftUI · патерни · Swift</div>
+  </a>
+
+  <footer>Зібрано з <a href="https://github.com/Nazarzbs">github.com/Nazarzbs</a> · 2026</footer>
+</div>
+</body>
+</html>

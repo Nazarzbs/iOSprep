@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>iOS Live Coding Trainer — Swift · SwiftUI · UIKit</title>
+<style>
+  :root {
+    --ground: #FAFBFC; --card: #FFFFFF; --ink: #1B2430; --muted: #5A6B7E;
+    --faint: #8B99A9; --line: #E3E8EE; --accent: #F05138; --accent-deep: #C93C27;
+    --accent-wash: #FEF0ED; --good: #2E7D4F; --good-wash: #EAF5EE;
+    --warn: #B7791F; --warn-wash: #FBF3E3; --info: #2B6CB0; --info-wash: #EBF2FA;
+    --code-bg: #232936; --code-ink: #E8ECF1;
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+  }
+  html { background: var(--ground); }
+  body { font-family: var(--sans); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 40px 20px 100px; }
+
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 10px; }
+  h1 { font-size: clamp(26px, 4vw, 36px); font-weight: 800; letter-spacing: -.02em; line-height: 1.12; margin: 0 0 10px; text-wrap: balance; }
+  .lede { font-size: 16px; color: var(--muted); max-width: 66ch; margin: 0 0 20px; }
+
+  .toolbar { position: sticky; top: 0; z-index: 20; background: var(--ground); padding: 10px 0 12px; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 10px; }
+  .fbtn {
+    font-family: var(--sans); font-size: 13px; font-weight: 600; cursor: pointer;
+    padding: 5px 13px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--card); color: var(--muted);
+  }
+  .fbtn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .fbtn.hide-done.active { background: var(--good); border-color: var(--good); }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); margin-bottom: 5px; }
+  .progress-label b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .pbar { height: 7px; background: #EDF0F3; border-radius: 4px; overflow: hidden; }
+  .pbar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-deep)); transition: width .25s; }
+
+  .task { background: var(--card); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 16px; overflow: hidden; }
+  .task.done { opacity: .62; }
+  .task-head { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: start; padding: 16px 18px 8px; }
+  .task-head input { width: 19px; height: 19px; margin-top: 3px; accent-color: var(--good); cursor: pointer; }
+  .task-head h3 { margin: 0; font-size: 16.5px; font-weight: 700; }
+  .task.done h3 { text-decoration: line-through; text-decoration-color: var(--faint); color: var(--faint); }
+  .meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 5px; }
+  .chip { font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: .05em; padding: 2px 9px; border-radius: 999px; }
+  .c-uikit   { background: var(--info-wash); color: var(--info); border: 1px solid #C4D9EE; }
+  .c-swiftui { background: var(--accent-wash); color: var(--accent-deep); border: 1px solid #F6CFC6; }
+  .c-pattern { background: var(--warn-wash); color: var(--warn); border: 1px solid #EBD9B0; }
+  .c-swift   { background: var(--good-wash); color: var(--good); border: 1px solid #CBE5D3; }
+  .c-easy { background: #F1F4F7; color: var(--muted); border: 1px solid var(--line); }
+  .c-mid  { background: #F1F4F7; color: var(--warn); border: 1px solid var(--line); }
+  .c-hard { background: #F1F4F7; color: var(--accent-deep); border: 1px solid var(--line); }
+  .task-body { padding: 4px 18px 16px 49px; }
+  .task-body p { margin: 0 0 10px; font-size: 14px; max-width: 76ch; }
+  .task-body p.assign { font-size: 14.5px; }
+  .checks { margin: 0 0 10px; padding: 0 0 0 18px; }
+  .checks li { font-size: 13px; color: var(--muted); padding: 1px 0; }
+  .checks-title { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); margin: 0 0 4px; }
+
+  details { border: 1px solid var(--line); border-radius: 10px; margin-top: 8px; background: #FBFCFD; }
+  details summary {
+    cursor: pointer; padding: 9px 14px; font-size: 13.5px; font-weight: 600;
+    color: var(--info); list-style: none; user-select: none;
+  }
+  details summary::before { content: "▸ "; }
+  details[open] summary::before { content: "▾ "; }
+  details.sol summary { color: var(--accent-deep); }
+  details > div { padding: 2px 14px 12px; }
+  details p { font-size: 13.5px; margin: 0 0 8px; }
+  details ul { margin: 0 0 8px; padding-left: 18px; }
+  details li { font-size: 13.5px; padding: 1.5px 0; }
+
+  pre {
+    background: var(--code-bg); color: var(--code-ink); border-radius: 10px;
+    padding: 14px 16px; overflow-x: auto; font-family: var(--mono);
+    font-size: 12.3px; line-height: 1.5; margin: 8px 0;
+  }
+  pre .k { color: #FF8B75; }      /* keywords */
+  pre .t { color: #8FD0FF; }      /* types */
+  pre .s { color: #A8E0A2; }      /* strings */
+  pre .c { color: #7E8AA0; font-style: italic; } /* comments */
+
+  footer { margin-top: 50px; font-size: 12.5px; color: var(--faint); border-top: 1px solid var(--line); padding-top: 14px; }
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">iOS Live Coding · тренажер</div>
+  <h1>Лайв-кодінг до співбесід: 22 завдання</h1>
+  <p class="lede">Реальні задачі з iOS-співбесід. Порядок роботи: прочитай умову → пиши код в Xcode Playground / порожньому проєкті БЕЗ підглядання → звірся з розвʼязком → познач виконаним. Прогрес зберігається у браузері.</p>
+
+  <div class="toolbar">
+    <div class="filters" id="catFilters">
+      <button class="fbtn active" data-cat="all">Усі</button>
+      <button class="fbtn" data-cat="uikit">UIKit</button>
+      <button class="fbtn" data-cat="swiftui">SwiftUI</button>
+      <button class="fbtn" data-cat="pattern">Патерни</button>
+      <button class="fbtn" data-cat="swift">Swift</button>
+      <button class="fbtn hide-done" id="hideDone">Сховати виконані</button>
+    </div>
+    <div class="progress-label"><span>Виконано</span><b id="pcount">0 / 0</b></div>
+    <div class="pbar"><i id="pfill"></i></div>
+  </div>
+
+  <!-- ================================================== UIKIT -->
+
+  <div class="task" data-id="delegate-uikit" data-cat="uikit">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>1. Delegate pattern: екран Б повертає результат екрану А</h3>
+      <div class="meta"><span class="chip c-uikit">UIKIT</span><span class="chip c-mid">СЕРЕДНЯ · 15 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> Екран A (список замовлень) відкриває екран B (вибір адреси). Користувач обирає адресу — екран B закривається, A отримує вибрану адресу і показує її. Реалізуй через delegate. Без Storyboard — усе кодом.</p>
+      <p class="checks-title">Що перевіряють</p>
+      <ul class="checks">
+        <li>Протокол з AnyObject (інакше weak не скомпілюється)</li>
+        <li>weak var delegate — і чи можеш пояснити, чому weak</li>
+        <li>Хто кого створює і хто закриває екран B (правильно: A закриває або B через delegate повідомляє)</li>
+      </ul>
+      <details><summary>Підказки</summary><div>
+        <ul>
+          <li>Протокол оголошується біля екрана B («той, хто говорить», володіє контрактом).</li>
+          <li>A підписується: addressVC.delegate = self перед показом.</li>
+          <li>Retain cycle: A тримає B (навігація) → B strong delegate тримав би A → цикл.</li>
+        </ul>
+      </div></details>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="k">protocol</span> <span class="t">AddressPickerDelegate</span>: <span class="t">AnyObject</span> {
+    <span class="k">func</span> addressPicker(<span class="k">_</span> picker: <span class="t">AddressPickerVC</span>, didSelect address: <span class="t">String</span>)
+}
+
+<span class="k">final class</span> <span class="t">AddressPickerVC</span>: <span class="t">UIViewController</span> {
+    <span class="k">weak var</span> delegate: <span class="t">AddressPickerDelegate</span>?   <span class="c">// weak — розрив циклу</span>
+
+    <span class="k">private func</span> didTapAddress(<span class="k">_</span> address: <span class="t">String</span>) {
+        delegate?.addressPicker(<span class="k">self</span>, didSelect: address)
+        dismiss(animated: <span class="k">true</span>)
+    }
+}
+
+<span class="k">final class</span> <span class="t">OrdersVC</span>: <span class="t">UIViewController</span>, <span class="t">AddressPickerDelegate</span> {
+    <span class="k">private func</span> showPicker() {
+        <span class="k">let</span> picker = <span class="t">AddressPickerVC</span>()
+        picker.delegate = <span class="k">self</span>                    <span class="c">// підписка ДО показу</span>
+        present(picker, animated: <span class="k">true</span>)
+    }
+    <span class="k">func</span> addressPicker(<span class="k">_</span> picker: <span class="t">AddressPickerVC</span>, didSelect address: <span class="t">String</span>) {
+        addressLabel.text = address
+    }
+}</pre>
+        <p><b>Коментар.</b> Перший параметр методу делегата — сам відправник (конвенція UIKit: tableView(_:didSelectRowAt:)). Альтернатива для одного колбека — closure: <code>var onSelect: ((String) -> Void)?</code> — згадай про це, інтервʼюери люблять порівняння.</p>
+      </div></details>
+    </div>
+  </div>
+
+  <div class="task" data-id="tableview-scratch" data-cat="uikit">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>2. UITableView з нуля повністю кодом</h3>
+      <div class="meta"><span class="chip c-uikit">UIKIT</span><span class="chip c-mid">СЕРЕДНЯ · 15–20 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> Без XIB/Storyboard: екран зі списком страв (name, price). Кастомна клітинка з двома лейблами через AutoLayout. Тап по рядку — print назви. Це завдання-фільтр: перевіряє, чи писав ти UIKit руками.</p>
+      <p class="checks-title">Що перевіряють</p>
+      <ul class="checks">
+        <li>register до dequeue; ідентифікатор клітинки</li>
+        <li>translatesAutoresizingMaskIntoConstraints = false</li>
+        <li>Констрейнти до contentView (не до cell!), конфіг у клітинці, а не в cellForRowAt</li>
+      </ul>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="k">final class</span> <span class="t">DishCell</span>: <span class="t">UITableViewCell</span> {
+    <span class="k">static let</span> reuseID = <span class="s">"DishCell"</span>
+    <span class="k">private let</span> nameLabel = <span class="t">UILabel</span>()
+    <span class="k">private let</span> priceLabel = <span class="t">UILabel</span>()
+
+    <span class="k">override init</span>(style: <span class="t">UITableViewCell.CellStyle</span>, reuseIdentifier: <span class="t">String</span>?) {
+        <span class="k">super</span>.<span class="k">init</span>(style: style, reuseIdentifier: reuseIdentifier)
+        priceLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        [nameLabel, priceLabel].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = <span class="k">false</span>
+            contentView.addSubview($0)
+        }
+        <span class="t">NSLayoutConstraint</span>.activate([
+            nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            nameLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            priceLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            priceLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            priceLabel.leadingAnchor.constraint(greaterThanOrEqualTo: nameLabel.trailingAnchor, constant: 8),
+            contentView.heightAnchor.constraint(greaterThanOrEqualToConstant: 52),
+        ])
+    }
+    <span class="k">required init</span>?(coder: <span class="t">NSCoder</span>) { fatalError() }
+
+    <span class="k">func</span> configure(name: <span class="t">String</span>, price: <span class="t">String</span>) {
+        nameLabel.text = name; priceLabel.text = price
+    }
+}
+
+<span class="k">final class</span> <span class="t">MenuVC</span>: <span class="t">UIViewController</span>, <span class="t">UITableViewDataSource</span>, <span class="t">UITableViewDelegate</span> {
+    <span class="k">private let</span> tableView = <span class="t">UITableView</span>()
+    <span class="k">private let</span> dishes = [(<span class="s">"Борщ"</span>, <span class="s">"120 ₴"</span>), (<span class="s">"Вареники"</span>, <span class="s">"95 ₴"</span>)]
+
+    <span class="k">override func</span> viewDidLoad() {
+        <span class="k">super</span>.viewDidLoad()
+        tableView.register(<span class="t">DishCell</span>.<span class="k">self</span>, forCellReuseIdentifier: <span class="t">DishCell</span>.reuseID)
+        tableView.dataSource = <span class="k">self</span>; tableView.delegate = <span class="k">self</span>
+        tableView.translatesAutoresizingMaskIntoConstraints = <span class="k">false</span>
+        view.addSubview(tableView)
+        <span class="t">NSLayoutConstraint</span>.activate([
+            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+        ])
+    }
+    <span class="k">func</span> tableView(<span class="k">_</span> tv: <span class="t">UITableView</span>, numberOfRowsInSection s: <span class="t">Int</span>) -> <span class="t">Int</span> { dishes.count }
+    <span class="k">func</span> tableView(<span class="k">_</span> tv: <span class="t">UITableView</span>, cellForRowAt indexPath: <span class="t">IndexPath</span>) -> <span class="t">UITableViewCell</span> {
+        <span class="k">let</span> cell = tv.dequeueReusableCell(withIdentifier: <span class="t">DishCell</span>.reuseID, for: indexPath) <span class="k">as</span>! <span class="t">DishCell</span>
+        <span class="k">let</span> dish = dishes[indexPath.row]
+        cell.configure(name: dish.0, price: dish.1)
+        <span class="k">return</span> cell
+    }
+    <span class="k">func</span> tableView(<span class="k">_</span> tv: <span class="t">UITableView</span>, didSelectRowAt indexPath: <span class="t">IndexPath</span>) {
+        tv.deselectRow(at: indexPath, animated: <span class="k">true</span>)
+        print(dishes[indexPath.row].0)
+    }
+}</pre>
+      </div></details>
+    </div>
+  </div>
+
+  <div class="task" data-id="reuse-bug" data-cat="uikit">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>3. Знайди і виправ баг: «чужі» картинки при скролі</h3>
+      <div class="meta"><span class="chip c-uikit">UIKIT</span><span class="chip c-mid">СЕРЕДНЯ · 10 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> Дано код клітинки, яка вантажить картинку з URL. При швидкому скролі в клітинках миготять чужі картинки. Знайди причину і виправ.</p>
+<pre><span class="c">// ДАНО (з багом):</span>
+<span class="k">func</span> configure(with url: <span class="t">URL</span>) {
+    <span class="t">URLSession</span>.shared.dataTask(with: url) { data, <span class="k">_</span>, <span class="k">_ in</span>
+        <span class="k">if let</span> data, <span class="k">let</span> img = <span class="t">UIImage</span>(data: data) {
+            <span class="t">DispatchQueue</span>.main.async { <span class="k">self</span>.thumbView.image = img }
+        }
+    }.resume()
+}</pre>
+      <p class="checks-title">Що перевіряють</p>
+      <ul class="checks">
+        <li>Розуміння reuse: клітинка переюзана, а старий запит завершився пізніше</li>
+        <li>prepareForReuse; скасування задачі; звірка «чий це результат»</li>
+        <li>Бонус: strong self у closure клітинки — теж проблема</li>
+      </ul>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="k">final class</span> <span class="t">DishCell</span>: <span class="t">UITableViewCell</span> {
+    <span class="k">private var</span> currentURL: <span class="t">URL</span>?
+    <span class="k">private var</span> task: <span class="t">URLSessionDataTask</span>?
+
+    <span class="k">override func</span> prepareForReuse() {
+        <span class="k">super</span>.prepareForReuse()
+        task?.cancel()                     <span class="c">// 1. скасувати старий запит</span>
+        thumbView.image = placeholder      <span class="c">// 2. скинути стан одразу</span>
+        currentURL = <span class="k">nil</span>
+    }
+
+    <span class="k">func</span> configure(with url: <span class="t">URL</span>) {
+        currentURL = url
+        task = <span class="t">URLSession</span>.shared.dataTask(with: url) { [<span class="k">weak self</span>] data, <span class="k">_</span>, <span class="k">_ in</span>
+            <span class="k">guard let</span> data, <span class="k">let</span> img = <span class="t">UIImage</span>(data: data) <span class="k">else</span> { <span class="k">return</span> }
+            <span class="t">DispatchQueue</span>.main.async {
+                <span class="k">guard</span> <span class="k">self</span>?.currentURL == url <span class="k">else</span> { <span class="k">return</span> }  <span class="c">// 3. це ще МОЯ картинка?</span>
+                <span class="k">self</span>?.thumbView.image = img
+            }
+        }
+        task?.resume()
+    }
+}</pre>
+        <p><b>Коментар.</b> Три рівні захисту: скасування + скидання + звірка URL. У проді це робить Kingfisher (kf.setImage сам скасовує і звіряє), але на співбесіді чекають, що ти знаєш механіку. Згадай також кеш: без нього кожен показ клітинки = новий запит.</p>
+      </div></details>
+    </div>
+  </div>
+
+  <div class="task" data-id="timer-task" data-cat="uikit">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>4. Таймер зворотного відліку без витоку памʼяті</h3>
+      <div class="meta"><span class="chip c-uikit">UIKIT</span><span class="chip c-easy">ЛЕГКА · 10 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> Екран з лейблом «Замовлення буде готове через 05:00» — відлік щосекунди до нуля. Вимоги: контролер має нормально деінітитись при закритті екрана, відлік не має зупинятись під час скролу.</p>
+      <p class="checks-title">Що перевіряють</p>
+      <ul class="checks">
+        <li>Timer(target: self) тримає self сильно — знаєш block-based API + [weak self]</li>
+        <li>invalidate: де викликати</li>
+        <li>RunLoop mode .common — щоб не завмирав при скролі</li>
+      </ul>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="k">final class</span> <span class="t">CountdownVC</span>: <span class="t">UIViewController</span> {
+    <span class="k">private var</span> timer: <span class="t">Timer</span>?
+    <span class="k">private var</span> secondsLeft = 300
+
+    <span class="k">override func</span> viewDidLoad() {
+        <span class="k">super</span>.viewDidLoad()
+        <span class="k">let</span> t = <span class="t">Timer</span>(timeInterval: 1, repeats: <span class="k">true</span>) { [<span class="k">weak self</span>] timer <span class="k">in</span>
+            <span class="k">guard let self else</span> { timer.invalidate(); <span class="k">return</span> }
+            <span class="k">self</span>.secondsLeft -= 1
+            <span class="k">self</span>.updateLabel()
+            <span class="k">if self</span>.secondsLeft <= 0 { timer.invalidate() }
+        }
+        <span class="t">RunLoop</span>.main.add(t, forMode: .common)   <span class="c">// не завмирає при скролі</span>
+        timer = t
+    }
+
+    <span class="k">private func</span> updateLabel() {
+        <span class="k">let</span> m = secondsLeft / 60, s = secondsLeft % 60
+        label.text = <span class="t">String</span>(format: <span class="s">"Готове через %02d:%02d"</span>, m, s)
+    }
+
+    <span class="k">deinit</span> { timer?.invalidate() }   <span class="c">// страховка + доказ відсутності циклу</span>
+}</pre>
+        <p><b>Коментар.</b> Пастка follow-up питання: «а чому deinit взагалі викличеться?» — бо block-based Timer НЕ тримає self (ми взяли weak). З Timer.scheduledTimer(target: self, ...) deinit не викликався б ніколи без invalidate ззовні.</p>
+      </div></details>
+    </div>
+  </div>
+
+  <div class="task" data-id="tap-area" data-cat="uikit">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>5. Збільшити тач-зону маленької кнопки</h3>
+      <div class="meta"><span class="chip c-uikit">UIKIT</span><span class="chip c-easy">ЛЕГКА · 5 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> Кнопка-хрестик 20×20 pt закриває банер, у неї важко влучити. Зроби тач-зону 44×44, не змінюючи візуального розміру.</p>
+      <p class="checks-title">Що перевіряють</p>
+      <ul class="checks"><li>point(inside:) vs hitTest — що перевизначати для цієї задачі</li><li>Знання мінімальних 44pt з HIG</li></ul>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="k">final class</span> <span class="t">BigTapButton</span>: <span class="t">UIButton</span> {
+    <span class="k">var</span> minimumHitSize = <span class="t">CGSize</span>(width: 44, height: 44)
+
+    <span class="k">override func</span> point(inside point: <span class="t">CGPoint</span>, with event: <span class="t">UIEvent</span>?) -> <span class="t">Bool</span> {
+        <span class="k">let</span> dx = max(0, (minimumHitSize.width  - bounds.width)  / 2)
+        <span class="k">let</span> dy = max(0, (minimumHitSize.height - bounds.height) / 2)
+        <span class="k">return</span> bounds.insetBy(dx: -dx, dy: -dy).contains(point)
+    }
+}</pre>
+        <p><b>Коментар.</b> point(inside:) — коли розширюємо зону САМОЇ вʼюхи; hitTest перевизначають у БАТЬКА, коли треба ловити тапи по дитині, що стирчить за його межі. Вмій пояснити різницю.</p>
+      </div></details>
+    </div>
+  </div>
+
+  <div class="task" data-id="constraint-anim" data-cat="uikit">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>6. Анімоване розгортання панелі констрейнтом</h3>
+      <div class="meta"><span class="chip c-uikit">UIKIT</span><span class="chip c-easy">ЛЕГКА · 10 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> Панель фільтрів висотою 60 pt; по тапу розгортається до 260 з анімацією 0.3с. Реалізуй через зміну констрейнта.</p>
+      <p class="checks-title">Що перевіряють</p>
+      <ul class="checks"><li>Зберігання посилання на констрейнт</li><li>layoutIfNeeded усередині animate-блоку — і чому без нього не анімується</li></ul>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="k">private var</span> panelHeight: <span class="t">NSLayoutConstraint</span>!
+<span class="k">private var</span> isExpanded = <span class="k">false</span>
+
+<span class="c">// setup:</span>
+panelHeight = panel.heightAnchor.constraint(equalToConstant: 60)
+panelHeight.isActive = <span class="k">true</span>
+
+<span class="k">@objc private func</span> togglePanel() {
+    isExpanded.toggle()
+    panelHeight.constant = isExpanded ? 260 : 60
+    <span class="t">UIView</span>.animate(withDuration: 0.3) {
+        <span class="k">self</span>.view.layoutIfNeeded()   <span class="c">// solver перераховує ЗАРАЗ,</span>
+    }                                <span class="c">// зміни фреймів потрапляють в анімацію</span>
+}</pre>
+        <p><b>Коментар.</b> Зміна constant лише помічає layout «брудним» — перерахунок стався б на наступному кадрі ПОЗА анімаційним блоком (стрибок). layoutIfNeeded усередині блоку змушує перерахунок відбутись синхронно, і UIKit анімує різницю фреймів.</p>
+      </div></details>
+    </div>
+  </div>
+
+  <!-- ================================================== SWIFTUI -->
+
+  <div class="task" data-id="state-enum" data-cat="swiftui">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>7. Екран зі станами loading / loaded / error + ViewModel</h3>
+      <div class="meta"><span class="chip c-swiftui">SWIFTUI</span><span class="chip c-mid">СЕРЕДНЯ · 20 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> Екран списку ресторанів: спінер при завантаженні, список при успіху, повідомлення + кнопка «Повторити» при помилці. Сервіс — async, підкинь мок з затримкою. Стан — enum. Це НАЙЧАСТІШЕ SwiftUI-завдання на співбесідах.</p>
+      <p class="checks-title">Що перевіряють</p>
+      <ul class="checks">
+        <li>Enum стану з associated value замість трьох окремих властивостей</li>
+        <li>@MainActor на VM; .task для завантаження (не onAppear + Task)</li>
+        <li>DI сервіса через протокол — тестованість</li>
+      </ul>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="k">protocol</span> <span class="t">RestaurantService</span> {
+    <span class="k">func</span> fetch() <span class="k">async throws</span> -> [<span class="t">Restaurant</span>]
+}
+<span class="k">struct</span> <span class="t">MockService</span>: <span class="t">RestaurantService</span> {
+    <span class="k">func</span> fetch() <span class="k">async throws</span> -> [<span class="t">Restaurant</span>] {
+        <span class="k">try await</span> <span class="t">Task</span>.sleep(for: .seconds(1))
+        <span class="k">return</span> [.init(id: <span class="s">"1"</span>, name: <span class="s">"Тарілка"</span>), .init(id: <span class="s">"2"</span>, name: <span class="s">"Диван"</span>)]
+    }
+}
+
+<span class="k">@MainActor @Observable</span>
+<span class="k">final class</span> <span class="t">RestaurantsViewModel</span> {
+    <span class="k">enum</span> <span class="t">State</span> { <span class="k">case</span> loading, loaded([<span class="t">Restaurant</span>]), failed(<span class="t">String</span>) }
+    <span class="k">private(set) var</span> state: <span class="t">State</span> = .loading
+    <span class="k">private let</span> service: <span class="t">RestaurantService</span>
+    <span class="k">init</span>(service: <span class="t">RestaurantService</span>) { <span class="k">self</span>.service = service }
+
+    <span class="k">func</span> load() <span class="k">async</span> {
+        state = .loading
+        <span class="k">do</span>    { state = .loaded(<span class="k">try await</span> service.fetch()) }
+        <span class="k">catch</span> { state = .failed(error.localizedDescription) }
+    }
+}
+
+<span class="k">struct</span> <span class="t">RestaurantsView</span>: <span class="t">View</span> {
+    <span class="k">@State private var</span> vm = <span class="t">RestaurantsViewModel</span>(service: <span class="t">MockService</span>())
+
+    <span class="k">var</span> body: <span class="k">some</span> <span class="t">View</span> {
+        <span class="t">Group</span> {
+            <span class="k">switch</span> vm.state {
+            <span class="k">case</span> .loading:
+                <span class="t">ProgressView</span>(<span class="s">"Завантаження…"</span>)
+            <span class="k">case</span> .loaded(<span class="k">let</span> restaurants):
+                <span class="t">List</span>(restaurants) { <span class="t">Text</span>($0.name) }
+            <span class="k">case</span> .failed(<span class="k">let</span> message):
+                <span class="t">VStack</span>(spacing: 12) {
+                    <span class="t">Text</span>(message)
+                    <span class="t">Button</span>(<span class="s">"Повторити"</span>) { <span class="t">Task</span> { <span class="k">await</span> vm.load() } }
+                }
+            }
+        }
+        .task { <span class="k">await</span> vm.load() }   <span class="c">// автоскасування при зникненні</span>
+    }
+}</pre>
+        <p><b>Коментар.</b> Якщо запитають про iOS 16 і раніше: @Observable → ObservableObject + @Published, @State vm → @StateObject. Вмій написати обидва варіанти і пояснити різницю.</p>
+      </div></details>
+    </div>
+  </div>
+
+  <div class="task" data-id="search-debounce" data-cat="swiftui">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>8. Живий пошук із debounce</h3>
+      <div class="meta"><span class="chip c-swiftui">SWIFTUI</span><span class="chip c-mid">СЕРЕДНЯ · 15 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> Поле пошуку: запит на бекенд летить не на кожен символ, а через 300мс після паузи введення; попередній незавершений запит скасовується. Без Combine — на Swift Concurrency.</p>
+      <p class="checks-title">Що перевіряють</p>
+      <ul class="checks">
+        <li>.task(id:) — перезапуск і АВТОскасування попереднього</li>
+        <li>Task.sleep як debounce + перевірка скасування</li>
+        <li>Порожній запит не летить</li>
+      </ul>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="k">struct</span> <span class="t">SearchView</span>: <span class="t">View</span> {
+    <span class="k">@State private var</span> query = <span class="s">""</span>
+    <span class="k">@State private var</span> results: [<span class="t">Restaurant</span>] = []
+
+    <span class="k">var</span> body: <span class="k">some</span> <span class="t">View</span> {
+        <span class="t">List</span>(results) { <span class="t">Text</span>($0.name) }
+            .searchable(text: $query)
+            .task(id: query) {              <span class="c">// нова query → старий task СКАСОВАНО</span>
+                <span class="k">do</span> {
+                    <span class="k">try await</span> <span class="t">Task</span>.sleep(for: .milliseconds(300))  <span class="c">// debounce</span>
+                    <span class="k">guard</span> !query.trimmingCharacters(in: .whitespaces).isEmpty <span class="k">else</span> {
+                        results = []; <span class="k">return</span>
+                    }
+                    results = <span class="k">try await</span> api.search(query)
+                } <span class="k">catch is</span> <span class="t">CancellationError</span> {
+                    <span class="c">// нормальний шлях: юзер продовжив друкувати</span>
+                } <span class="k">catch</span> {
+                    results = []
+                }
+            }
+    }
+}</pre>
+        <p><b>Коментар.</b> Ключовий інсайт для співбесіди: Task.sleep — «скасовний» (кидає CancellationError при cancel), тому debounce виходить безкоштовно: новий символ → .task(id:) скасовує старий таск прямо у sleep. Якщо просять Combine-варіант: debounce(for:scheduler:) + removeDuplicates + flatMap(maxPublishers: .max(1)).</p>
+      </div></details>
+    </div>
+  </div>
+
+  <div class="task" data-id="binding-component" data-cat="swiftui">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>9. Переюзабельний компонент із @Binding: рейтинг зірками</h3>
+      <div class="meta"><span class="chip c-swiftui">SWIFTUI</span><span class="chip c-easy">ЛЕГКА · 10 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> Компонент RatingView(rating: $value): пʼять зірок, тап по n-й ставить рейтинг n. Компонент не володіє станом — редагує стан власника.</p>
+      <p class="checks-title">Що перевіряють</p>
+      <ul class="checks"><li>@Binding vs @State — чому тут binding</li><li>$-синтаксис у власника</li><li>Бонус: анімація зміни</li></ul>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="k">struct</span> <span class="t">RatingView</span>: <span class="t">View</span> {
+    <span class="k">@Binding var</span> rating: <span class="t">Int</span>
+    <span class="k">var</span> maximum = 5
+
+    <span class="k">var</span> body: <span class="k">some</span> <span class="t">View</span> {
+        <span class="t">HStack</span>(spacing: 6) {
+            <span class="t">ForEach</span>(1...maximum, id: \.<span class="k">self</span>) { index <span class="k">in</span>
+                <span class="t">Image</span>(systemName: index <= rating ? <span class="s">"star.fill"</span> : <span class="s">"star"</span>)
+                    .foregroundStyle(index <= rating ? .orange : .gray)
+                    .onTapGesture {
+                        withAnimation(.spring(duration: 0.25)) { rating = index }
+                    }
+            }
+        }
+    }
+}
+
+<span class="c">// Використання власником:</span>
+<span class="k">struct</span> <span class="t">ReviewForm</span>: <span class="t">View</span> {
+    <span class="k">@State private var</span> rating = 0        <span class="c">// джерело правди ТУТ</span>
+    <span class="k">var</span> body: <span class="k">some</span> <span class="t">View</span> {
+        <span class="t">RatingView</span>(rating: $rating)       <span class="c">// $ → Binding</span>
+    }
+}</pre>
+        <p><b>Коментар.</b> id: \.self тут ОК — діапазон констант. Follow-up: «а якщо компоненту треба лише читати?» — тоді звичайний let rating: Int, binding лише для двостороннього звʼязку.</p>
+      </div></details>
+    </div>
+  </div>
+
+  <div class="task" data-id="stateobject-bug" data-cat="swiftui">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>10. Знайди баг: стан скидається при перерендері батька</h3>
+      <div class="meta"><span class="chip c-swiftui">SWIFTUI</span><span class="chip c-hard">СКЛАДНА · 10 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> Дано код (iOS 16, ObservableObject). Таймер у батьківській вʼюсі тікає щосекунди, і введений у дочірній формі текст зникає. Поясни чому і виправ.</p>
+<pre><span class="c">// ДАНО (з багом):</span>
+<span class="k">struct</span> <span class="t">ParentView</span>: <span class="t">View</span> {
+    <span class="k">@State var</span> seconds = 0
+    <span class="k">var</span> body: <span class="k">some</span> <span class="t">View</span> {
+        <span class="t">VStack</span> {
+            <span class="t">Text</span>(<span class="s">"Секунд: "</span> + <span class="t">String</span>(seconds))
+            <span class="t">FormView</span>()
+        }
+        .onReceive(timer) { <span class="k">_ in</span> seconds += 1 }
+    }
+}
+<span class="k">struct</span> <span class="t">FormView</span>: <span class="t">View</span> {
+    <span class="k">@ObservedObject var</span> vm = <span class="t">FormViewModel</span>()   <span class="c">// ← баг тут</span>
+    <span class="k">var</span> body: <span class="k">some</span> <span class="t">View</span> { <span class="t">TextField</span>(<span class="s">"Імʼя"</span>, text: $vm.name) }
+}</pre>
+      <p class="checks-title">Що перевіряють</p>
+      <ul class="checks">
+        <li>Розуміння: батько перерендерився → FormView() пересоздано → @ObservedObject створив НОВИЙ VM</li>
+        <li>@StateObject привʼязує життя обʼєкта до identity вʼюхи, а не до struct-інстансу</li>
+      </ul>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="k">struct</span> <span class="t">FormView</span>: <span class="t">View</span> {
+    <span class="k">@StateObject private var</span> vm = <span class="t">FormViewModel</span>()  <span class="c">// створюється ОДИН раз</span>
+    <span class="k">var</span> body: <span class="k">some</span> <span class="t">View</span> { <span class="t">TextField</span>(<span class="s">"Імʼя"</span>, text: $vm.name) }
+}</pre>
+        <p><b>Пояснення для інтервʼюера.</b> Щосекунди seconds змінюється → body батька → створюється новий struct FormView → @ObservedObject не володіє обʼєктом і чесно бере той, що в ініціалізаторі — новий FormViewModel() з порожнім name. @StateObject зберігає перший створений обʼєкт у сховищі SwiftUI, привʼязаному до identity вʼюхи, та ігнорує наступні autoclosure-ініціалізації. Правило: створюєш VM тут → @StateObject; отримуєш ззовні → @ObservedObject. На iOS 17+ з @Observable цей клас багів зникає: обʼєкт тримають через @State.</p>
+      </div></details>
+    </div>
+  </div>
+
+  <div class="task" data-id="representable" data-cat="swiftui">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>11. UIViewRepresentable: UITextField з фокусом і Coordinator</h3>
+      <div class="meta"><span class="chip c-swiftui">SWIFTUI</span><span class="chip c-hard">СКЛАДНА · 20 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> Обгорни UITextField для SwiftUI: текст через @Binding, подія return закриває клавіатуру, властивість isFirstResponder керується ззовні. Поясни ролі makeUIView / updateUIView / Coordinator.</p>
+      <p class="checks-title">Що перевіряють</p>
+      <ul class="checks">
+        <li>Створення ТІЛЬКИ в makeUIView; update — ідемпотентна синхронізація</li>
+        <li>Coordinator як delegate; звʼязок UIKit-подія → Binding</li>
+        <li>Захист від циклу оновлень (textField.text != text)</li>
+      </ul>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="k">struct</span> <span class="t">FocusableTextField</span>: <span class="t">UIViewRepresentable</span> {
+    <span class="k">@Binding var</span> text: <span class="t">String</span>
+    <span class="k">@Binding var</span> isFocused: <span class="t">Bool</span>
+    <span class="k">var</span> placeholder: <span class="t">String</span>
+
+    <span class="k">func</span> makeUIView(context: <span class="t">Context</span>) -> <span class="t">UITextField</span> {
+        <span class="k">let</span> field = <span class="t">UITextField</span>()
+        field.placeholder = placeholder
+        field.delegate = context.coordinator
+        field.addTarget(context.coordinator,
+                        action: #selector(<span class="t">Coordinator</span>.textChanged), for: .editingChanged)
+        <span class="k">return</span> field
+    }
+
+    <span class="k">func</span> updateUIView(<span class="k">_</span> field: <span class="t">UITextField</span>, context: <span class="t">Context</span>) {
+        context.coordinator.parent = <span class="k">self</span>          <span class="c">// свіжі биндінги</span>
+        <span class="k">if</span> field.text != text { field.text = text }  <span class="c">// без циклу оновлень</span>
+        <span class="k">if</span> isFocused, !field.isFirstResponder {
+            <span class="t">DispatchQueue</span>.main.async { field.becomeFirstResponder() }
+        }
+    }
+
+    <span class="k">func</span> makeCoordinator() -> <span class="t">Coordinator</span> { <span class="t">Coordinator</span>(<span class="k">self</span>) }
+
+    <span class="k">final class</span> <span class="t">Coordinator</span>: <span class="t">NSObject</span>, <span class="t">UITextFieldDelegate</span> {
+        <span class="k">var</span> parent: <span class="t">FocusableTextField</span>
+        <span class="k">init</span>(<span class="k">_</span> parent: <span class="t">FocusableTextField</span>) { <span class="k">self</span>.parent = parent }
+
+        <span class="k">@objc func</span> textChanged(<span class="k">_</span> field: <span class="t">UITextField</span>) {
+            parent.text = field.text ?? <span class="s">""</span>          <span class="c">// UIKit → SwiftUI</span>
+        }
+        <span class="k">func</span> textFieldShouldReturn(<span class="k">_</span> field: <span class="t">UITextField</span>) -> <span class="t">Bool</span> {
+            parent.isFocused = <span class="k">false</span>
+            field.resignFirstResponder()
+            <span class="k">return true</span>
+        }
+    }
+}</pre>
+        <p><b>Коментар.</b> Це твоя робоча тема (SwiftUI в UIKit-проєкті) — скажи про це. Ролі: make — народження UIKit-обʼєкта (раз на identity); update — течія даних SwiftUI → UIKit (часто, тому дешево та ідемпотентно); Coordinator — течія назад UIKit → SwiftUI через delegate/target-action.</p>
+      </div></details>
+    </div>
+  </div>
+
+  <div class="task" data-id="expandable-card" data-cat="swiftui">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>12. Картка, що розгортається, з анімацією і transition</h3>
+      <div class="meta"><span class="chip c-swiftui">SWIFTUI</span><span class="chip c-easy">ЛЕГКА · 10 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> Картка страви: тап розгортає блок з описом (плавно виїжджає згори + fade). Поясни, чому transition не працює без withAnimation.</p>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="k">struct</span> <span class="t">DishCard</span>: <span class="t">View</span> {
+    <span class="k">@State private var</span> expanded = <span class="k">false</span>
+    <span class="k">let</span> dish: <span class="t">Dish</span>
+
+    <span class="k">var</span> body: <span class="k">some</span> <span class="t">View</span> {
+        <span class="t">VStack</span>(alignment: .leading, spacing: 8) {
+            <span class="t">HStack</span> {
+                <span class="t">Text</span>(dish.name).font(.headline)
+                <span class="t">Spacer</span>()
+                <span class="t">Image</span>(systemName: <span class="s">"chevron.down"</span>)
+                    .rotationEffect(.degrees(expanded ? 180 : 0))
+            }
+            .contentShape(<span class="t">Rectangle</span>())            <span class="c">// тап по всій ширині</span>
+            .onTapGesture {
+                withAnimation(.spring(duration: 0.35)) { expanded.toggle() }
+            }
+
+            <span class="k">if</span> expanded {
+                <span class="t">Text</span>(dish.details)
+                    .font(.subheadline)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .padding()
+        .background(<span class="t">RoundedRectangle</span>(cornerRadius: 16).fill(.background).shadow(radius: 4))
+    }
+}</pre>
+        <p><b>Пояснення.</b> if expanded — зміна IDENTITY: вʼюха details зʼявляється/зникає, і саме на це спрацьовує transition. Але transition описує лише ЯК зʼявлятись; без анімації в транзакції (withAnimation навколо мутації стану) зміна миттєва. Це відповідь на класичне «чому мій transition не працює».</p>
+      </div></details>
+    </div>
+  </div>
+
+  <!-- ================================================== PATTERNS -->
+
+  <div class="task" data-id="delegate-pure" data-cat="pattern">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>13. Delegate pattern на чистому Swift (без UI)</h3>
+      <div class="meta"><span class="chip c-pattern">ПАТЕРН</span><span class="chip c-easy">ЛЕГКА · 10 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> Клас OrderTracker відстежує статус замовлення і повідомляє підписника про зміни. Реалізуй delegate: протокол, weak-посилання, демонстрація використання. Поясни кожне рішення.</p>
+      <p class="checks-title">Що перевіряють</p>
+      <ul class="checks">
+        <li>AnyObject у протоколі — і чому без нього weak неможливий</li>
+        <li>Чому weak (напрям володіння)</li>
+        <li>Порівняння з closure і NotificationCenter — коли що</li>
+      </ul>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="k">enum</span> <span class="t">OrderStatus</span> { <span class="k">case</span> accepted, cooking, delivering, done }
+
+<span class="k">protocol</span> <span class="t">OrderTrackerDelegate</span>: <span class="t">AnyObject</span> {   <span class="c">// class-only → можна weak</span>
+    <span class="k">func</span> tracker(<span class="k">_</span> tracker: <span class="t">OrderTracker</span>, didUpdate status: <span class="t">OrderStatus</span>)
+}
+
+<span class="k">final class</span> <span class="t">OrderTracker</span> {
+    <span class="k">weak var</span> delegate: <span class="t">OrderTrackerDelegate</span>?    <span class="c">// weak: tracker НЕ володіє слухачем</span>
+    <span class="k">private(set) var</span> status: <span class="t">OrderStatus</span> = .accepted {
+        <span class="k">didSet</span> { delegate?.tracker(<span class="k">self</span>, didUpdate: status) }
+    }
+    <span class="k">func</span> advance(to newStatus: <span class="t">OrderStatus</span>) { status = newStatus }
+}
+
+<span class="k">final class</span> <span class="t">OrderScreen</span>: <span class="t">OrderTrackerDelegate</span> {
+    <span class="k">let</span> tracker = <span class="t">OrderTracker</span>()          <span class="c">// screen ВОЛОДІЄ tracker-ом (strong)</span>
+    <span class="k">init</span>() { tracker.delegate = <span class="k">self</span> }    <span class="c">// tracker слабко знає про screen</span>
+    <span class="k">func</span> tracker(<span class="k">_</span> t: <span class="t">OrderTracker</span>, didUpdate status: <span class="t">OrderStatus</span>) {
+        print(<span class="s">"Новий статус:"</span>, status)
+    }
+}</pre>
+        <p><b>Порівняння для follow-up.</b> Delegate — один слухач, багатий контракт (кілька методів),二напрямна розмова (dataSource повертає дані). Closure — один колбек, менше церемоній. NotificationCenter/Combine — багато слухачів, слабка звʼязність, але неявні залежності. Знай, коли що: делегат для «власник ↔ помічник», closure для разових відповідей, нотифікації для broadcast.</p>
+      </div></details>
+    </div>
+  </div>
+
+  <div class="task" data-id="observer" data-cat="pattern">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>14. Observer: міні-EventBus з відпискою</h3>
+      <div class="meta"><span class="chip c-pattern">ПАТЕРН</span><span class="chip c-hard">СКЛАДНА · 20 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> Реалізуй клас Observable&lt;T&gt;: subscribe повертає токен, deinit токена автоматично відписує (як AnyCancellable у Combine). Продемонструй, що після смерті підписника колбеки не викликаються і памʼять не тече.</p>
+      <p class="checks-title">Що перевіряють</p>
+      <ul class="checks">
+        <li>Зберігання підписок без утримання підписників</li>
+        <li>Токен-based відписка (RAII), як у Combine</li>
+        <li>Потокобезпечність — хоча б згадати</li>
+      </ul>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="k">final class</span> <span class="t">SubscriptionToken</span> {
+    <span class="k">private let</span> onCancel: () -> <span class="t">Void</span>
+    <span class="k">init</span>(onCancel: <span class="k">@escaping</span> () -> <span class="t">Void</span>) { <span class="k">self</span>.onCancel = onCancel }
+    <span class="k">deinit</span> { onCancel() }                <span class="c">// токен помер → відписка (RAII)</span>
+}
+
+<span class="k">final class</span> <span class="t">Observable</span>&lt;<span class="t">T</span>&gt; {
+    <span class="k">private var</span> observers: [<span class="t">UUID</span>: (<span class="t">T</span>) -> <span class="t">Void</span>] = [:]
+    <span class="k">var</span> value: <span class="t">T</span> {
+        <span class="k">didSet</span> { observers.values.forEach { $0(value) } }
+    }
+    <span class="k">init</span>(<span class="k">_</span> value: <span class="t">T</span>) { <span class="k">self</span>.value = value }
+
+    <span class="k">func</span> subscribe(<span class="k">_</span> handler: <span class="k">@escaping</span> (<span class="t">T</span>) -> <span class="t">Void</span>) -> <span class="t">SubscriptionToken</span> {
+        <span class="k">let</span> id = <span class="t">UUID</span>()
+        observers[id] = handler
+        handler(value)                    <span class="c">// одразу поточне значення</span>
+        <span class="k">return</span> <span class="t">SubscriptionToken</span> { [<span class="k">weak self</span>] <span class="k">in</span>
+            <span class="k">self</span>?.observers[id] = <span class="k">nil</span>     <span class="c">// weak: токен не тримає observable</span>
+        }
+    }
+}
+
+<span class="c">// Використання:</span>
+<span class="k">final class</span> <span class="t">CartBadge</span> {
+    <span class="k">private var</span> token: <span class="t">SubscriptionToken</span>?
+    <span class="k">init</span>(cartCount: <span class="t">Observable</span>&lt;<span class="t">Int</span>&gt;) {
+        token = cartCount.subscribe { [<span class="k">weak self</span>] count <span class="k">in</span>
+            <span class="k">self</span>?.render(count)          <span class="c">// weak: колбек не тримає badge</span>
+        }
+    }   <span class="c">// badge помер → token помер → відписка автоматично</span>
+}</pre>
+        <p><b>Коментар.</b> Це спрощений AnyCancellable. Пастки, про які варто сказати вголос: (1) handler-и можуть тримати self — тому [weak self] у підписника; (2) для потокобезпечності словник observers обгорнути у serial queue або зробити клас actor-ом; (3) якщо забути зберегти токен — підписка миттєво помре (так само як у Combine).</p>
+      </div></details>
+    </div>
+  </div>
+
+  <div class="task" data-id="singleton-di" data-cat="pattern">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>15. Рефакторинг: синглтон → DI</h3>
+      <div class="meta"><span class="chip c-pattern">ПАТЕРН</span><span class="chip c-mid">СЕРЕДНЯ · 15 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> Дано ViewModel, який усередині смикає AnalyticsService.shared і APIClient.shared. Поясни, чому це проблема для тестів, і відрефактор на інʼєкцію залежностей, зберігши зручність виклику.</p>
+<pre><span class="c">// ДАНО:</span>
+<span class="k">final class</span> <span class="t">CheckoutViewModel</span> {
+    <span class="k">func</span> placeOrder() <span class="k">async throws</span> {
+        <span class="k">let</span> order = <span class="k">try await</span> <span class="t">APIClient</span>.shared.createOrder()
+        <span class="t">AnalyticsService</span>.shared.track(<span class="s">"order_placed"</span>)
+    }
+}</pre>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="k">protocol</span> <span class="t">OrderAPI</span>      { <span class="k">func</span> createOrder() <span class="k">async throws</span> -> <span class="t">Order</span> }
+<span class="k">protocol</span> <span class="t">Analytics</span>     { <span class="k">func</span> track(<span class="k">_</span> event: <span class="t">String</span>) }
+
+<span class="k">extension</span> <span class="t">APIClient</span>: <span class="t">OrderAPI</span> {}          <span class="c">// наявні класи підганяємо під протоколи</span>
+<span class="k">extension</span> <span class="t">AnalyticsService</span>: <span class="t">Analytics</span> {}
+
+<span class="k">final class</span> <span class="t">CheckoutViewModel</span> {
+    <span class="k">private let</span> api: <span class="t">OrderAPI</span>
+    <span class="k">private let</span> analytics: <span class="t">Analytics</span>
+
+    <span class="c">// дефолти зберігають зручність: на проді викликається без параметрів</span>
+    <span class="k">init</span>(api: <span class="t">OrderAPI</span> = <span class="t">APIClient</span>.shared,
+         analytics: <span class="t">Analytics</span> = <span class="t">AnalyticsService</span>.shared) {
+        <span class="k">self</span>.api = api
+        <span class="k">self</span>.analytics = analytics
+    }
+
+    <span class="k">func</span> placeOrder() <span class="k">async throws</span> {
+        <span class="k">let</span> order = <span class="k">try await</span> api.createOrder()
+        analytics.track(<span class="s">"order_placed"</span>)
+    }
+}
+
+<span class="c">// У тесті:</span>
+<span class="k">let</span> vm = <span class="t">CheckoutViewModel</span>(api: <span class="t">MockAPI</span>(), analytics: <span class="t">SpyAnalytics</span>())</pre>
+        <p><b>Аргументація для інтервʼюера.</b> Проблеми shared усередині: (1) тест не може підмінити мережу — тести повільні й флакі; (2) залежності приховані — по сигнатурі класу не видно, від чого він залежить; (3) глобальний стан протікає між тестами. Синглтон як ІНСТАНС може лишитись (один APIClient на застосунок — нормально) — проблема саме в ЗВЕРТАННІ до .shared зсередини. DI через init з дефолтами — мінімальний рефакторинг без ламання call sites.</p>
+      </div></details>
+    </div>
+  </div>
+
+  <div class="task" data-id="coordinator" data-cat="pattern">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>16. Coordinator: флоу з трьох екранів</h3>
+      <div class="meta"><span class="chip c-pattern">ПАТЕРН</span><span class="chip c-hard">СКЛАДНА · 20 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> Онбординг: Welcome → EnterName → Done. Екрани не знають один про одного; порядок задає координатор. Скелет коду + пояснення, хто кого тримає.</p>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="k">protocol</span> <span class="t">Coordinator</span>: <span class="t">AnyObject</span> {
+    <span class="k">func</span> start()
+}
+
+<span class="k">final class</span> <span class="t">OnboardingCoordinator</span>: <span class="t">Coordinator</span> {
+    <span class="k">private let</span> nav: <span class="t">UINavigationController</span>
+    <span class="k">var</span> onFinish: (() -> <span class="t">Void</span>)?               <span class="c">// сигнал нагору (App/Parent coordinator)</span>
+
+    <span class="k">init</span>(nav: <span class="t">UINavigationController</span>) { <span class="k">self</span>.nav = nav }
+
+    <span class="k">func</span> start() { showWelcome() }
+
+    <span class="k">private func</span> showWelcome() {
+        <span class="k">let</span> vc = <span class="t">WelcomeVC</span>()
+        vc.onContinue = { [<span class="k">weak self</span>] <span class="k">in self</span>?.showEnterName() }
+        nav.pushViewController(vc, animated: <span class="k">false</span>)
+    }
+    <span class="k">private func</span> showEnterName() {
+        <span class="k">let</span> vc = <span class="t">EnterNameVC</span>()
+        vc.onSubmit = { [<span class="k">weak self</span>] name <span class="k">in self</span>?.showDone(name: name) }
+        nav.pushViewController(vc, animated: <span class="k">true</span>)
+    }
+    <span class="k">private func</span> showDone(name: <span class="t">String</span>) {
+        <span class="k">let</span> vc = <span class="t">DoneVC</span>(name: name)
+        vc.onFinish = { [<span class="k">weak self</span>] <span class="k">in self</span>?.onFinish?() }
+        nav.pushViewController(vc, animated: <span class="k">true</span>)
+    }
+}
+
+<span class="c">// AppCoordinator тримає дітей — інакше координатор деінітиться одразу:</span>
+<span class="k">final class</span> <span class="t">AppCoordinator</span> {
+    <span class="k">private var</span> children: [<span class="t">Coordinator</span>] = []
+    <span class="k">func</span> startOnboarding(nav: <span class="t">UINavigationController</span>) {
+        <span class="k">let</span> onboarding = <span class="t">OnboardingCoordinator</span>(nav: nav)
+        onboarding.onFinish = { [<span class="k">weak self</span>, <span class="k">weak</span> onboarding] <span class="k">in</span>
+            <span class="k">if let</span> onboarding { <span class="k">self</span>?.children.removeAll { $0 === onboarding } }
+            <span class="k">self</span>?.showMainFlow()
+        }
+        children.append(onboarding)      <span class="c">// ← критично: хтось має тримати</span>
+        onboarding.start()
+    }
+}</pre>
+        <p><b>Звʼязка з твоїм досвідом.</b> Скажи: «у нас checkout server-driven — порядок кроків приходить з конфіга, тому координатор, що читає масив кроків і вирішує „куди далі", — природне рішення». Це перетворює теоретичне питання на розповідь про твій продакшн.</p>
+      </div></details>
+    </div>
+  </div>
+
+  <div class="task" data-id="factory" data-cat="pattern">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>17. Factory: секції home page за server-driven конфігом</h3>
+      <div class="meta"><span class="chip c-pattern">ПАТЕРН</span><span class="chip c-mid">СЕРЕДНЯ · 15 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> Бекенд надсилає масив секцій: [{type: "banners"}, {type: "categories"}, {type: "dishes"}]. Побудуй фабрику, яка з конфіга створює вʼюхи секцій. Новий тип секції = новий код в ОДНОМУ місці (Open-Closed).</p>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="k">struct</span> <span class="t">SectionConfig</span>: <span class="t">Decodable</span> {
+    <span class="k">let</span> type: <span class="t">String</span>
+    <span class="k">let</span> payload: [<span class="t">String</span>: <span class="t">JSONValue</span>]   <span class="c">// довільні параметри секції</span>
+}
+
+<span class="k">protocol</span> <span class="t">SectionBuilder</span> {
+    <span class="k">func</span> build(config: <span class="t">SectionConfig</span>) -> <span class="t">UIViewController</span>
+}
+
+<span class="k">struct</span> <span class="t">BannersBuilder</span>: <span class="t">SectionBuilder</span> { <span class="c">/* карусель банерів */</span> }
+<span class="k">struct</span> <span class="t">CategoriesBuilder</span>: <span class="t">SectionBuilder</span> { <span class="c">/* сітка категорій */</span> }
+
+<span class="k">final class</span> <span class="t">SectionFactory</span> {
+    <span class="k">private var</span> builders: [<span class="t">String</span>: <span class="t">SectionBuilder</span>] = [:]
+
+    <span class="k">func</span> register(<span class="k">_</span> builder: <span class="t">SectionBuilder</span>, for type: <span class="t">String</span>) {
+        builders[type] = builder          <span class="c">// реєстрація замість switch</span>
+    }
+    <span class="k">func</span> makeSection(<span class="k">_</span> config: <span class="t">SectionConfig</span>) -> <span class="t">UIViewController</span>? {
+        builders[config.type]?.build(config: config)
+        <span class="c">// невідомий тип → nil → секція тихо пропускається:</span>
+        <span class="c">// старий застосунок не ламається від нових типів бекенда!</span>
+    }
+}
+
+<span class="c">// Composition root:</span>
+<span class="k">let</span> factory = <span class="t">SectionFactory</span>()
+factory.register(<span class="t">BannersBuilder</span>(), for: <span class="s">"banners"</span>)
+factory.register(<span class="t">CategoriesBuilder</span>(), for: <span class="s">"categories"</span>)
+
+<span class="k">let</span> sections = configs.compactMap(factory.makeSection)</pre>
+        <p><b>Коментар.</b> Це буквально скелет твого server-driven UI — розкажи, як у вас насправді. Ключові акценти: реєстрація замість гігантського switch (нова секція не чіпає фабрику — Open-Closed); graceful degradation на невідомих типах (форвард-сумісність зі старими версіями застосунку).</p>
+      </div></details>
+    </div>
+  </div>
+
+  <!-- ================================================== SWIFT -->
+
+  <div class="task" data-id="capture-quiz" data-cat="swift">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>18. Квіз: що надрукує цей код? (closures + capture)</h3>
+      <div class="meta"><span class="chip c-swift">SWIFT</span><span class="chip c-mid">СЕРЕДНЯ · 10 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> Без запуску скажи, що виведе кожен print — і поясни чому.</p>
+<pre><span class="c">// 1</span>
+<span class="k">var</span> a = 10
+<span class="k">let</span> f1 = { print(a) }
+<span class="k">let</span> f2 = { [a] <span class="k">in</span> print(a) }
+a = 20
+f1(); f2()
+
+<span class="c">// 2</span>
+<span class="k">var</span> fns: [() -> <span class="t">Int</span>] = []
+<span class="k">for</span> i <span class="k">in</span> 1...3 { fns.append { i } }
+<span class="k">var</span> j = 0
+<span class="k">while</span> j &lt; 3 { j += 1; fns.append { j } }
+print(fns.map { $0() })
+
+<span class="c">// 3</span>
+<span class="k">struct</span> <span class="t">S</span> { <span class="k">var</span> x = 1 }
+<span class="k">class</span>  <span class="t">C</span> { <span class="k">var</span> x = 1 }
+<span class="k">let</span> s = <span class="t">S</span>(); <span class="k">let</span> c = <span class="t">C</span>()
+<span class="k">let</span> g = { [s, c] <span class="k">in</span> print(s.x, c.x) }
+<span class="c">// var s2 = s; s2.x = 99  — s let, тому мутуємо копію</span>
+c.x = 99
+g()</pre>
+      <details class="sol"><summary>Відповіді</summary><div>
+        <ul>
+          <li><b>1:</b> «20» і «10». f1 захопив ЗМІННУ за посиланням (бачить актуальне 20); f2 через capture list скопіював значення 10 у момент створення.</li>
+          <li><b>2:</b> [1, 2, 3, 3, 3, 3]. for на кожній ітерації створює НОВУ константу i — кожен closure тримає свою. while мутує ОДНУ змінну j — усі три closures ділять її, на момент виклику j == 3.</li>
+          <li><b>3:</b> «1 99». Capture list копіює: struct — копію значення (незалежна), class — копію ПОСИЛАННЯ (той самий обʼєкт, тому зміна c.x видна).</li>
+        </ul>
+        <p><b>Чому це питають:</b> перевіряє одразу value/reference семантику + capture semantics — дві найважливіші механіки мови в одному квізі.</p>
+      </div></details>
+    </div>
+  </div>
+
+  <div class="task" data-id="find-leaks" data-cat="swift">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>19. Знайди 3 витоки памʼяті в коді контролера</h3>
+      <div class="meta"><span class="chip c-swift">SWIFT</span><span class="chip c-hard">СКЛАДНА · 15 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> У цьому контролері три причини, чому deinit ніколи не викличеться. Знайди всі й виправ.</p>
+<pre><span class="k">final class</span> <span class="t">ProfileVC</span>: <span class="t">UIViewController</span> {
+    <span class="k">var</span> onUpdate: (() -> <span class="t">Void</span>)?
+    <span class="k">var</span> timer: <span class="t">Timer</span>?
+
+    <span class="k">override func</span> viewDidLoad() {
+        <span class="k">super</span>.viewDidLoad()
+        onUpdate = { <span class="k">self</span>.refresh() }                          <span class="c">// ?</span>
+        timer = <span class="t">Timer</span>.scheduledTimer(timeInterval: 10, target: <span class="k">self</span>,
+            selector: #selector(tick), userInfo: <span class="k">nil</span>, repeats: <span class="k">true</span>) <span class="c">// ?</span>
+        <span class="t">NotificationCenter</span>.default.addObserver(forName: .userChanged,
+            object: <span class="k">nil</span>, queue: .main) { <span class="k">_ in self</span>.refresh() }  <span class="c">// ?</span>
+    }
+}</pre>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+        <ul>
+          <li><b>Витік 1 — closure-властивість:</b> self тримає onUpdate, onUpdate тримає self. Фікс: <code>onUpdate = { [weak self] in self?.refresh() }</code>.</li>
+          <li><b>Витік 2 — Timer з target:</b> RunLoop → Timer → strong target (self). Навіть weak var timer не рятує — тримає САМ таймер. Фікс: block-based API + [weak self] + invalidate у viewDidDisappear/deinit.</li>
+          <li><b>Витік 3 — NotificationCenter closure-API:</b> центр тримає блок, блок тримає self; до iOS 9 навіть повернений токен треба знімати. Фікс: [weak self] у блоці + зберігати токен і removeObserver(token).</li>
+        </ul>
+<pre><span class="c">// Виправлено:</span>
+onUpdate = { [<span class="k">weak self</span>] <span class="k">in self</span>?.refresh() }
+
+timer = <span class="t">Timer</span>.scheduledTimer(withTimeInterval: 10, repeats: <span class="k">true</span>) { [<span class="k">weak self</span>] <span class="k">_ in</span>
+    <span class="k">self</span>?.tick()
+}
+
+token = <span class="t">NotificationCenter</span>.default.addObserver(forName: .userChanged,
+    object: <span class="k">nil</span>, queue: .main) { [<span class="k">weak self</span>] <span class="k">_ in self</span>?.refresh() }
+
+<span class="k">deinit</span> {
+    timer?.invalidate()
+    <span class="k">if let</span> token { <span class="t">NotificationCenter</span>.default.removeObserver(token) }
+    print(<span class="s">"ProfileVC deinit ✓"</span>)
+}</pre>
+        <p><b>Бонус-відповідь:</b> «як я б це знайшов у реальному проєкті» — print у deinit, Debug Memory Graph (хто тримає обʼєкт), Instruments Leaks.</p>
+      </div></details>
+    </div>
+  </div>
+
+  <div class="task" data-id="thread-safe" data-cat="swift">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>20. Потокобезпечний лічильник: GCD і actor</h3>
+      <div class="meta"><span class="chip c-swift">SWIFT</span><span class="chip c-mid">СЕРЕДНЯ · 15 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> 100 потоків одночасно інкрементують лічильник 1000 разів. Наївний var count += 1 дає число менше за 100 000 (data race). Зроби потокобезпечно двома способами: GCD (читання паралельне, запис ексклюзивний) і actor.</p>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="c">// Спосіб 1: concurrent queue + barrier (readers-writers)</span>
+<span class="k">final class</span> <span class="t">SafeCounter</span> {
+    <span class="k">private var</span> count = 0
+    <span class="k">private let</span> queue = <span class="t">DispatchQueue</span>(label: <span class="s">"counter"</span>, attributes: .concurrent)
+
+    <span class="k">func</span> increment() {
+        queue.async(flags: .barrier) { <span class="k">self</span>.count += 1 }  <span class="c">// запис — ексклюзивний</span>
+    }
+    <span class="k">var</span> value: <span class="t">Int</span> {
+        queue.sync { count }                              <span class="c">// читання — паралельні</span>
+    }
+}
+
+<span class="c">// Спосіб 2: actor — компілятор гарантує серіалізацію</span>
+<span class="k">actor</span> <span class="t">Counter</span> {
+    <span class="k">private(set) var</span> count = 0
+    <span class="k">func</span> increment() { count += 1 }
+}
+
+<span class="c">// Використання actor:</span>
+<span class="k">let</span> counter = <span class="t">Counter</span>()
+<span class="k">await</span> withTaskGroup(of: <span class="t">Void</span>.<span class="k">self</span>) { group <span class="k">in</span>
+    <span class="k">for _ in</span> 1...100 {
+        group.addTask {
+            <span class="k">for _ in</span> 1...1000 { <span class="k">await</span> counter.increment() }
+        }
+    }
+}
+print(<span class="k">await</span> counter.count)   <span class="c">// рівно 100000</span>
+</pre>
+        <p><b>Для розмови.</b> Чому barrier, а не serial queue: читань зазвичай набагато більше — вони йдуть паралельно, блокується лише запис. Чому actor кращий у 2026: помилку неможливо зробити — компілятор змусить await і не дасть синхронно залізти в стан. Згадай третій варіант — NSLock/os_unfair_lock для гарячих шляхів (найшвидший, але ручний).</p>
+      </div></details>
+    </div>
+  </div>
+
+  <div class="task" data-id="network-e2e" data-cat="swift">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>21. End-to-end: запит → Codable → список (async/await)</h3>
+      <div class="meta"><span class="chip c-swift">SWIFT</span><span class="chip c-mid">СЕРЕДНЯ · 20 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> API повертає JSON: {"items": [{"id": 1, "full_name": "..."}]}. Напиши: модель зі snake_case-мапінгом, generic-функцію запиту з перевіркою статус-коду і доменними помилками, виклик із паралельним другим запитом (async let). Це «збірне» завдання — перевіряє мережу + Codable + concurrency разом.</p>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="k">struct</span> <span class="t">UsersResponse</span>: <span class="t">Decodable</span> { <span class="k">let</span> items: [<span class="t">User</span>] }
+<span class="k">struct</span> <span class="t">User</span>: <span class="t">Decodable</span>, <span class="t">Identifiable</span> {
+    <span class="k">let</span> id: <span class="t">Int</span>
+    <span class="k">let</span> fullName: <span class="t">String</span>       <span class="c">// full_name → fullName через strategy</span>
+}
+
+<span class="k">enum</span> <span class="t">APIError</span>: <span class="t">Error</span> { <span class="k">case</span> badStatus(<span class="t">Int</span>), decoding(<span class="t">Error</span>) }
+
+<span class="k">func</span> fetch&lt;<span class="t">T</span>: <span class="t">Decodable</span>&gt;(<span class="k">_</span> type: <span class="t">T</span>.<span class="t">Type</span>, from url: <span class="t">URL</span>) <span class="k">async throws</span> -> <span class="t">T</span> {
+    <span class="k">let</span> (data, response) = <span class="k">try await</span> <span class="t">URLSession</span>.shared.data(from: url)
+    <span class="k">guard let</span> http = response <span class="k">as</span>? <span class="t">HTTPURLResponse</span>,
+          (200..&lt;300).contains(http.statusCode) <span class="k">else</span> {
+        <span class="k">throw</span> <span class="t">APIError</span>.badStatus((response <span class="k">as</span>? <span class="t">HTTPURLResponse</span>)?.statusCode ?? -1)
+    }
+    <span class="k">let</span> decoder = <span class="t">JSONDecoder</span>()
+    decoder.keyDecodingStrategy = .convertFromSnakeCase
+    <span class="k">do</span>  { <span class="k">return try</span> decoder.decode(<span class="t">T</span>.<span class="k">self</span>, from: data) }
+    <span class="k">catch</span> { <span class="k">throw</span> <span class="t">APIError</span>.decoding(error) }
+}
+
+<span class="c">// Паралельні незалежні запити:</span>
+<span class="k">func</span> loadScreen() <span class="k">async throws</span> -> ([<span class="t">User</span>], <span class="t">Stats</span>) {
+    <span class="k">async let</span> users = fetch(<span class="t">UsersResponse</span>.<span class="k">self</span>, from: usersURL).items
+    <span class="k">async let</span> stats = fetch(<span class="t">Stats</span>.<span class="k">self</span>, from: statsURL)
+    <span class="k">return try await</span> (users, stats)   <span class="c">// обидва летять ОДНОЧАСНО</span>
+}</pre>
+        <p><b>Що проговорити вголос:</b> URLSession не кидає на 4xx/5xx — тому guard статусу; async let стартує обидва запити одразу, await лише в точці споживання; помилка будь-якого з них скасує другий (structured concurrency).</p>
+      </div></details>
+    </div>
+  </div>
+
+  <div class="task" data-id="algo-warmup" data-cat="swift">
+    <div class="task-head"><input type="checkbox"><div>
+      <h3>22. Алгоритмічна розминка: 4 класики за 20 хвилин</h3>
+      <div class="meta"><span class="chip c-swift">SWIFT</span><span class="chip c-easy">ЛЕГКА · 20 хв</span></div>
+    </div></div>
+    <div class="task-body">
+      <p class="assign"><b>Завдання.</b> Без стандартних «читерських» функцій там, де просять вручну: (1) розверни масив in-place; (2) перший символ, що не повторюється; (3) знайди всі дублікати; (4) чи є два числа з сумою target. Назви складність кожного.</p>
+      <details class="sol"><summary>Розвʼязок</summary><div>
+<pre><span class="c">// 1. Reverse in-place — O(n), two pointers</span>
+<span class="k">func</span> reverseInPlace&lt;<span class="t">T</span>&gt;(<span class="k">_</span> a: <span class="k">inout</span> [<span class="t">T</span>]) {
+    <span class="k">var</span> i = 0, j = a.count - 1
+    <span class="k">while</span> i &lt; j { a.swapAt(i, j); i += 1; j -= 1 }
+}
+
+<span class="c">// 2. Перший неповторюваний символ — O(n), два проходи</span>
+<span class="k">func</span> firstUnique(<span class="k">_</span> s: <span class="t">String</span>) -> <span class="t">Character</span>? {
+    <span class="k">var</span> counts: [<span class="t">Character</span>: <span class="t">Int</span>] = [:]
+    <span class="k">for</span> ch <span class="k">in</span> s { counts[ch, <span class="k">default</span>: 0] += 1 }
+    <span class="k">return</span> s.first { counts[$0] == 1 }
+}
+
+<span class="c">// 3. Дублікати — O(n) з Set</span>
+<span class="k">func</span> duplicates(<span class="k">_</span> nums: [<span class="t">Int</span>]) -> [<span class="t">Int</span>] {
+    <span class="k">var</span> seen = <span class="t">Set</span>&lt;<span class="t">Int</span>&gt;(), dups = <span class="t">Set</span>&lt;<span class="t">Int</span>&gt;()
+    <span class="k">for</span> n <span class="k">in</span> nums {
+        <span class="k">if</span> !seen.insert(n).inserted { dups.insert(n) }
+    }
+    <span class="k">return</span> <span class="t">Array</span>(dups)
+}
+
+<span class="c">// 4. Two Sum — O(n): «яке число мені потрібне?»</span>
+<span class="k">func</span> hasPair(<span class="k">_</span> nums: [<span class="t">Int</span>], target: <span class="t">Int</span>) -> <span class="t">Bool</span> {
+    <span class="k">var</span> seen = <span class="t">Set</span>&lt;<span class="t">Int</span>&gt;()
+    <span class="k">for</span> n <span class="k">in</span> nums {
+        <span class="k">if</span> seen.contains(target - n) { <span class="k">return true</span> }
+        seen.insert(n)
+    }
+    <span class="k">return false</span>
+}</pre>
+        <p><b>Порада.</b> Для iOS-позицій middle-рівня в Україні цього рівня алгоритмів зазвичай достатньо (легкі LeetCode). Проговорюй складність ДО написання коду — «зроблю за O(n) через Set» звучить сильно. Патерн 4-ї задачі (шукаю доповнення в Set) — найчастіша алгоритмічна задача iOS-співбесід.</p>
+      </div></details>
+    </div>
+  </div>
+
+  <footer>22 завдання · Складено 03.07.2026 під профіль: 1.5 року iOS (Swift · SwiftUI · UIKit). Прогрес зберігається локально у браузері.</footer>
+</div>
+
+<script>
+(function () {
+  const KEY = "ios-livecoding-v1";
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) {}
+
+  const tasks = Array.from(document.querySelectorAll(".task"));
+  const count = document.getElementById("pcount");
+  const fill = document.getElementById("pfill");
+  const catBtns = Array.from(document.querySelectorAll("#catFilters .fbtn[data-cat]"));
+  const hideDoneBtn = document.getElementById("hideDone");
+  let activeCat = "all";
+  let hideDone = false;
+
+  function refresh() {
+    let done = 0;
+    tasks.forEach(el => {
+      const isDone = el.classList.contains("done");
+      if (isDone) done++;
+      const catOK = activeCat === "all" || el.dataset.cat === activeCat;
+      const doneOK = !hideDone || !isDone;
+      el.style.display = (catOK && doneOK) ? "" : "none";
+    });
+    count.textContent = done + " / " + tasks.length;
+    fill.style.width = (done / tasks.length * 100) + "%";
+  }
+
+  tasks.forEach(el => {
+    const box = el.querySelector("input[type=checkbox]");
+    if (saved[el.dataset.id]) { box.checked = true; el.classList.add("done"); }
+    box.addEventListener("change", () => {
+      el.classList.toggle("done", box.checked);
+      saved[el.dataset.id] = box.checked;
+      try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+      refresh();
+    });
+  });
+
+  catBtns.forEach(btn => btn.addEventListener("click", () => {
+    catBtns.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeCat = btn.dataset.cat;
+    refresh();
+  }));
+
+  hideDoneBtn.addEventListener("click", () => {
+    hideDone = !hideDone;
+    hideDoneBtn.classList.toggle("active", hideDone);
+    refresh();
+  });
+
+  refresh();
+})();
+</script>
+
+</body>
+</html>

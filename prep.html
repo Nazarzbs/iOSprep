@@ -1,0 +1,1745 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>iOS Interview Prep — розширений план: Swift · SwiftUI · UIKit</title>
+<style>
+  :root {
+    --ground: #FAFBFC; --card: #FFFFFF; --ink: #1B2430; --muted: #5A6B7E;
+    --faint: #8B99A9; --line: #E3E8EE; --accent: #F05138; --accent-deep: #C93C27;
+    --accent-wash: #FEF0ED; --good: #2E7D4F; --good-wash: #EAF5EE;
+    --warn: #B7791F; --warn-wash: #FBF3E3; --info: #2B6CB0; --info-wash: #EBF2FA;
+    --code-bg: #232936; --code-ink: #E8ECF1;
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+  }
+  html { background: var(--ground); }
+  body { font-family: var(--sans); color: var(--ink); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 40px 20px 100px; }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 10px; }
+  h1 { font-size: clamp(25px, 4vw, 35px); font-weight: 800; letter-spacing: -.02em; line-height: 1.13; margin: 0 0 10px; text-wrap: balance; }
+  .lede { font-size: 15.5px; color: var(--muted); max-width: 68ch; margin: 0 0 18px; }
+
+  .toolbar { position: sticky; top: 0; z-index: 20; background: var(--ground); padding: 10px 0 12px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 10px; }
+  .fbtn { font-family: var(--sans); font-size: 13px; font-weight: 600; cursor: pointer; padding: 5px 13px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--muted); }
+  .fbtn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .fbtn.hide-done.active { background: var(--good); border-color: var(--good); }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); margin-bottom: 5px; }
+  .progress-label b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .pbar { height: 7px; background: #EDF0F3; border-radius: 4px; overflow: hidden; }
+  .pbar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-deep)); transition: width .25s; }
+
+  section { margin-top: 38px; }
+  .pillar-head { border-bottom: 2px solid var(--ink); padding-bottom: 6px; margin-bottom: 4px; }
+  .pillar-head h2 { font-size: 21px; font-weight: 800; margin: 0; letter-spacing: -.01em; }
+  .pillar-note { font-size: 13.5px; color: var(--muted); font-style: italic; margin: 6px 0 16px; max-width: 74ch; }
+
+  .topic { background: var(--card); border: 1px solid var(--line); border-radius: 13px; margin-bottom: 11px; overflow: hidden; }
+  .topic.done { opacity: .6; }
+  .topic-head { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 13px 16px; }
+  .topic-head input { width: 19px; height: 19px; accent-color: var(--good); cursor: pointer; }
+  .topic-head h3 { margin: 0; font-size: 15.5px; font-weight: 700; }
+  .topic.done h3 { text-decoration: line-through; text-decoration-color: var(--faint); color: var(--faint); }
+  .prio { font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: .05em; padding: 2px 9px; border-radius: 999px; }
+  .prio.P0 { background: var(--accent-wash); color: var(--accent-deep); border: 1px solid #F6CFC6; }
+  .prio.P1 { background: var(--warn-wash); color: var(--warn); border: 1px solid #EBD9B0; }
+  .prio.P2 { background: var(--info-wash); color: var(--info); border: 1px solid #C4D9EE; }
+
+  details { border-top: 1px solid var(--line); }
+  details summary { cursor: pointer; padding: 8px 16px; font-size: 13px; font-weight: 600; color: var(--info); list-style: none; user-select: none; background: #FBFCFD; }
+  details summary::before { content: "▸ "; }
+  details[open] summary::before { content: "▾ "; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .topic-body { padding: 6px 18px 16px; }
+
+  .blk { margin-top: 12px; }
+  .blk-t { font-family: var(--mono); font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase; font-weight: 700; margin-bottom: 5px; }
+  .blk-t.accent { color: var(--accent-deep); }
+  .blk-t.info { color: var(--info); }
+  .blk-t.warn { color: var(--warn); }
+  .blk-t.good { color: var(--good); }
+  .blk p { margin: 0 0 8px; font-size: 14px; max-width: 78ch; }
+  .blk ul { margin: 0; padding-left: 18px; }
+  .blk li { font-size: 13.5px; padding: 2px 0; max-width: 76ch; }
+  .warn-list li::marker { content: "⚠ "; }
+  .qs { background: var(--good-wash); border: 1px solid #CBE5D3; border-radius: 10px; padding: 10px 14px; }
+
+  pre { background: var(--code-bg); color: var(--code-ink); border-radius: 10px; padding: 13px 15px; overflow-x: auto; font-family: var(--mono); font-size: 12.2px; line-height: 1.5; margin: 4px 0 0; }
+
+  .week { display: grid; grid-template-columns: 100px 1fr; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .week:last-child { border-bottom: none; }
+  .week .when { font-family: var(--mono); font-size: 12.5px; color: var(--accent-deep); font-weight: 600; padding-top: 2px; }
+  .week h3 { margin: 0 0 3px; font-size: 15px; font-weight: 700; }
+  .week p { margin: 0; font-size: 13.5px; color: var(--muted); max-width: 74ch; }
+  @media (max-width: 560px) { .week { grid-template-columns: 1fr; gap: 3px; } }
+
+  .tips { background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 12px; padding: 16px 20px; margin-top: 16px; }
+  .tips ul { margin: 0; padding-left: 18px; }
+  .tips li { font-size: 13.5px; padding: 3px 0; max-width: 76ch; }
+
+  footer { margin-top: 55px; font-size: 12.5px; color: var(--faint); border-top: 1px solid var(--line); padding-top: 14px; }
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">iOS Interview Prep · розширена версія</div>
+  <h1>План підготовки до співбесід: 36 тем углиб</h1>
+  <p class="lede">Кожна тема — шість блоків: як працює → яку проблему вирішує → де застосовується (з кейсами з твоєї роботи) → код → пастки → контрольні питання. Відповів на контрольні уголос за 1–2 хвилини — став галочку. Прогрес зберігається у браузері.</p>
+
+  <div class="toolbar">
+    <div class="filters" id="pillarFilters">
+      <button class="fbtn active" data-pillar="all">Усі</button>
+      <button class="fbtn" data-pillar="swift">Swift</button>
+      <button class="fbtn" data-pillar="swiftui">SwiftUI</button>
+      <button class="fbtn" data-pillar="uikit">UIKit</button>
+      <button class="fbtn" data-pillar="adj">Суміжне</button>
+    </div>
+    <div class="filters" id="prioFilters">
+      <button class="fbtn active" data-prio="all">Всі пріоритети</button>
+      <button class="fbtn" data-prio="P0">Лише P0</button>
+      <button class="fbtn" data-prio="P1">Лише P1</button>
+      <button class="fbtn" data-prio="P2">Лише P2</button>
+      <button class="fbtn hide-done" id="hideDone">Сховати закриті</button>
+    </div>
+    <div class="progress-label"><span>Закрито тем</span><b id="pcount">0 / 36</b></div>
+    <div class="pbar"><i id="pfill"></i></div>
+  </div>
+
+  
+  <section data-pillar="swift">
+    <div class="pillar-head"><h2>SWIFT — 14 тем</h2></div>
+    <p class="pillar-note">Мова — це 50–60% технічної співбесіди. Особливо памʼять і конкурентність: саме тут відсіюють між junior і middle.</p>
+  
+    <div class="topic" data-id="swift-0" data-pillar="swift" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Value vs Reference types, struct vs class</h3>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Value-типи (struct, enum, tuple) при присвоєнні та передачі у функцію копіюються — кожна змінна володіє власним незалежним значенням. Reference-типи (class, closure, actor) передаються за посиланням: кілька змінних вказують на один обʼєкт у купі (heap), і зміна через одне посилання видна всім.</p><p>Стандартні колекції (Array, String, Dictionary, Set) — value-типи з оптимізацією Copy-on-Write: фізичне копіювання буфера відбувається лише в момент першої мутації, а не при присвоєнні. Тому передати масив на 100 000 елементів у функцію — дешево, доки функція його не змінює.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Головна проблема, яку вирішують value-типи — спільний мутабельний стан (shared mutable state): коли два шматки коду тримають один обʼєкт і несподівано змінюють його один одному «під ногами». З value-типами про шматок коду можна міркувати локально: ніхто ззовні твою копію не змінить. Це також безкоштовна потокобезпечність — копії незалежні.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Моделі даних і DTO з бекенда — майже завжди struct (у твоєму проєкті LocationAddress, моделі замовлення тощо). Codable + struct — стандартна пара.</li><li>SwiftUI: кожна View — struct. Уся ідеологія фреймворку побудована на дешевих value-«описах» інтерфейсу.</li><li>class — коли потрібна ідентичність та спільний стан: мережевий менеджер, кеш, сесія користувача, ViewModel (ObservableObject), усе успадковане від UIKit (UIViewController, UIView — класи, бо їм потрібна саме ідентичність конкретного обʼєкта на екрані).</li><li>enum — для станів і скінченних варіантів: стан екрана, тип оплати, маршрути дип-лінків.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>struct Point { var x = 0 }
+var a = Point(); var b = a
+b.x = 10                    // a.x == 0 — незалежна копія
+
+final class Counter { var value = 0 }
+let c1 = Counter(); let c2 = c1
+c2.value = 10               // c1.value == 10 — один обʼєкт
+// let для класу фіксує ПОСИЛАННЯ, не вміст!</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Struct, який містить class-властивість: копіюється struct, але посилання всередині вказує на той самий обʼєкт — «value-семантика» ламається.</li><li>let класу не робить обʼєкт незмінним — лише забороняє переприсвоїти посилання. let структури — заморожує все.</li><li>mutating-метод структури неможливо викликати на let-змінній — і це фіча, а не обмеження.</li><li>Дуже великий struct, який часто копіюється у гарячому коді, може програти класу за перформансом — міряй Instruments, а не вгадуй.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Що виведе код, де struct присвоєно у дві змінні і одну змінили?</li><li>Чому Apple рекомендує struct за замовчуванням?</li><li>Як COW впливає на продуктивність передачі великого масиву у функцію? Як перевірити, що копія відбулась?</li><li>Наведи приклад зі свого проєкту, де value-семантика врятувала від бага (або де потрібен був саме class).</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swift-1" data-pillar="swift" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Optionals</h3>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Optional&lt;T&gt; — це звичайний enum з двома кейсами: .some(T) і .none. Синтаксис T? — лише цукор. Optional вбудовує «відсутність значення» у систему типів: компілятор змушує явно обробити кейс nil ще до запуску.</p><p>Способи роботи: if let / guard let (безпечне розгортання), оператор ?? (значення за замовчуванням), optional chaining user?.address?.city (ланцюг обривається на першому nil), map/flatMap на Optional, force unwrap ! (крешить на nil).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Вирішує проблему «мільярдної помилки» — null pointer. В Objective-C виклик методу на nil мовчки нічого не робив (приховані баги), у Java NPE валив програму в рантаймі. Swift переносить цю помилку на етап компіляції: тип String і String? — різні типи, і забути перевірку неможливо.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Відповіді API: поля, яких може не бути у JSON — var promoCode: String? у моделі замовлення. Codable сам ставить nil для відсутніх ключів, якщо поле опціональне.</li><li>UI-стан «ще не завантажено»: var user: User? = nil до приходу відповіді.</li><li>Повернення з пошуку: dictionary[key], array.first, Int("abc") — усе повертає Optional, бо результату може не бути.</li><li>guard let — стандарт на початку методу: перевірили вхідні дані й далі працюємо з не-опціоналами (early exit).</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>func handle(response: Data?) {
+    guard let data = response else {
+        showError(); return   // early exit — далі data гарантовано є
+    }
+    let order = try? decoder.decode(Order.self, from: data)
+    // try? повертає Order? — помилка перетворилась на nil
+    label.text = order?.address?.city ?? "—"
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Force unwrap (!) у продакшні — креш, який знайде користувач. Легітимні винятки: IBOutlet (система гарантує звʼязування), ресурси в бандлі, які точно існують.</li><li>try? + функція, що повертає Optional = подвійний optional T?? — легко заплутатись.</li><li>if let x = x всередині кожного if — «піраміда»; краще один guard з комою: guard let a, let b else.</li><li>map vs flatMap на Optional: map загортає результат ще раз (може дати T??), flatMap сплющує.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Що таке Optional під капотом? Напиши його оголошення як enum.</li><li>Чим map на Optional відрізняється від flatMap?</li><li>Чому force unwrap — червоний прапорець і які винятки прийнятні?</li><li>guard let vs if let — коли що і чому guard покращує читабельність?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swift-2" data-pillar="swift" data-prio="P1">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Properties: stored, computed, lazy, observers, wrappers</h3>
+        <span class="prio P1">P1</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Stored — зберігає значення в памʼяті обʼєкта. Computed — не зберігає нічого, обчислюється при кожному звертанні (get, опційно set). lazy — stored, який ініціалізується при першому звертанні, а не при створенні обʼєкта. Observers willSet/didSet — хуки навколо запису у stored property.</p><p>Property wrapper — тип із var wrappedValue, який інкапсулює логіку зберігання; @State, @Published, @AppStorage — усе це property wrappers. projectedValue (доступ через $) дає додаткове представлення — наприклад, Binding у SwiftUI.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>lazy вирішує проблему дорогої ініціалізації, яка може не знадобитись (важкий DateFormatter, обчислення на великих даних). Observers — проблему «тримати щось синхронним зі значенням» без ручних викликів (оновити UI при зміні моделі). Wrappers — проблему копіпасти навколо зберігання (та сама логіка UserDefaults для 20 налаштувань — один wrapper замість 20 однакових get/set).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>lazy var formatter: DateFormatter — класика: формуттери дорогі, створюємо один раз при першому використанні.</li><li>didSet на властивості ViewModel/клітинки: var order: Order? { didSet { updateUI() } } — типовий патерн конфігурації UITableViewCell.</li><li>@UserDefault("onboarding_shown") var shown: Bool — свій wrapper для налаштувань (поширене питання «напишіть property wrapper»).</li><li>Computed для похідних даних: var fullPrice: Decimal { items.reduce(0) { $0 + $1.price } } — завжди актуальне, немає ризику розсинхрону.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>@propertyWrapper struct UserDefault&lt;T&gt; {
+    let key: String; let defaultValue: T
+    var wrappedValue: T {
+        get { UserDefaults.standard.object(forKey: key) as? T ?? defaultValue }
+        set { UserDefaults.standard.set(newValue, forKey: key) }
+    }
+}
+struct Settings {
+    @UserDefault(key: "isDark", defaultValue: false) static var isDark: Bool
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>lazy НЕ потокобезпечний: два потоки при першому звертанні можуть ініціалізувати двічі. І lazy — тільки var.</li><li>willSet/didSet не викликаються під час init (пряме присвоєння у сховище) — частий сюрприз.</li><li>Computed property обчислюється при КОЖНОМУ звертанні — дорогий обрахунок у ньому в циклі = просідання.</li><li>didSet, який присвоює цю ж властивість — рекурсії не буде (спрацює лише раз), але код заплутаний.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Чим lazy var відрізняється від computed property за кількістю обчислень і памʼяттю?</li><li>Чому didSet не викликається з ініціалізатора і як усе-таки виконати логіку?</li><li>Напиши property wrapper @Clamped(0...100) для відсотків.</li><li>Що таке projectedValue і що повертає $ у @Published/@State?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swift-3" data-pillar="swift" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Closures і capture semantics</h3>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Closure — блок коду першого класу, який можна зберігати і передавати. Це reference-тип: він живе в купі й захоплює (capture) змінні з контексту створення. var захоплюється за посиланням — closure бачить актуальне значення і може його змінювати. Capture list ([x], [weak self]) — копіює значення/послаблює посилання В МОМЕНТ СТВОРЕННЯ closure.</p><p>@escaping — closure переживає виклик функції (зберігається, викликається пізніше — completion handlers). Non-escaping (за замовчуванням) виконується до повернення функції, тому не вимагає self і не створює циклів.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Closures вирішують проблему «передати поведінку як дані»: колбеки завершення асинхронних операцій, конфігурація (map/filter), відкладене виконання. Capture list вирішує дві проблеми: retain cycle (closure тримає self, а self тримає closure) і «захоплення останнього значення» у циклах.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Completion handlers мережевих запитів (до async/await, і досі в legacy): fetchOrders { [weak self] result in ... }.</li><li>Колбеки UI: кнопка в клітинці повідомляє контролер через var onTap: (() -&gt; Void)? — стандартний патерн у твоєму UIKit-коді.</li><li>Функціональні операції: orders.filter { $0.isActive }.map(\.id).</li><li>DispatchQueue.main.async { }, анімації UIView.animate — усюди closures.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>var handlers: [() -&gt; Void] = []
+for i in 1...3 {
+    handlers.append { print(i) }          // 1 2 3 — for створює нову константу i
+}
+var x = 0
+let a = { print(x) }                      // захоплення за посиланням
+let b = { [x] in print(x) }               // копія на момент створення
+x = 99
+a() // 99        b() // 0</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Retain cycle: self.completion = { self.doSomething() } — self тримає closure, closure тримає self. Розрив: [weak self].</li><li>[weak self] робить self опціональним усередині — guard let self else { return } на початку.</li><li>unowned self — креш, якщо closure викличеться після смерті self. Тільки коли життя closure гарантовано коротше за self.</li><li>[weak self] не потрібен там, де closure не зберігається надовго: разовий DispatchQueue.main.async лише відкладе звільнення на мить — це не цикл.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Що виведе код вище і чому a() та b() дають різні результати?</li><li>Чому @escaping вимагає явного self? Що перевіряє компілятор?</li><li>Namaлюй retain cycle через closure і два способи розірвати.</li><li>Коли [weak self] зайвий і лише додає шуму?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swift-4" data-pillar="swift" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>ARC, memory management, retain cycles</h3>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>ARC (Automatic Reference Counting) — компілятор на етапі збірки вставляє retain/release виклики. Кожен обʼєкт має лічильник сильних посилань; коли він падає до нуля — deinit і звільнення. На відміну від garbage collection: детерміновано (обʼєкт помирає одразу), без пауз збирача, але не вміє розривати цикли — це відповідальність розробника.</p><p>weak — не збільшує лічильник, автоматично стає nil після смерті обʼєкта (тому завжди optional var). unowned — не збільшує лічильник, але НЕ обнуляється: звертання після смерті = креш. strong — за замовчуванням.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Вирішує проблему ручного керування памʼяттю (retain/release руками в старому Obj-C — джерело крешів і ліків). Retain cycle — головна ціна: два обʼєкти тримають один одного сильно, лічильники ніколи не впадуть до нуля, память тече. У великому застосунку типовий симптом — контролер не деінітиться і продовжує слухати нотифікації/оновлювати дані.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>delegate завжди weak var delegate: SomeDelegate? — інакше цикл: VC тримає tableView, tableView тримає delegate (VC).</li><li>closure + self — див. тему closures; це 90% реальних ліків.</li><li>Timer.scheduledTimer(target: self) — RunLoop тримає таймер, таймер СИЛЬНО тримає target. Не інвалідував таймер — VC живе вічно.</li><li>Батько-дитина: батько тримає дітей strong, дитина батька — weak (view ієрархії, координатори).</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>final class OrderVC: UIViewController {
+    var timer: Timer?
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
+            self?.refreshStatus()     // block-based API + weak — циклу немає
+        }
+    }
+    deinit { timer?.invalidate(); print("OrderVC deinit") } // лог = перевірка ліків
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>weak тільки для класів (reference-типів) — на struct не повісиш.</li><li>NotificationCenter.addObserver(forName:...) з closure повертає токен — його треба зберігати і знімати; сам closure легко захоплює self.</li><li>unowned виглядає «чистіше» (без optional), але один неправильний прогноз часу життя = креш у проді. Сумніваєшся — weak.</li><li>Пошук ліків: Debug Memory Graph (кнопка в Xcode) показує, ХТО тримає обʼєкт; Instruments → Leaks/Allocations; найпростіше — print у deinit.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Як ARC відрізняється від garbage collection — плюси й мінуси?</li><li>Таблиця strong/weak/unowned: чи тримає, чи optional, що при звертанні до мертвого?</li><li>Чому delegate — weak? Що станеться, якщо зробити strong?</li><li>Як ти шукав/шукав би memory leak у реальному проєкті — покроково?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swift-5" data-pillar="swift" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>GCD і класична багатопотоковість</h3>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>GCD (Grand Central Dispatch) — API черг задач поверх пулу потоків. Serial черга виконує задачі по одній у порядку додавання; concurrent — кілька одночасно. main — serial черга головного потоку (весь UI). Global-черги — concurrent, з рівнями QoS: userInteractive &gt; userInitiated &gt; utility &gt; background — система розподіляє ресурси за пріоритетом.</p><p>async — «поклади задачу і не чекай»; sync — «поклади і заблокуйся до завершення». DispatchGroup — дочекатися групи задач; barrier — задача-«шлюз» у concurrent черзі: чекає всі попередні, виконується сама, потім пускає наступні (патерн readers-writers).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Вирішує дві проблеми: (1) не блокувати main thread важкою роботою — інакше фризи UI і креш від watchdog; (2) керувати паралелізмом без ручного створення потоків. Race condition — коли результат залежить від порядку виконання потоків; data race — одночасний неатомарний доступ до памʼяті (мінімум один запис) — це UB, ловиться Thread Sanitizer.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Класичний сендвіч: DispatchQueue.global().async { важка робота } → DispatchQueue.main.async { оновити UI }.</li><li>Декодування великого JSON, ресайз картинок, робота з диском — усе поза main.</li><li>DispatchGroup: зібрати 3 запити (меню + промо + профіль) і показати екран, коли ВСІ готові — твій реальний кейс на home page.</li><li>Serial черга як памʼятка синхронізації: усі звертання до спільного кеша через одну serial чергу = потокобезпечність без локів.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>let group = DispatchGroup()
+var menu: Menu?; var promos: [Promo] = []
+group.enter(); api.fetchMenu   { menu = $0;   group.leave() }
+group.enter(); api.fetchPromos { promos = $0; group.leave() }
+group.notify(queue: .main) { self.render(menu, promos) }
+
+// Потокобезпечний доступ: concurrent + barrier
+queue.async(flags: .barrier) { self.cache[key] = value }  // запис — ексклюзивно
+queue.sync { return self.cache[key] }                     // читання — паралельно</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>DispatchQueue.main.sync { } з main thread = миттєвий deadlock: main чекає задачу, яка чекає main. Питання №1 на співбесідах.</li><li>sync на будь-якій serial черзі зсередини неї самої — той самий deadlock.</li><li>Забутий group.leave() (наприклад, у гілці помилки) — notify не спрацює ніколи.</li><li>GCD не скасовує задачі, що вже виконуються; DispatchWorkItem.cancel() — лише прапорець isCancelled. Потрібне справжнє скасування/залежності — OperationQueue або Swift Concurrency.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Що станеться при DispatchQueue.main.sync {} з main thread — і чому саме?</li><li>Serial vs concurrent, sync vs async — чотири комбінації, поясни кожну.</li><li>Як завантажити 3 ресурси паралельно і оновити UI, коли всі готові — GCD і async/await варіанти?</li><li>Race condition vs data race — різниця? Як ловити (TSan)?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swift-6" data-pillar="swift" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Swift Concurrency: async/await, actors, Sendable</h3>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>async/await — синтаксис для асинхронності без колбеків: await позначає suspension point, де функція може «заснути», звільнивши потік для іншої роботи (кооперативний пул потоків ≈ кількість ядер; потоки не блокуються). Task { } — міст із синхронного світу в асинхронний; structured concurrency (async let, TaskGroup) — дочірні задачі не переживають батьківську область, скасування поширюється автоматично.</p><p>actor — reference-тип, який серіалізує доступ до свого стану: одночасно всередині виконується лише один виклик, data race неможливий за визначенням. @MainActor — глобальний актор головного потоку: вішається на клас/метод, і компілятор гарантує виконання на main. Sendable — маркер «тип безпечно передавати між потоками»; у Swift 6 strict concurrency компілятор перевіряє це на етапі збірки.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Вирішує: (1) callback hell і забуті completion(...) у гілках помилок — лінійний код з try/await читається як синхронний; (2) data races — actors та Sendable переносять помилки конкурентності з рантайму (найважчі в дебагу баги) у compile time; (3) скасування — Task.cancel() поширюється деревом задач, GCD такого не має.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Мережевий шар: let (data, response) = try await session.data(for: request) — сучасний стандарт, у тебе на роботі так.</li><li>Паралельні незалежні запити: async let menu = api.menu(); async let promos = api.promos(); let page = try await (menu, promos).</li><li>@MainActor на ViewModel — усі @Published/стан оновлюються на main без ручних DispatchQueue.main.async.</li><li>AsyncStream — обгортка над делегатами/нотифікаціями: стрім оновлень геолокації, статусів замовлення (твої Live Activities поруч із цим).</li><li>withCheckedThrowingContinuation — обгортання старого callback-API (Firebase, сторонні SDK) в async.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>func loadImages(urls: [URL]) async throws -&gt; [UIImage] {
+    try await withThrowingTaskGroup(of: UIImage.self) { group in
+        for url in urls {
+            group.addTask { try await self.download(url) }   // паралельно
+        }
+        var result: [UIImage] = []
+        for try await image in group { result.append(image) }
+        return result
+    }
+}
+
+actor ImageCache {
+    private var storage: [URL: UIImage] = [:]
+    func image(for url: URL) -&gt; UIImage? { storage[url] }   // доступ серіалізовано
+    func insert(_ img: UIImage, for url: URL) { storage[url] = img }
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Actor reentrancy: під час await усередині actor-метода інший виклик може зайти і змінити стан — інваріанти перевіряй ПІСЛЯ await заново.</li><li>Task { } успадковує актор-контекст місця створення; Task.detached — ні (і пріоритет теж). Detached — майже завжди неправильний вибір.</li><li>Скасування кооперативне: якщо код не перевіряє Task.isCancelled / не викликає try Task.checkCancellation() — він виконається до кінця попри cancel().</li><li>async let без await результату — задача все одно виконається і буде скасована при виході з області; try await обовʼязково для throwing.</li><li>Блокувати потік з async-контексту (semaphore.wait, sleep) — забирає потік з кооперативного пулу, ризик starvation.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Чим async let відрізняється від послідовних await і від TaskGroup — коли що?</li><li>Що таке actor reentrancy і який баг вона може створити? Приклад.</li><li>Як мігрувати метод з completion handler на async/await через continuation?</li><li>Чому await у actor-методі — «діра» для зміни стану і як з цим жити?</li><li>Що перевіряє Swift 6 strict concurrency і що таке Sendable?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swift-7" data-pillar="swift" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Protocols і Protocol-Oriented Programming</h3>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Протокол — контракт вимог (методи, властивості, associated types). Protocol extension дає реалізації за замовчуванням — так будується POP: спільна поведінка через композицію протоколів замість ієрархії класів. Струкrypи можуть підкорятися багатьом протоколам — «множинне успадкування поведінки» без класів.</p><p>some Protocol (opaque type) — конкретний тип, відомий компілятору, але прихований від читача: статичний dispatch, нуль накладних витрат. any Protocol (existential) — «коробка», у якій може лежати будь-який тип, що підкоряється: динамічний dispatch, боксинг, повільніше. Правило: some де можливо, any де потрібна справжня гетерогенність.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Вирішує жорсткість класового успадкування: один базовий клас, глибокі ієрархії, «god object» нагорі. І головне для практики — розвʼязування залежностей: код залежить від абстракції (протоколу), а не конкретного типу, що робить його тестованим (підміна мока) і замінюваним (переїхали з одного SDK на інший — переписали одну реалізацію).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>DI + тестування — головний практичний кейс: protocol OrderServiceProtocol { func fetchOrders() async throws -&gt; [Order] }; ViewModel приймає протокол, у тестах — MockOrderService. Це закриває твій геп у тестуванні.</li><li>Твій мережевий шар: типізовані запити — це протокол Endpoint з associated type відповіді.</li><li>Delegate-патерн UIKit — протоколи (UITableViewDataSource).</li><li>Стандартна бібліотека: Equatable, Hashable, Codable, Sequence — усе протоколи; кастомний тип у Set вимагає Hashable.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>protocol OrderService {
+    func fetchOrders() async throws -&gt; [Order]
+}
+struct APIOrderService: OrderService { /* реальні запити */ }
+struct MockOrderService: OrderService {
+    var stub: [Order] = []
+    func fetchOrders() async throws -&gt; [Order] { stub }
+}
+// Пастка static dispatch у extension:
+protocol Greeter { }               // метод НЕ оголошений у протоколі
+extension Greeter { func hi() -&gt; String { "proto" } }
+struct Kyiv: Greeter { func hi() -&gt; String { "kyiv" } }
+let g: Greeter = Kyiv()
+g.hi()   // "proto"! — метод не в вимогах → static dispatch за типом змінної</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Класика-пастка (у коді вище): метод, оголошений ТІЛЬКИ в extension протоколу, диспатчиться статично за типом змінної. Додай метод у вимоги протоколу — стане динамічним і поверне "kyiv".</li><li>any Protocol має ціну: existential container, непрямі виклики. У гарячих місцях і колекціях краще generic constraint.</li><li>Протокол з associated type до Swift 5.7 не можна було використовувати як тип — тільки як constraint; тепер any/some це помʼякшили (primary associated types).</li><li>Протокол для делегата має бути AnyObject (class-only) — інакше weak не повісиш.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Пастка: метод тільки в extension протоколу — що викличеться через змінну типу протоколу і чому?</li><li>some vs any: різниця в dispatch, перформансі, можливостях? Чому SwiftUI повертає some View?</li><li>Як протоколи роблять ViewModel тестованим — покажи на прикладі мока мережі.</li><li>POP vs успадкування: наведи приклад рефакторингу ієрархії на протоколи.</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swift-8" data-pillar="swift" data-prio="P1">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Generics</h3>
+        <span class="prio P1">P1</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Generics — параметризація коду типами: func max&lt;T: Comparable&gt;(_ a: T, _ b: T) -&gt; T працює для будь-якого порівнюваного типу, зберігаючи типобезпеку (на виході саме T, не Any). Constraints (T: Codable, where Element == String) звужують можливості до потрібних. Компілятор спеціалізує generic-код під конкретні типи — на виході швидкий мономорфний код без боксингу.</p><p>Conditional conformance: «масив Equatable-елементів сам Equatable» — extension Array: Equatable where Element: Equatable. Primary associated types (Swift 5.7): some Collection&lt;String&gt;.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Вирішує дилему «дублювати код під кожен тип чи втратити типи через Any». До generics контейнери або писались під один тип, або повертали Any з кастами в рантаймі (і крешами). Generics дають одночасно перевикористання І compile-time безпеку І перформанс.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Твій мережевий шар — найкращий приклад на співбесіді: func request&lt;T: Decodable&gt;(_ endpoint: Endpoint) async throws -&gt; T — один метод декодує будь-яку модель.</li><li>Уся стандартна бібліотека: Array&lt;Element&gt;, Dictionary&lt;Key, Value&gt;, Optional&lt;Wrapped&gt;, Result&lt;Success, Failure&gt;.</li><li>Generic-репозиторій/сховище: save&lt;T: Encodable&gt;(_ value: T, key: String).</li><li>SwiftUI повсюдно: ForEach&lt;Data, ID, Content&gt;, Button&lt;Label&gt;.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>struct Endpoint&lt;Response: Decodable&gt; {
+    let path: String
+    let method: HTTPMethod
+}
+extension Endpoint {
+    static var orders: Endpoint&lt;[Order]&gt; { .init(path: "/orders", method: .get) }
+}
+func request&lt;R&gt;(_ endpoint: Endpoint&lt;R&gt;) async throws -&gt; R {
+    let (data, _) = try await session.data(for: makeURLRequest(endpoint))
+    return try decoder.decode(R.self, from: data)
+}
+let orders = try await request(.orders)   // тип виведено: [Order]</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Generic-параметр фіксується на момент виклику — не можна в один [T] покласти різні типи (для цього existential any).</li><li>Занадто загальні констрейнти → нечитабельні сигнатури; іноді простіше два перевантаження.</li><li>Стирання типів: коли треба зберегти «будь-який Endpoint» у масиві — потрібен type erasure або any.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Напиши generic-функцію пошуку максимального елемента з constraint.</li><li>Чим generic параметр відрізняється від any Protocol за перформансом (спеціалізація vs existential)?</li><li>Розкажи, як влаштований типізований запит у вашому мережевому шарі.</li><li>Що таке conditional conformance? Приклад зі стандартної бібліотеки.</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swift-9" data-pillar="swift" data-prio="P1">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Enums, pattern matching, error handling</h3>
+        <span class="prio P1">P1</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Swift enum — повноцінний тип: методи, computed properties, generic-параметри. Associated values прикріплюють дані до кейса — case loaded([Order]), case failed(APIError); switch змушує обробити ВСІ кейси (exhaustiveness) — додав кейс, компілятор покаже всі місця, які треба оновити.</p><p>Error handling: функція позначається throws, помилка кидається throw, ловиться do/catch. try? перетворює помилку на nil, try! — на креш. rethrows — функція кидає, лише якщо кидає передане їй closure (map, filter). defer — блок, що виконається при БУДЬ-ЯКОМУ виході з області (кілька defer — у зворотному порядку).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Enum з associated values вирішує проблему неможливих станів: замість isLoading: Bool + error: Error? + data: [Order]? (де можливі безглузді комбінації «і завантажується, і помилка») — один enum, де стан рівно один. Це прибирає цілий клас багів ще на етапі моделювання.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Стан екрана: enum ScreenState { case idle, loading, loaded([Order]), failed(String) } — і SwiftUI/UIKit рендерить switch-ом.</li><li>Помилки API: enum APIError: Error { case unauthorized, server(code: Int), decoding } — твій мережевий шар з централізованою обробкою помилок робить саме це.</li><li>Маршрути дип-лінків: enum DeepLink { case order(id: String), restaurant(id: String), promo(code: String) } — парсинг URL в enum, далі типобезпечна навігація (твій робочий кейс).</li><li>Result&lt;T, E&gt; — там, де async/await недоступний: колбеки, збереження результату для повторної обробки.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>enum ScreenState {
+    case loading
+    case loaded([Order])
+    case failed(message: String)
+}
+func render(_ state: ScreenState) {
+    switch state {
+    case .loading: showSpinner()
+    case .loaded(let orders) where orders.isEmpty: showEmptyView()
+    case .loaded(let orders): show(orders)
+    case .failed(let message): showError(message)
+    }
+}
+if case .loaded(let orders) = state { print(orders.count) } // один кейс без switch</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>@unknown default для системних enum (нові кейси в нових iOS — код не зламається, але warning підкаже).</li><li>Indirect enum для рекурсивних структур (дерево категорій меню) — без indirect не скомпілюється (нескінченний розмір).</li><li>try? ковтає ПРИЧИНУ помилки — для дебагу продакшн-багів краще do/catch з логуванням.</li><li>raw value vs associated value — взаємовиключні; rawValue зручний для парсингу з бекенда (enum Status: String, Codable).</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Змоделюй стан екрана через enum — чому це краще за три окремі властивості?</li><li>Що робить rethrows і де він у стандартній бібліотеці (map)?</li><li>Порядок виконання трьох defer у функції?</li><li>Як ти парсиш дип-лінки — розкажи про enum маршрутів.</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swift-10" data-pillar="swift" data-prio="P2">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Method dispatch: static, table, message</h3>
+        <span class="prio P2">P2</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Три механізми виклику методу. Static (direct) — адреса відома на компіляції: усі методи struct/enum, final-методи, private, методи в extension. Найшвидший, дозволяє інлайнінг. Table (vtable/witness table) — адреса береться з таблиці за індексом у рантаймі: звичайні методи класів (можливий override), вимоги протоколів. Message dispatch — пошук селектора через Objective-C runtime: @objc dynamic методи; найповільніший, але дає магію — KVO, method swizzling, target-action.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Розуміння dispatch пояснює «дивну» поведінку (пастка з extension протоколу), чому final/private прискорюють код (компілятор девіртуалізує та інлайнить), і чому KVO вимагає @objc dynamic (KVO в рантаймі підміняє клас і перехоплює сеттер — можливо лише з message dispatch).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>final class / final func на класах, які не успадковуються — безкоштовна оптимізація і явний намір.</li><li>@objc dynamic — коли потрібен KVO (спостереження за AVPlayer.status), UIAppearance.</li><li>Розуміння пастки protocol extension (див. тему протоколів) — це питання саме про dispatch.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>class Animal {
+    func sound() { }          // table dispatch — можна override
+    final func id() { }       // static — override заборонено, інлайниться
+    @objc dynamic var name = "" // message — видно KVO і swizzling
+}
+extension Animal {
+    func walk() { }           // static! override у нащадку НЕ спрацює як очікуєш
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Метод у extension класу — static dispatch: «перевизначення» у сабкласі не викличеться через посилання на базовий тип.</li><li>Той самий ефект у protocol extension без оголошення методу в протоколі.</li><li>dynamic без потреби — втрата оптимізацій на рівному місці.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Чому KVO вимагає @objc dynamic — що робить рантайм?</li><li>Який dispatch у методу з extension класу і яку проблему це створює?</li><li>Як final допомагає компілятору оптимізувати?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swift-11" data-pillar="swift" data-prio="P1">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Колекції та функціональні операції</h3>
+        <span class="prio P1">P1</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>map — перетворити кожен елемент (O(n)); compactMap — map + викинути nil; flatMap — map + сплющити вкладені колекції; filter — відібрати; reduce — згорнути в одне значення; sorted — O(n log n). Ланцюги операцій читаються як опис «що зробити», а не «як ітерувати».</p><p>Sequence — можна ітерувати (можливо, одноразово і нескінченно); Collection — багаторазова, з індексами і count. .lazy відкладає обчислення: ланцюг lazy.map.filter не створює проміжних масивів і обчислює лише те, що спожито — виграш на великих даних з first(where:).</p><p>Складності: Array — доступ за індексом O(1), insert(at: 0) O(n); Set/Dictionary — contains/lookup O(1) середнє (хешування); Array.contains — O(n).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Функціональні операції вирішують проблему «шумних» циклів з мутабельними акумуляторами: менше місць для off-by-one і забутих умов, наміри видно одразу. Знання складностей вирішує проблеми перформансу: перевірка входження в Array у циклі — O(n²), яка на 10 000 елементів вже помітна; заміна на Set — O(n).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Трансформація DTO → доменні моделі: response.items.map(Order.init).</li><li>compactMap для «безпечного» парсингу: strings.compactMap(URL.init) — невалідні просто відпадають.</li><li>reduce для агрегації: сума кошика items.reduce(0) { $0 + $1.price * Decimal($1.qty) } — твій CartTotals по суті це робить.</li><li>Set для швидких перевірок: обрані ресторани favoriteIDs: Set&lt;String&gt; замість масиву.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>let ids = orders.map(\.id)                       // KeyPath замість closure
+let urls = strings.compactMap(URL.init)           // невалідні відпали
+let total = cart.reduce(Decimal(0)) { $0 + $1.price }
+
+// lazy: перший підходящий без обробки всього масиву
+let first = hugeArray.lazy
+    .map(expensiveTransform)
+    .first { $0.isValid }</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>flatMap на Optional-масивах історично перейменували в compactMap — на співбесіді люблять питати різницю.</li><li>Ланцюг map.filter.map на великому масиві створює проміжні масиви — lazy або один прохід reduce.</li><li>Hashable-контракт: рівні обʼєкти зобовʼязані мати рівний hash. Зламаєш (нестабільний hash) — Set/Dictionary поводяться непередбачувано.</li><li>Мутація колекції під час ітерації — креш/UB; збирай зміни окремо.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>flatMap vs compactMap — різниця та історія?</li><li>Складність contains у Array vs Set — і коли це реально важливо?</li><li>Коли lazy-ланцюг виграє, а коли він марний (споживаєш все одно все)?</li><li>Реалізуй reduce через цикл і суму словника через reduce.</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swift-12" data-pillar="swift" data-prio="P1">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Codable глибоко</h3>
+        <span class="prio P1">P1</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Codable = Decodable + Encodable. Компілятор синтезує реалізацію автоматично, якщо всі властивості Codable. CodingKeys — enum відповідності імен властивостей ключам JSON; keyDecodingStrategy = .convertFromSnakeCase — глобальна конвертація. Повний контроль — кастомний init(from decoder:): контейнери (keyed/unkeyed/singleValue), nested containers для вкладених структур.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Вирішує ручний парсинг JSON (гори if let json["key"] as? String — багатослівно і криво з помилками). Codable дає декларативний, типобезпечний парсинг з детальними помилками (DecodingError вкаже точний шлях до поля, що не спарсилось).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Кожна модель API у твоєму проєкті. Date через dateDecodingStrategy (.iso8601 або кастомний формуттер — бекенди люблять свої формати).</li><li>Поле, що буває String або Int (класика реальних бекендів) — кастомний init з послідовними спробами декодування.</li><li>Стійкість до сміття в масивах: обгортка FailableDecodable, щоб один битий елемент не валив увесь список (критично для стрічок/каталогів).</li><li>Кеш на диску: JSONEncoder у файл — швидкий офлайн-стан без Core Data.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>struct Order: Decodable {
+    let id: String
+    let total: Decimal
+    let promoCode: String?          // немає в JSON → nil, без помилки
+    enum CodingKeys: String, CodingKey {
+        case id = "order_id", total, promoCode = "promo_code"
+    }
+}
+// String або Int в одному полі:
+struct FlexibleID: Decodable {
+    let value: String
+    init(from decoder: Decoder) throws {
+        let c = try decoder.singleValueContainer()
+        if let s = try? c.decode(String.self) { value = s }
+        else { value = String(try c.decode(Int.self)) }
+    }
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Оголосив CodingKeys — автосинтез покриває лише перелічені ключі; пропустив властивість без дефолту — помилка компіляції.</li><li>decodeIfPresent vs decode для optional: decode(String?.self) впаде, якщо КЛЮЧА немає; decodeIfPresent — поверне nil.</li><li>DecodingError має 4 кейси (typeMismatch, valueNotFound, keyNotFound, dataCorrupted) з context.codingPath — навчись читати, це твій дебаг продакшн-парсингу.</li><li>Дефолтні значення при відсутньому ключі автосинтез НЕ дає (var x = 0 не допоможе) — потрібен кастомний init або property wrapper.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>JSON з полем String-або-Int — як задекодити? Напиши init(from:).</li><li>Як пропустити невалідні елементи масиву, не заваливши весь декодинг?</li><li>decode vs decodeIfPresent — різниця?</li><li>Як ти дебажиш DecodingError з продакшну — що в codingPath?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swift-13" data-pillar="swift" data-prio="P2">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Init, access control, KeyPath, type erasure</h3>
+        <span class="prio P2">P2</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Ініціалізатори класів: designated (повна ініціалізація) і convenience (делегує designated). Two-phase init: фаза 1 — усі stored properties отримали значення знизу вгору по ієрархії; фаза 2 — можна чіпати self. failable init? повертає nil при невалідних даних. required — усі нащадки зобовʼязані реалізувати.</p><p>Access control: private (тип+extensions у файлі) &lt; fileprivate (файл) &lt; internal (модуль, дефолт) &lt; public (видно ззовні) &lt; open (ще й можна успадковувати/override ззовні). private(set) — читати можна всім, писати лише всередині.</p><p>KeyPath \User.name — типізоване посилання на властивість як значення. Type erasure — приховування конкретного типу за обгорткою (AnyPublisher, AnyView): коли протокол з associated type не можна використати як тип напряму.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Two-phase init гарантує, що обʼєкт не використовується напівзібраним (звертання до self до ініціалізації всіх полів — помилка компіляції). Access control — інкапсуляція: private(set) var state дає читання ззовні, а мутацію лише власнику — менше місць, де стан може зламатись. Type erasure вирішує «protocol ... can only be used as a generic constraint».</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>init?(rawValue:) в enum; init? для валідації (User з порожнім імʼям — nil).</li><li>private(set) у ViewModel: private(set) var orders: [Order] — View читає, змінює лише VM.</li><li>KeyPath у API колекцій: map(\.id), sorted(by: \.createdAt) — і в SwiftUI (ForEach(items, id: \.id)).</li><li>open vs public — актуально для бібліотек/SDK: public клас ззовні НЕ можна сабкласити, open — можна.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>final class OrderViewModel {
+    private(set) var orders: [Order] = []     // ззовні read-only
+    private let service: OrderService
+    init(service: OrderService) { self.service = service }  // DI через init
+}
+let names = users.map(\.name)                 // KeyPath
+let adults = users.filter { $0.age &gt;= 18 }</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>У фазі 1 init класу не можна викликати методи self чи читати властивості — «self used before super.init».</li><li>convenience init не може ініціалізувати stored properties напряму — тільки делегувати.</li><li>private у Swift дозволяє доступ з extension того самого типу В ТОМУ Ж файлі — мʼякший за «private» в інших мовах.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Чим open відрізняється від public — і навіщо ця різниця бібліотекам?</li><li>Що таке two-phase initialization і які помилки він ловить?</li><li>Що таке type erasure, навіщо AnyView/AnyPublisher? Яку проблему з associated types це обходить?</li><li>Навіщо private(set) у ViewModel?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div></section>
+  <section data-pillar="swiftui">
+    <div class="pillar-head"><h2>SWIFTUI — 9 тем</h2></div>
+    <p class="pillar-note">Головна тема — data flow і identity: 80% питань зводяться до «чому вʼюха перемалювалась / не перемалювалась / скинула стан».</p>
+  
+    <div class="topic" data-id="swiftui-0" data-pillar="swiftui" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Ментальна модель: View як value, identity, rerendering</h3>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>View у SwiftUI — не обʼєкт на екрані, а дешевий struct-«опис» того, що має бути на екрані. Фреймворк викликає body, порівнює новий опис зі старим і застосовує лише різницю до реального рендер-дерева (attribute graph). body може викликатись дуже часто — тому він зобовʼязаний бути дешевим і без side effects.</p><p>Identity відповідає на питання «це та сама вʼюха, що й у попередньому кадрі, чи нова?». Structural identity — позиція у дереві коду (перша гілка if — одна вʼюха, друга — інша). Explicit identity — задана вручну через .id(value) або ForEach(id:). Поки identity збережена — стан (@State) живе; identity змінилась — стара вʼюха знищується разом зі станом, анімується перехід.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Ця модель вирішує головну проблему імперативного UI — розсинхрон стану і екрана (забув оновити лейбл після зміни моделі). У SwiftUI екран — функція від стану: змінився стан → фреймворк сам перерахував опис. Ціна — треба розуміти identity, інакше зʼявляються «магічні» баги: стан скидається, анімації не працюють, скрол стрибає.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>if isLoggedIn { HomeView() } else { LoginView() } — дві РІЗНІ identity: перемикання повністю пересоздає вʼюху (з анімацією переходу).</li><li>myView.opacity(isVisible ? 1 : 0) — identity ЗБЕРЕЖЕНА, стан живе; if isVisible { myView } — identity втрачається разом зі станом.</li><li>.id(userID) на екрані профілю — явний спосіб СКИНУТИ стан вʼюхи при зміні користувача (перевикористання цього ж прийому — pull-to-refresh скидання).</li><li>Дебаг зайвих перерендерів: let _ = Self._printChanges() у body покаже, яка залежність тригернула виклик.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>struct CounterView: View {
+    @State private var count = 0
+    var body: some View {
+        let _ = Self._printChanges()   // дебаг: що викликало body
+        VStack {
+            Text("Count: " + String(count))
+            Button("+") { count += 1 }
+        }
+    }
+}
+// .id змінює identity → @State скидається:
+CounterView().id(resetToken)   // новий resetToken = новий лічильник з нуля</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Side effects у body (мережевий запит, запис у UserDefaults) — body викликається непередбачувано часто; ефекти лише в .task/.onAppear/діях.</li><li>Виклик body ≠ перерисовка пікселів: SwiftUI дифить описи і чіпає лише реальні зміни. «body викликається часто» — це нормально, якщо він дешевий.</li><li>AnyView стирає тип і заважає діфингу — уникай у списках; замість нього @ViewBuilder-гілки.</li><li>Важкі обчислення в body — виноси у ViewModel/computed поза body або кешуй.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Чому @State скидається при зміні identity і як цим свідомо користуватись через .id()?</li><li>if/else vs opacity — у чому різниця для identity, стану й анімацій?</li><li>body викликався — чи означає це перерисовку UIKit/Metal-шару? Що насправді відбувається?</li><li>Як знайти, чому вʼюха перерендерюється занадто часто?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swiftui-1" data-pillar="swiftui" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Data flow: @State, @Binding, @StateObject, @ObservedObject, Observation</h3>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>@State — джерело правди для локального value-стану вʼюхи; SwiftUI зберігає значення ПОЗА структурою (у своєму сховищі, привʼязаному до identity), тому воно переживає пересоздання struct. @Binding — посилання на чуже джерело правди ($-синтаксис створює Binding зі @State): дитина читає і пише, але не володіє.</p><p>@StateObject — вʼюха СТВОРЮЄ і володіє ObservableObject: обʼєкт створюється один раз на життя identity. @ObservedObject — вʼюха лише СПОСТЕРІГАЄ за чужим обʼєктом: якщо батько перерендериться і створить новий обʼєкт — стан загубиться. Правило: створюєш тут → @StateObject; передали ззовні → @ObservedObject.</p><p>Observation (iOS 17+): макрос @Observable на класі замінює ObservableObject/@Published. Головна перевага — гранулярне відстеження: вʼюха перерендерюється, лише якщо змінилась властивість, яку вона РЕАЛЬНО читала в body (з ObservableObject — при зміні будь-якого @Published). @Bindable дає біндинги до @Observable-обʼєкта.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Це відповідь SwiftUI на питання «де живе стан і хто кого оновлює». Класичний баг, який вирішує @StateObject: ViewModel через @ObservedObject у вʼюсі, яку батько часто перебудовує → VM пересоздається, запити перезапускаються, стан зникає. Observation вирішує проблему зайвих перерендерів великих екранів (один @Published тригерив усіх підписників).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>@State — прапорці UI: showsSheet, введений текст, вибраний таб.</li><li>@Binding — переюзабельні компоненти: кастомний пікер/поле, яке редагує значення власника (твої SwiftUI-компоненти в Eatery Club).</li><li>@StateObject var vm = CheckoutViewModel(...) на екрані оформлення; дочірнім секціям — @ObservedObject/параметри.</li><li>@EnvironmentObject/@Environment — наскрізні залежності: сесія користувача, тема, DI-контейнер через дерево без прокидання параметрами через 5 рівнів.</li><li>@AppStorage("isDarkMode") — налаштування напряму з UserDefaults з автооновленням вʼюхи.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>@Observable final class CheckoutViewModel {   // iOS 17+
+    var items: [CartItem] = []
+    var isPlacingOrder = false
+    private let service: OrderService
+    init(service: OrderService) { self.service = service }
+}
+struct CheckoutView: View {
+    @State private var vm: CheckoutViewModel   // з @Observable — просто @State
+    init(service: OrderService) {
+        _vm = State(initialValue: CheckoutViewModel(service: service))
+    }
+    var body: some View {
+        List(vm.items) { CartRow(item: $0) }    // читає items → підписка лише на items
+    }
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Класика: @ObservedObject var vm = MyVM() (створення на місці) — VM пересоздається при кожному перерендері батька. Ліки: @StateObject.</li><li>@StateObject ініціалізується один раз — параметри, передані пізніше, не оновлять його; для залежностей, що змінюються, продумай init або .id().</li><li>@EnvironmentObject без .environmentObject(...) вище по дереву — креш у рантаймі.</li><li>З ObservableObject зміна @Published з фонового потоку — фіолетовий warning; @MainActor на VM вирішує системно.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>@StateObject vs @ObservedObject: хто володіє життєвим циклом? Відтвори класичний баг.</li><li>Чому @Observable ефективніший за ObservableObject + @Published — що саме відстежується?</li><li>Де фізично зберігається значення @State, якщо View — struct, який постійно пересоздається?</li><li>Три способи прокинути стан на 3 рівні вниз — тредофи кожного?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swiftui-2" data-pillar="swiftui" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Layout system</h3>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Однопрохідний протокол із трьох кроків: (1) батько ПРОПОНУЄ дочірній вʼюсі розмір (proposal); (2) дитина ОБИРАЄ власний розмір (може проігнорувати пропозицію — Text не стиснеться нижче за читабельність без явного дозволу); (3) батько РОЗМІЩУЄ дитину у своїх координатах. Розмір дитини — її рішення; позиція — рішення батька.</p><p>.frame(width:height:) — не «сеттер розміру», а вʼюха-обгортка, яка пропонує дитині вказаний розмір і сама займає його. fixedSize() — «стань ідеальним розміром, ігноруй пропозицію» (багатострочний Text перестає обрізатись). layoutPriority — кому зі стеку віддавати простір останнім.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Вирішує проблему двонаправлених обмежень AutoLayout (конфлікти, unsatisfiable constraints, дебаг рівнянь) — тут конфліктів не буває за побудовою: протокол завжди завершується якимось розміром. Ціна — треба розуміти переговори «пропозиція-відповідь», інакше несподівані обрізання і розтягування.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>.frame(maxWidth: .infinity) — «розтягнись на всю пропозицію» — стандарт для кнопок на всю ширину.</li><li>GeometryReader — коли потрібні реальні розміри/координати (прогрес-бар у частках ширини, паралакс при скролі). Але він жадібний — займає ВСЕ запропоноване, тому обгортай точково.</li><li>iOS 17+: containerRelativeFrame (частка контейнера без GeometryReader), onGeometryChange (реакція на зміну розміру) — сучасніші точкові інструменти.</li><li>Двa лейбли в HStack, місця мало: заголовок .layoutPriority(1) — обріжеться підзаголовок.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>HStack {
+    Text(title).layoutPriority(1)     // отримає простір першим
+    Spacer()
+    Text(subtitle).lineLimit(1)       // стиснеться перший
+}
+Text("Довгий текст")
+    .frame(width: 50)                 // Text обріжеться: він ОБИРАЄ бути
+                                      // читабельним, frame лише пропонує
+Button("Оплатити") { }
+    .frame(maxWidth: .infinity)       // на всю ширину пропозиції</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>GeometryReader усередині рядка списку розтягує рядок — обгортай мінімально або бери onGeometryChange.</li><li>.frame(width: 50) НЕ гарантує, що Text стане 50pt: дитина може обрати інше (обрізання з «...»).</li><li>Порядок модифікаторів = вкладеність вʼюх: .padding().background(...) ≠ .background(...).padding().</li><li>Spacer у ScrollView не працює як очікуєш: пропозиція по осі скролу нескінченна.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Опиши три кроки layout-протоколу. Хто вирішує розмір, хто — позицію?</li><li>Що станеться з Text при .frame(width: 50), якщо текст ширший — і чому?</li><li>Чому GeometryReader «жадібний» і які iOS 17-альтернативи?</li><li>Чому padding-background і background-padding дають різні результати?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swiftui-3" data-pillar="swiftui" data-prio="P1">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Lists, ForEach, lazy-контейнери, performance</h3>
+        <span class="prio P1">P1</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>List — готовий скрол-список з reuse (під капотом UICollectionView), стилями, swipe actions, секціями. LazyVStack у ScrollView — ліниве створення рядків без стилів List (повний контроль верстки), але БЕЗ reuse у класичному сенсі. VStack — створює ВСІ дочірні вʼюхи одразу — тільки для малих наборів.</p><p>ForEach — не цикл, а вʼюха-фабрика, яка вимагає стабільної identity елементів (Identifiable або id:). За identity SwiftUI розуміє: цей елемент пересунувся (анімація), цей зник (видалення), цей новий (вставка).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Lazy-контейнери вирішують памʼять і час старту: стрічка з 1000 позицій меню створює лише видимі рядки. Стабільні ID вирішують правильність diff-а: з id: \.self на індексах видалення елемента з середини SwiftUI сприймає як «змінились усі елементи після нього» — зламані анімації, загублений стан рядків, стрибки скролу.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Каталог/меню/стрічка замовлень — List або LazyVStack + ForEach(items) (Order: Identifiable за server id — стабільний ID).</li><li>Пагінація: .task(id: items.last?.id) або .onAppear останнього рядка → підвантаження сторінки.</li><li>Горизонтальні карусельки (промо-банери в home page): ScrollView(.horizontal) + LazyHStack.</li><li>Async-картинки у рядках: Kingfisher/AsyncImage з плейсхолдером — не вантаж у body синхронно.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>struct MenuList: View {
+    let items: [MenuItem]                  // MenuItem: Identifiable (id з бекенда)
+    var body: some View {
+        List(items) { item in
+            MenuRow(item: item)
+                .onAppear {
+                    if item.id == items.last?.id { loadNextPage() }
+                }
+        }
+        .listStyle(.plain)
+    }
+}
+// НЕ РОБИ: ForEach(0..&lt;items.count, id: \.self) — індекси нестабільні</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>ForEach(0..&lt;count) з мутабельним масивом — креш або зламаний diff при зміні розміру; діапазонна форма лише для констант.</li><li>id: \.self на елементах, що повторюються (два однакові рядки) — конфлікт identity, «дивні» анімації.</li><li>Важкий body рядка (форматування дат, обчислення) множиться на кількість видимих рядків — форматуй заздалегідь у VM.</li><li>AnyView у рядках списку руйнує оптимізації диффінгу.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>List vs LazyVStack vs VStack — коли що і чому?</li><li>Який конкретно баг створює ForEach(0..&lt;items.count) при видаленні елемента з середини?</li><li>Як зробити пагінацію у List двома способами?</li><li>Чому стабільний server-side ID кращий за UUID(), згенерований у init моделі?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swiftui-4" data-pillar="swiftui" data-prio="P1">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Navigation</h3>
+        <span class="prio P1">P1</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>NavigationStack (iOS 16+) — стек з навігацією за ДАНИМИ: NavigationLink(value: order) кладе значення, navigationDestination(for: Order.self) каже, який екран для цього типу. NavigationPath — типостертий масив-шлях: маніпулюєш ним программно (push/pop/popToRoot = append/removeLast/removeAll).</p><p>Модальні: .sheet(isPresented:)/.sheet(item:) — item-варіант звʼязує показ із даними (nil = закрито, значення = показано з цими даними) і прибирає розсинхрон «прапорець true, а даних ще нема». fullScreenCover, presentationDetents (половинні шторки).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>NavigationStack вирішує головний біль NavigationView: неможливість програмної навігації на N рівнів і крихкі isActive-біндинги. Навігація за даними означає: стан навігації — це просто значення, його можна зберегти, відновити, побудувати з дип-лінка.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Дип-лінк «відкрий замовлення №42 з пуша»: розпарсив URL → path.append(OrderRoute.details(id: 42)) — екран відкрився програмно (твій робочий кейс з universal links).</li><li>Checkout-флоу: enum CheckoutStep у path — кроки оформлення як дані (сумісно з твоїм server-driven checkout).</li><li>sheet(item: $selectedProduct) — картка товару: вибір елемента списку відкриває шторку з ним.</li><li>Роутер-обʼєкт: клас Router з @Published var path — інʼєктиться через environment, будь-який екран може навігувати без звʼязності.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>enum Route: Hashable {
+    case orderDetails(id: String)
+    case restaurant(id: String)
+}
+struct RootView: View {
+    @State private var path = NavigationPath()
+    var body: some View {
+        NavigationStack(path: $path) {
+            HomeView()
+                .navigationDestination(for: Route.self) { route in
+                    switch route {
+                    case .orderDetails(let id): OrderDetailsView(id: id)
+                    case .restaurant(let id): RestaurantView(id: id)
+                    }
+                }
+        }
+        .onOpenURL { url in
+            if let route = DeepLinkParser.parse(url) { path.append(route) }
+        }
+    }
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>navigationDestination усередині lazy-контейнера (рядка List) — може не зареєструватись; вішай на контейнер/зовнішню вʼюху.</li><li>sheet(isPresented:) + окрема опціональна властивість — гонка «шторка відкрилась, дані nil»; sheet(item:) вирішує атомарно.</li><li>NavigationPath типостертий — «прочитати» маршрути назад не можна; потрібен інтроспект — тримай свій [Route] замість NavigationPath.</li><li>NavigationView deprecated: дві колонки на iPad несподівано, isActive-хаки — на співбесіді згадай, що мігрував би на Stack.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Як відкрити екран на 3 рівні вглиб із дип-лінка? Покажи шлях від URL до path.</li><li>Чим sheet(item:) кращий за sheet(isPresented:)?</li><li>Як організувати роутер, щоб ViewModel не знав про вʼюхи?</li><li>Розкажи свій робочий флоу universal links → екран.</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swiftui-5" data-pillar="swiftui" data-prio="P1">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Animations і transitions</h3>
+        <span class="prio P1">P1</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Анімація у SwiftUI — інтерполяція між старим і новим значенням стану, яку фреймворк робить сам. Implicit: .animation(.spring, value: count) — анімувати зміни, спричинені зміною value. Explicit: withAnimation { state = new } — анімувати все, що змінилось від цієї мутації. Transition — як вʼюха ЗʼЯВЛЯЄТЬСЯ/ЗНИКАЄ (зміна identity): .opacity, .move(edge:), asymmetric.</p><p>matchedGeometryEffect — «hero»-анімація: два різні вʼюхи з одним id у одному namespace морфяться одна в одну (мініатюра → повноекранна картка). iOS 17: phaseAnimator (циклічні фази), keyframeAnimator (таймлайн).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Вирішує ручне керування анімаціями UIKit (UIView.animate з узгодженням станів, скасуваннями): у SwiftUI анімації interruptible і retargetable з коробки — нове значення посеред анімації плавно перенаправляє поточну, без стрибків.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Розгортання картки товару, показ/приховання фільтрів — withAnimation + transition.</li><li>Стан кнопки «Оплатити» → лоадер: transition(.opacity.combined(with: .scale)).</li><li>Промо-банери: matchedGeometryEffect для переходу мініатюра → деталі.</li><li>Скелетони завантаження: phaseAnimator для пульсації (твій SkeletonView-аналог нативно).</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>struct ExpandableCard: View {
+    @State private var expanded = false
+    var body: some View {
+        VStack {
+            header.onTapGesture {
+                withAnimation(.spring(duration: 0.35)) { expanded.toggle() }
+            }
+            if expanded {
+                details.transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+    }
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>transition не працює без анімації: зміна умови має бути в withAnimation (або .animation з value) — інакше просто зникне.</li><li>transition спрацьовує лише при зміні IDENTITY (if/else, ForEach вставки) — не при зміні властивостей.</li><li>.animation(.spring) БЕЗ value — deprecated: анімував усе підряд, включно з layout при повороті; завжди вказуй value.</li><li>Анімація в List/скролі може конфліктувати з анімаціями системи — тестуй на пристрої.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>transition vs animation — що анімує кожен і коли спрацьовує transition?</li><li>Чому .animation без value був deprecated?</li><li>Як зробити hero-перехід між списком і деталями?</li><li>Що означає interruptible/retargetable і чим це краще за UIView.animate?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swiftui-6" data-pillar="swiftui" data-prio="P1">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Life cycle і side effects: task, onAppear, App protocol</h3>
+        <span class="prio P1">P1</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Точка входу — struct з @main: App → Scene (WindowGroup) → кореневий View. @Environment(\.scenePhase) — active/inactive/background — реакція на згортання (аналог sceneDidEnterBackground).</p><p>.task { } — асинхронна робота, привʼязана до життя вʼюхи: стартує при появі, АВТОМАТИЧНО СКАСОВУЄТЬСЯ при зникненні. .task(id:) — перезапуск при зміні значення (новий пошуковий запит при зміні тексту). .onAppear — синхронний хук появи; може викликатись кілька разів (повернення назад по навігації).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>.task вирішує дві проблеми onAppear + Task {}: (1) витік роботи — запит продовжується після закриття екрана (а .task скасується сам); (2) повторні запити при кожній появі — у .task зручно guard-ити стан. UIApplicationDelegateAdaptor вирішує інтеграцію: пуші, Firebase, deep links вимагають AppDelegate — його підключають у SwiftUI-app без переписування.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>.task { await vm.loadMenu() } на екрані меню — завантаження з автоскасуванням.</li><li>.task(id: searchText) з debounce — живий пошук: новий текст скасовує попередній запит (try await Task.sleep + перевірка).</li><li>scenePhase == .background → зберегти чернетку кошика.</li><li>@UIApplicationDelegateAdaptor(AppDelegate.self) — реєстрація пушів, конфіг Firebase (твій робочий сетап).</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>struct SearchView: View {
+    @State private var query = ""
+    @State private var results: [Restaurant] = []
+    var body: some View {
+        List(results) { RestaurantRow(restaurant: $0) }
+            .searchable(text: $query)
+            .task(id: query) {                         // перезапуск на кожну зміну
+                try? await Task.sleep(for: .milliseconds(300))  // debounce
+                guard !Task.isCancelled, !query.isEmpty else { return }
+                results = (try? await api.search(query)) ?? []
+            }
+    }
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>onAppear НЕ аналог viewDidLoad: викликається при КОЖНІЙ появі (повернення зі стека) — одноразову ініціалізацію guard-и прапорцем або роби в init VM.</li><li>Task { } всередині onAppear не скасовується сам — витік роботи; .task робить це за тебе.</li><li>На iPad/багатовіконність onAppear/onDisappear можуть приходити несподівано — не привʼязуй критичну логіку сесії тільки до них.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Чому мережевий запит краще у .task, ніж в onAppear + Task {}? Дві причини.</li><li>Як зробити debounce живого пошуку через .task(id:)?</li><li>Скільки разів може викликатись onAppear і чим це відрізняється від viewDidLoad?</li><li>Навіщо UIApplicationDelegateAdaptor у SwiftUI-застосунку — твій реальний приклад?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swiftui-7" data-pillar="swiftui" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Interop із UIKit</h3>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>UIViewRepresentable / UIViewControllerRepresentable — обгортка UIKit у SwiftUI. makeUIView — створити (один раз на identity); updateUIView — синхронізувати зі SwiftUI-станом (викликається на кожне оновлення — має бути ідемпотентним і дешевим); makeCoordinator — створити обʼєкт-міст для делегатів/target-action (Coordinator живе стільки ж, скільки representable, і зазвичай тримає звʼязок «UIKit-подія → SwiftUI Binding»).</p><p>UIHostingController — зворотний напрямок: SwiftUI-вʼюха всередині UIKit-флоу. Це UIViewController, який можна пушити, презентувати, вбудовувати як child.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Вирішує головну проблему реальних проєктів — поступову міграцію: не переписувати десятки UIKit-екранів разом, а додавати нові екрани у SwiftUI всередину наявної навігації (твоя щоденна робота в Eatery Club). І навпаки: використовувати те, чого у SwiftUI немає або воно слабше (карти зі складною поведінкою, WKWebView, кастомні контроли).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Нові екрани у SwiftUI пушаться в наявний UINavigationController через UIHostingController — твій робочий патерн.</li><li>MapLibre/Google Maps у SwiftUI-екрані — UIViewRepresentable з Coordinator-делегатом карти.</li><li>UITextField/UITextView зі специфічною поведінкою (маски вводу, тулбари) — representable з Binding тексту.</li><li>sizingOptions/розміри hosting controller — щоб SwiftUI-контент правильно самовимірювався у клітинках UIKit (UIHostingConfiguration для клітинок iOS 16+).</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>struct MapView: UIViewRepresentable {
+    @Binding var selectedPlace: Place?
+    func makeUIView(context: Context) -&gt; MLNMapView {
+        let map = MLNMapView()
+        map.delegate = context.coordinator     // делегат — Coordinator
+        return map
+    }
+    func updateUIView(_ map: MLNMapView, context: Context) {
+        // синхронізація SwiftUI-стану → карта (дешево, ідемпотентно)
+    }
+    func makeCoordinator() -&gt; Coordinator { Coordinator(self) }
+    final class Coordinator: NSObject, MLNMapViewDelegate {
+        var parent: MapView
+        init(_ parent: MapView) { self.parent = parent }
+        // подія карти → parent.selectedPlace = ... (назад у SwiftUI)
+    }
+}
+// SwiftUI-екран у UIKit-навігації:
+let vc = UIHostingController(rootView: PromoView(viewModel: vm))
+navigationController?.pushViewController(vc, animated: true)</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Створення UIView у updateUIView — він викликається постійно; створення ТІЛЬКИ в make.</li><li>Coordinator тримає parent за значенням (struct) — оновлюй посилання: context.coordinator.parent = self в update, або тримай binding напряму.</li><li>Retain cycle: UIKit-обʼєкт → strong delegate → Coordinator → ... — стеж за посиланнями як у чистому UIKit.</li><li>Розмір hosting-контенту: SwiftUI хоче самовимірюватись — у UIKit-верстці дай констрейнти або sizingOptions, інакше нульова висота.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>За що відповідають makeUIView / updateUIView / Coordinator? Чому створення — тільки в make?</li><li>Навіщо Coordinator і хто ним володіє?</li><li>Розкажи свій робочий кейс: як SwiftUI-екрани вбудовані в UIKit-флоу Eatery Club?</li><li>Як дані ходять в обидва боки між SwiftUI і обгорнутим UIKit-вʼю?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="swiftui-8" data-pillar="swiftui" data-prio="P1">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Архітектура у SwiftUI: MVVM, DI, тестованість</h3>
+        <span class="prio P1">P1</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Розподіл: View — лише декларація UI і привʼязка до стану (без бізнес-логіки в body); ViewModel (@Observable/@MainActor) — стан екрана + логіка + виклики сервісів; Services — мережа, сховище, аналітика за протоколами. Стан екрана — enum (idle/loading/loaded/failed), щоб неможливі комбінації не існували.</p><p>DI: залежності приходять через init (явно, тестовано) або через Environment (наскрізні). ViewModel залежить від протоколів сервісів — у тестах підставляється мок без мережі.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Вирішує «Massive View»: коли запити, форматування і навігація звалені в body — це нетестовано і нечитабельно. MVVM робить логіку тестованою БЕЗ UI: тест створює VM з моком, викликає load(), перевіряє стан. Це прямий шлях закрити твій геп у тестуванні — покрий 2-3 своїх VM юніт-тестами і зможеш предметно про це говорити.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Кожен новий SwiftUI-екран у твоєму проєкті: CheckoutViewModel зі станом, протокол OrderService, мок у тестах.</li><li>Environment для DI-контейнера: сесія, тема, фіче-флаги (ривок до твого server-driven UI — конфіг як залежність).</li><li>TCA — знати ідеї оглядово: єдиний стор, редюсери, ефекти; НЕ обовʼязково для співбесід твого рівня, але згадка «знаю концепцію» — плюс.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>@MainActor @Observable
+final class OrdersViewModel {
+    enum State { case loading, loaded([Order]), failed(String) }
+    private(set) var state: State = .loading
+    private let service: OrderService          // протокол!
+    init(service: OrderService) { self.service = service }
+    func load() async {
+        state = .loading
+        do    { state = .loaded(try await service.fetchOrders()) }
+        catch { state = .failed(error.localizedDescription) }
+    }
+}
+// Тест без мережі:
+func testLoadSuccess() async {
+    let vm = OrdersViewModel(service: MockOrderService(stub: [.fixture()]))
+    await vm.load()
+    guard case .loaded(let orders) = vm.state else { return XCTFail() }
+    XCTAssertEqual(orders.count, 1)
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Логіка в body — нетестовано; body лише читає стан.</li><li>VM, який знає про View/UIKit-типи — залежність у неправильний бік; VM повертає дані, View вирішує як малювати.</li><li>Синглтони сервісів усередині VM (Service.shared) — не підмінити в тестах; передавай через init.</li><li>Один гігантський EnvironmentObject на весь застосунок — перерендери всього дерева на кожен чих.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Що лежить у View, що у ViewModel, що в Service? Де межа?</li><li>Як протестувати VM, що ходить у мережу — покажи мок і тест.</li><li>Навіщо @MainActor на ViewModel?</li><li>Як би ти виніс server-driven конфігурацію екранів у залежність для VM?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div></section>
+  <section data-pillar="uikit">
+    <div class="pillar-head"><h2>UIKIT — 9 тем</h2></div>
+    <p class="pillar-note">Твоя щоденна робота — тут ти маєш звучати найупевненіше. Фокус на lifecycle, AutoLayout і таблицях: це 80% UIKit-питань.</p>
+  
+    <div class="topic" data-id="uikit-0" data-pillar="uikit" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>App lifecycle: AppDelegate, SceneDelegate, стани</h3>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Стани застосунку: not running → inactive (працює, не отримує події — дзвінок, шторка) → active → background (обмежений час на завершення справ) → suspended (у памʼяті, не виконується; система може вбити без попередження). Повернення з suspended — НЕ новий запуск, стан живий.</p><p>AppDelegate — події рівня ПРОЦЕСУ: запуск (didFinishLaunching — конфіг Firebase, DI, пуші), токен пушів, background fetch. SceneDelegate — події рівня ВІКНА/UI (для multi-window на iPad): створення window, sceneDidBecomeActive, sceneDidEnterBackground. До iOS 13 усе було в AppDelegate.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Розуміння станів вирішує реальні продакшн-проблеми: де оновити застарілі дані після повернення з фону (willEnterForeground, не didFinishLaunching — його не буде при поверненні з suspended!), де зберегти стан перед смертю (didEnterBackground — гарантований момент), чому таймери/запити «зупинились» (background = виконання заморожене).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>didFinishLaunching: FirebaseApp.configure(), реєстрація пушів, старт DI-контейнера — твій робочий сетап.</li><li>Пуш-флоу: registerForRemoteNotifications → didRegisterForRemoteNotificationsWithDeviceToken → токен на бекенд; willPresent (пуш прийшов у foreground — показати банер?) / didReceive (юзер тапнув — дип-лінк навігація). Твоя щоденна тема.</li><li>sceneWillEnterForeground: рефреш статусу замовлення, перевірка протухлого токена — юзер повернувся через годину.</li><li>didEnterBackground: зберегти чернетку кошика, почати background task на дозапис.</li><li>Live Activities (твоя фіча!): оновлення через ActivityKit працює З ФОНУ через пуші — гарний приклад роботи навколо lifecycle-обмежень.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>func application(_ app: UIApplication,
+    didFinishLaunchingWithOptions opts: [UIApplication.LaunchOptionsKey: Any]?) -&gt; Bool {
+    FirebaseApp.configure()
+    UNUserNotificationCenter.current().delegate = self
+    app.registerForRemoteNotifications()
+    return true
+}
+func userNotificationCenter(_ c: UNUserNotificationCenter,
+    didReceive response: UNNotificationResponse,
+    withCompletionHandler done: @escaping () -&gt; Void) {
+    let userInfo = response.notification.request.content.userInfo
+    deepLinkRouter.handle(userInfo)      // тап по пушу → екран замовлення
+    done()
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Повернення з suspended НЕ викликає didFinishLaunching — ініціалізація «раз на показ» має жити у willEnterForeground/didBecomeActive.</li><li>У background маєш ~секунди; довша робота — beginBackgroundTask, інакше система вбʼє процес.</li><li>deviceToken може змінюватись — відправляй на бекенд при кожному didRegister, не кешуй вічно.</li><li>didReceiveRemoteNotification для тихих пушів (content-available) не гарантований — система може не розбудити застосунок (низький заряд, rate limit).</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Проведи застосунок через усі стани: користувач згорнув і відкрив через годину — які колбеки і в якому порядку?</li><li>Чому оновлення токена сесії — НЕ в didFinishLaunching?</li><li>Розкажи повний шлях пуша: від реєстрації до відкриття екрана замовлення по тапу (твій робочий флоу).</li><li>AppDelegate vs SceneDelegate — що куди і навіщо розділили?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="uikit-1" data-pillar="uikit" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>UIViewController lifecycle</h3>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Ланцюг: init → loadView (створює self.view; переозначають лише для повністю кастомного root view) → viewDidLoad (view створено, розміри НЕ фінальні; один раз на життя VC) → viewWillAppear (перед кожною появою) → viewWillLayoutSubviews / viewDidLayoutSubviews (після проходу AutoLayout — тут розміри ВЖЕ валідні; може викликатись багато разів) → viewDidAppear (на екрані, анімація переходу завершена) → viewWillDisappear / viewDidDisappear → deinit.</p><p>Containment (child view controllers): addChild(child) → view.addSubview(child.view) → child.didMove(toParent: self) — вбудовування VC у VC (сегменти, вкладки, твої UIHostingController-вставки).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Знання «що і де робити» прибирає цілий клас багів: підписки в viewDidLoad без відписки → дублікати обробників після повернення; робота з frame у viewDidLoad → верстка під старий розмір; важке в viewWillAppear → лаг переходу. Правила: одноразова настройка — viewDidLoad; підписки/таймери — willAppear + зняття в didDisappear; усе залежне від розмірів — viewDidLayoutSubviews.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>viewDidLoad: addSubview + констрейнти, конфіг таблиці, привʼязка VM.</li><li>viewWillAppear: оновити дані, які могли змінитись, поки екран був у стеку (повернулись із деталей — список освіжити); почати спостереження.</li><li>viewDidLayoutSubviews: градієнтний CALayer під розмір вʼюхи (layer не в AutoLayout!), скругления, залежні від фактичної ширини.</li><li>viewDidAppear: стартувати анімації, запросити дозволи (не лякати юзера до появи екрана), почати відеоплеєр.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>override func viewDidLoad() {
+    super.viewDidLoad()
+    setupSubviews()                    // один раз
+}
+override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    NotificationCenter.default.addObserver(self, selector: #selector(refresh),
+        name: .orderUpdated, object: nil)
+}
+override func viewDidDisappear(_ animated: Bool) {
+    super.viewDidDisappear(animated)
+    NotificationCenter.default.removeObserver(self)   // парна відписка
+}
+override func viewDidLayoutSubviews() {
+    super.viewDidLayoutSubviews()
+    gradientLayer.frame = headerView.bounds  // розміри вже фінальні
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>frame/bounds у viewDidLoad — ще від XIB/дефолту, НЕ фінальні (інші пристрої, rotation). Валідні — у viewDidLayoutSubviews.</li><li>viewWillAppear без парного «зняття» у didDisappear — подвійні підписки після повернення.</li><li>viewWillAppear викликався, а viewDidAppear ні — можливо: interactive pop скасовано на півдорозі (свайп назад відпущено).</li><li>Пропущений didMove(toParent:) при containment — зламані appearance-колбеки дитини.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Повний порядок колбеків від init до deinit? Що викликається один раз, що — багато?</li><li>Чому frame невалідний у viewDidLoad і де валідний?</li><li>Що робити в viewWillAppear vs viewDidLoad — правило?</li><li>Як правильно вбудувати child VC (три кроки) — і де ти це робиш із UIHostingController?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="uikit-2" data-pillar="uikit" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>AutoLayout</h3>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Система лінійних рівнянь: кожен констрейнт — item1.attr = m × item2.attr + c. Solver (Cassowary) знаходить розвʼязок. Пріоритети: required (1000) — рівняння зобовʼязане виконатись; нижчі (999...1) — «побажання», яким можна поступитись. Конфлікт двох required — креш-лог «Unable to simultaneously satisfy constraints» і система викидає один констрейнт навмання.</p><p>Intrinsic content size — власний розмір контенту (лейбл знає розмір тексту). Довкола нього два невидимі констрейнти з пріоритетами: content hugging (опір розтягуванню — «не хочу бути більшим за контент») і compression resistance (опір стисканню — «не дам себе обрізати»). Дефолти: hugging 251, resistance 750.</p><p>Цикл верстки: setNeedsLayout — «поміть брудним, перерахуєш на наступному кадрі» (дешево, батчиться); layoutIfNeeded — «перерахуй НЕГАЙНО, якщо брудний» (синхронно); потрібен для анімації констрейнтів.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Вирішує адаптивність: один екран на всі розміри iPhone/iPad, динамічні шрифти, локалізації різної довжини (твої 10+ мов — німецький текст в 1.5 раза довший за англійський!). Пріоритети і hugging/resistance вирішують конфлікти «кому поступитись місцем» декларативно.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Класика «два лейбли в рядку»: назва страви + ціна. Ціна не має обрізатись: price.setContentCompressionResistancePriority(.required, for: .horizontal) — стиснеться назва (з «...»).</li><li>Анімація розкриття панелі: змінити constant → UIView.animate { self.view.layoutIfNeeded() }.</li><li>Self-sizing клітинки: констрейнти від верху до низу контенту + estimatedRowHeight — твоя щоденна практика в XIB.</li><li>Перемикання станів: активація/деактивація масивів констрейнтів (NSLayoutConstraint.activate) — компактний/розгорнутий режими.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>// Два лейбли: ціна не стискається, назва — так
+nameLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+priceLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+priceLabel.setContentHuggingPriority(.required, for: .horizontal)
+
+// Анімація констрейнта:
+heightConstraint.constant = isExpanded ? 300 : 80
+UIView.animate(withDuration: 0.3) {
+    self.view.layoutIfNeeded()   // solver перерахує, зміни анімуються
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>translatesAutoresizingMaskIntoConstraints = false для КОЖНОЇ вʼюхи, створеної кодом — інакше автогенеровані констрейнти конфліктують з твоїми (найчастіша помилка).</li><li>Анімація констрейнтів без layoutIfNeeded усередині animate-блоку — зміна стрибне без анімації.</li><li>Конфлікт 1000 vs 1000 → лог з «Will attempt to recover by breaking constraint» — читай, який зламали; один з required зроби 999.</li><li>Дебаг: view.constraintsAffectingLayout(for: .vertical), symbolic breakpoint UIViewAlertForUnsatisfiableConstraints, Debug View Hierarchy.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Два лейбли в рядку, місця мало — який стиснеться? Як гарантувати, що ціна ніколи не обріжеться?</li><li>hugging vs compression resistance — що кожен контролює?</li><li>setNeedsLayout vs layoutIfNeeded — різниця і чому layoutIfNeeded потрібен в анімації?</li><li>Як дебажиш Unable to satisfy constraints у великому XIB — покроково?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="uikit-3" data-pillar="uikit" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>UITableView / UICollectionView</h3>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Reuse: система тримає пул клітинок ≈ під видиму область; клітинка, що поїхала за екран, повертається в пул і видається знову через dequeueReusableCell — зі СТАРИМ вмістом. prepareForReuse — місце скинути стан (скасувати завантаження картинки, обнулити прапорці). dataSource — «що показувати» (кількість, клітинки); delegate — «як поводитись» (висоти, тапи, will/didDisplay).</p><p>Diffable Data Source: описуєш НОВИЙ стан снапшотом (секції + item identifiers), система сама рахує diff і анімує вставки/видалення/переміщення. Прибирає цілий клас крешів «number of rows before update is not equal…» від ручного performBatchUpdates. Compositional Layout — декларативний опис колекції: item → group → section, кожна секція зі своєю геометрією й ортогональним скролом.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Reuse вирішує памʼять: стрічка з 10 000 замовлень тримає ~15 клітинок замість 10 000. Diffable вирішує коректність оновлень (креші batch updates). Compositional вирішує складні макети (горизонтальні карусельки в вертикальній стрічці — твоя home page) без вкладених collection views і їх багів.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Меню ресторану, список замовлень, каталог — базовий хліб твого проєкту.</li><li>Async-картинки страв + reuse: скасування завантаження в prepareForReuse (Kingfisher робить це через cancelDownloadTask).</li><li>Home page із секціями «банери / категорії / рекомендації» — compositional layout з orthogonal scrolling (природно лягає на твій server-driven UI: секції з конфіга бекенда).</li><li>Diffable + server-driven: прийшов новий конфіг сторінки → новий снапшот → секції красиво анімуються.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>// Класичний фікс «чужих картинок» при reuse:
+final class DishCell: UITableViewCell {
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        thumbView.kf.cancelDownloadTask()   // 1) скасувати стару загрузку
+        thumbView.image = placeholder       // 2) плейсхолдер одразу
+    }
+}
+// 3) у cellForRowAt — завантаження за URL САМЕ ЦІЄЇ моделі
+
+// Diffable:
+var snapshot = NSDiffableDataSourceSnapshot&lt;Section, MenuItem.ID&gt;()
+snapshot.appendSections([.promo, .dishes])
+snapshot.appendItems(promoIDs, toSection: .promo)
+dataSource.apply(snapshot, animatingDifferences: true)</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>«Чужі» картинки при скролі — питання №1 по таблицях: причина — reuse + асинхронне завантаження, що завершилось для вже переюзаної клітинки. Фікс: три кроки в коді вище.</li><li>reloadData посеред анімацій/скролу — смикання, втрата виділень; точкові оновлення або diffable.</li><li>Важке в cellForRowAt (форматування, підрахунки) — виконується на кожен показ клітинки → лаги скролу; готуй дані заздалегідь у VM.</li><li>Diffable вимагає УНІКАЛЬНИХ і стабільних identifiers; дублікати = креш. ID, а не цілі моделі, у снапшоті (швидше, менше памʼяті).</li><li>Self-sizing: повний ланцюг вертикальних констрейнтів у contentView + estimatedRowHeight; розриви = нульова висота.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Чому при скролі зʼявляються «чужі» картинки і які три кроки фіксу?</li><li>Навіщо prepareForReuse і що в ньому робити/не робити?</li><li>Чим diffable data source кращий за reloadData і performBatchUpdates?</li><li>Як би ти зверстав home page з горизонтальними каруселями — compositional layout: item/group/section?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="uikit-4" data-pillar="uikit" data-prio="P1">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>UIView, CALayer, rendering</h3>
+        <span class="prio P1">P1</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Кожен UIView — обгортка над CALayer: view обробляє події (touch, responder chain) і AutoLayout, layer — малювання, геометрію, анімації. frame — прямокутник у координатах СУПЕРВʼЮХИ; bounds — власна система координат (origin зазвичай 0,0). Не збігаються: при transform (frame стає undefined — не читай його), при скролі (UIScrollView просто рухає bounds.origin!).</p><p>Кадр рендериться конвеєром: layout (layoutSubviews) → display (draw/вміст layer) → композиція на GPU. Offscreen rendering — GPU змушений малювати у проміжний буфер до екрана: тригери — masksToBounds + cornerRadius на складному вмісті, тінь БЕЗ shadowPath, маски. Багато offscreen у клітинках = просідання скролу.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Розуміння view/layer пояснює, чому тінь і скруглення «конфліктують» (тінь малюється ЗОВНІ, clipping ріже ВСЕРЕДИНІ — на одному layer несумісні) і як анімувати те, чого немає в UIView API (CABasicAnimation по шляху). Розуміння bounds пояснює весь UIScrollView одним реченням.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Картка страви з тінню і скругленням: два шари — зовнішній layer з shadow + shadowPath, внутрішній view з cornerRadius + masksToBounds.</li><li>Градієнт кнопки: CAGradientLayer, frame оновлюється у layoutSubviews/viewDidLayoutSubviews (layer не в AutoLayout!).</li><li>Дебаг скролу: Simulator → Debug → Color Offscreen-Rendered Yellow; Instruments → Core Animation.</li><li>layoutSubviews викликається при зміні bounds, addSubview, setNeedsLayout — ручна верстка підвʼюх без констрейнтів.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>// Тінь + скруглення БЕЗ offscreen rendering:
+containerView.layer.shadowColor = UIColor.black.cgColor
+containerView.layer.shadowOpacity = 0.15
+containerView.layer.shadowPath = UIBezierPath(   // явний шлях = без offscreen
+    roundedRect: containerView.bounds, cornerRadius: 16).cgPath
+
+contentView.layer.cornerRadius = 16
+contentView.layer.masksToBounds = true           // ріже ВНУТРІШНІЙ вміст
+// containerView НЕ має masksToBounds — тінь живе зовні</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>shadowPath оновлюй при зміні розмірів (layoutSubviews) — інакше тінь відстане від вʼюхи.</li><li>Після transform читати/писати frame не можна — працюй з bounds + center.</li><li>drawRect дорогий (CPU-растеризація) — лише коли справді потрібне кастомне малювання; частіше вистачає шарів і картинок.</li><li>UIStackView сам не малюється (non-rendering) — background до iOS 14 не працював.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>frame vs bounds — коли не збігаються? Як через bounds пояснити UIScrollView?</li><li>Як зробити тінь + cornerRadius без offscreen rendering?</li><li>Що тригерить layoutSubviews?</li><li>Чим відрізняються view і layer за відповідальністю?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="uikit-5" data-pillar="uikit" data-prio="P1">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Responder chain, hit testing, gestures</h3>
+        <span class="prio P1">P1</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Два окремі механізми. Hit testing — ПОШУК вʼюхи під пальцем: рекурсивний обхід дерева ЗВЕРХУ вниз (subviews у зворотному порядку — верхні перші) через hitTest(_:with:), який викликає point(inside:). Вʼюха випадає з пошуку: isUserInteractionEnabled=false, isHidden, alpha&lt;0.01, точка поза bounds.</p><p>Responder chain — ДОСТАВКА події, якщо ніхто не обробив: view → superview → ... → UIViewController → UIWindow → UIApplication. UIGestureRecognizer-и мають пріоритет над raw touches; конфлікти вирішуються делегатом (shouldRecognizeSimultaneouslyWith, require(toFail:)).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Пояснює найчастіші «містичні» баги дотиків: кнопка, що стирчить за межі батька, НЕ тапається (hit test батька відсікає точку поза його bounds до перевірки дітей); прозорий оверлей зʼїдає тапи; жест таблиці конфліктує з жестом клітинки.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Збільшення тач-зони маленької кнопки: override point(inside:) з bounds.insetBy(dx: -12, dy: -12).</li><li>Кнопка за межами батька: override hitTest у батька — перевіряти дітей до відсікання.</li><li>«Пропускати» тапи крізь оверлей: hitTest повертає nil для себе, але дітей перевіряє.</li><li>Тап по фону закриває клавіатуру, але не блокує кнопки: tap recognizer з cancelsTouchesInView = false.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>// Збільшена тач-зона:
+final class BigTapButton: UIButton {
+    override func point(inside point: CGPoint, with event: UIEvent?) -&gt; Bool {
+        bounds.insetBy(dx: -12, dy: -12).contains(point)
+    }
+}
+// Кнопка, що виступає за межі контейнера:
+override func hitTest(_ point: CGPoint, with event: UIEvent?) -&gt; UIView? {
+    if let v = super.hitTest(point, with: event) { return v }
+    let p = overflowButton.convert(point, from: self)
+    return overflowButton.point(inside: p, with: event) ? overflowButton : nil
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Порядок обходу: ОСТАННЯ додана subview перевіряється ПЕРШОЮ — верхня вʼюха перехоплює тапи нижньої.</li><li>alpha &lt; 0.01 вимикає дотики — «майже невидима» кнопка перестає працювати.</li><li>Жест на superview зʼїдає тапи по клітинках таблиці — delegate + touch.view перевірка.</li><li>hitTest викликається двічі на дотик — не клади туди side effects.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Кнопка стирчить за межі батьківської вʼюхи — чому не тапається і два способи фіксу?</li><li>Опиши рекурсію hitTest: порядок, умови відсікання.</li><li>Hit testing vs responder chain — що шукає, що доставляє?</li><li>Як розвʼязати конфлікт двох жестів (скрол + свайп клітинки)?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="uikit-6" data-pillar="uikit" data-prio="P1">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Navigation: push, present, координатори</h3>
+        <span class="prio P1">P1</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>UINavigationController — стек VC: push/pop, свайп назад безкоштовно, спільний navigation bar. present — модальний показ ПОВЕРХ (окремий флоу: оформлення, авторизація); стилі: pageSheet (шторка), fullScreen (важливо: fullScreen НЕ викликає viewWillAppear у батька після dismiss — сюрприз для оновлення даних), popover.</p><p>Coordinator: обʼєкт, що ВОЛОДІЄ навігацією — створює VC, тримає navigationController, вирішує «куди далі». VC лише повідомляє про події (делегат/closure) і не знає про інші екрани. Дерево координаторів: AppCoordinator → TabCoordinator → OrderFlowCoordinator.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Вирішує зашитість флоу у VC: коли екран сам створює і пушить наступний — його неможливо перевикористати в іншому флоу, тестувати і міняти порядок кроків. Особливо боляче у твоєму випадку server-driven checkout: порядок кроків приходить з бекенда — отже, вирішувати «куди далі» має координатор за конфігом, а не екран.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Checkout-флоу: CheckoutCoordinator читає конфіг кроків (адреса → оплата → підтвердження) і пушить екрани за ним — твій робочий патерн у чистому вигляді.</li><li>Передача результату назад: closure var onAddressSelected: ((Address) -&gt; Void)? — простіше за delegate для одного колбека.</li><li>Deep link з пуша: AppCoordinator розбирає маршрут, вибирає таб, будує стек екранів.</li><li>UIHostingController усередині координатора — SwiftUI-екрани в тому ж флоу без винятків.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>final class CheckoutCoordinator {
+    private let nav: UINavigationController
+    private let steps: [CheckoutStep]          // server-driven конфіг!
+    private var index = 0
+    func start() { show(steps[0]) }
+    private func show(_ step: CheckoutStep) {
+        let vc = makeViewController(for: step)
+        vc.onCompleted = { [weak self] in self?.next() }   // екран не знає, що далі
+        nav.pushViewController(vc, animated: true)
+    }
+    private func next() {
+        index += 1
+        index &lt; steps.count ? show(steps[index]) : finishOrder()
+    }
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Координатори ніхто не тримає — деініт і мертві колбеки; батько тримає дітей у масиві childCoordinators, прибирає по завершенню флоу.</li><li>onCompleted-closure захоплює координатор, координатор тримає VC... — [weak self] у колбеках координатора.</li><li>present поверх present — «Attempt to present ... which is already presenting»; презентуй з topmost VC.</li><li>Passing data: синглтони/глобальний стан замість init injection — нетестовано і звʼязує все з усім.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Чому «VC сам пушить наступний VC» — антипатерн? Три причини.</li><li>Як екран Б повертає результат екрану А — delegate, closure, async? Тредофи?</li><li>Спроєктуй координатор для server-driven checkout — як конфіг визначає флоу?</li><li>push vs present — семантика вибору (не технічна різниця, а КОЛИ що)?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="uikit-7" data-pillar="uikit" data-prio="P2">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>RunLoop, main thread, Timer</h3>
+        <span class="prio P2">P2</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>RunLoop — цикл обробки подій потоку: чекає події (тач, таймер, DisplayLink) → обробляє → спить. Main RunLoop крутить весь UI. Modes: default — звичайна робота; tracking — під час скролу; common — обʼєднання. Timer, доданий у default mode, ЗАВМИРАЄ під час скролу — RunLoop у tracking mode його не бачить.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Пояснює класичний баг «таймер зупиняється при скролі» (каруселька банерів перестає гортатись, поки юзер скролить меню — твій прямий кейс!) і чому «UI лише з main» — не забобон, а наслідок однопотокової моделі RunLoop/UIKit.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Автогортання промо-банерів: RunLoop.main.add(timer, forMode: .common) — працює і під час скролу.</li><li>CADisplayLink — «таймер кадрів» для власних анімацій (прогрес кільця).</li><li>Main Thread Checker ловить UI-виклики з фонових потоків (фіолетові варнінги).</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>let timer = Timer(timeInterval: 3, repeats: true) { [weak self] _ in
+    self?.scrollToNextBanner()
+}
+RunLoop.main.add(timer, forMode: .common)   // не завмирає при скролі</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Timer.scheduledTimer додає в default mode — банерна каруселька «зависає» при скролі; додай у .common.</li><li>Timer з target: self тримає self СИЛЬНО до invalidate — block-based API + [weak self] + invalidate у deinit/didDisappear.</li><li>Таймер — не точний інструмент: спрацює після поточної ітерації RunLoop; для точних кадрів — CADisplayLink.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Чому таймер зупиняється при скролі й як полагодити?</li><li>Чому Timer(target: self) створює цикл і як уникнути?</li><li>Що таке RunLoop mode і навіщо common?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="uikit-8" data-pillar="uikit" data-prio="P2">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>XIB / Storyboard vs код</h3>
+        <span class="prio P2">P2</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>XIB — XML-опис однієї вʼюхи/екрана, вантажиться в рантаймі (Bundle.loadNibNamed); File's Owner — обʼєкт-власник, до якого чіпляються IBOutlet. Storyboard — багато екранів + segue між ними. Верстка кодом — усе явно, найкращий diff/merge.</p><p>Твій проєкт (XIB + програмна верстка, БЕЗ Storyboard) — усвідомлений компроміс: XIB дає візуальний огляд і швидкість для статичних екранів/клітинок, код — контроль для динаміки; відсутність Storyboard прибирає найгірші merge-конфлікти і повільний Interface Builder на великих файлах.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Вибір інструмента — типове питання «як влаштований ваш проєкт». Storyboard-и в команді конфліктують на кожному PR (один XML на десятки екранів), погано ревʼюються, стрінгові ідентифікатори segue падають у рантаймі. XIB локалізує конфлікт до одного екрана. Код — єдине джерело правди, але повільніше для простих форм.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Переюзабельна вʼюха з XIB: клітинки меню, банери — registerNib + dequeue, твій щоденний пайплайн.</li><li>loadNibNamed у init кастомної вʼюхи + прикріплення contentView (owner-патерн).</li><li>Нові екрани — SwiftUI (у тебе так і є) — XIB лишили legacy, нове пишеться декларативно.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>// Реєстрація і використання клітинки з XIB:
+tableView.register(UINib(nibName: "DishCell", bundle: nil),
+                   forCellReuseIdentifier: "DishCell")
+let cell = tableView.dequeueReusableCell(withIdentifier: "DishCell",
+                                         for: indexPath) as! DishCell</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>IBOutlet — сучасна рекомендація strong (weak — спадок часів viewDidUnload); але weak теж працює, головне розуміти чому.</li><li>Забутий registerNib → креш dequeue; стрінгові ідентифікатори — винось у константи/SwiftGen (у вас він є!).</li><li>XIB + кастомний init: awakeFromNib викликається ПІСЛЯ звʼязування outlets — конфігуруй там, не в init.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Аргументуй ваш вибір XIB + код без Storyboard — плюси, мінуси, чому не інакше?</li><li>Як влаштований пайплайн переюзабельної вʼюхи з XIB у вашому проєкті?</li><li>Чому великі команди тікають від Storyboard?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div></section>
+  <section data-pillar="adj">
+    <div class="pillar-head"><h2>СУМІЖНЕ, ЩО СПИТАЮТЬ ОДНАКОВО — 4 теми</h2></div>
+    <p class="pillar-note">Мережа, сховище, тести й архітектура — питають на кожній співбесіді незалежно від стека UI.</p>
+  
+    <div class="topic" data-id="adj-0" data-pillar="adj" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Networking: URLSession і дизайн мережевого шару</h3>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>URLSession — HTTP-клієнт системи. Конфігурації: .default (кеш, куки на диску), .ephemeral (усе в памʼяті — приватні режими), .background (завантаження продовжуються після вбивства застосунку — через окремий системний процес). Сучасний API: let (data, response) = try await session.data(for: request); статус-код — у (response as? HTTPURLResponse)?.statusCode, і URLSession НЕ кидає помилку на 404/500 — це твоя робота.</p><p>Дизайн шару (твоя робоча тема): Endpoint описує запит (path, method, body, headers) як значення; generic-метод request&lt;T: Decodable&gt; виконує і декодує; централізована обробка: mapping статус-кодів у доменні помилки (enum APIError), refresh токена на 401 з повтором запиту, логування.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Централізований типізований шар вирішує: розкидані по екранах URLSession.shared.dataTask з копіпастою обробки помилок; «тихі» баги від незвірених статус-кодів; неможливість глобально додати авторизацію/ретраї/логування. Одна точка входу = одне місце для всіх cross-cutting concerns.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Твій продакшн-шар в Eatery Club — розкажи на співбесіді СВОЄ: типізовані запити, централізовані помилки — це готова сильна відповідь.</li><li>Скасування пошуку: тримаєш Task попереднього запиту, cancel() перед новим (або .task(id: query) у SwiftUI робить це сам).</li><li>Паралельні незалежні запити екрана: async let / TaskGroup.</li><li>URLCache + ETag: безкоштовний HTTP-кеш для каталогу; SSL pinning — захист від MITM (знати концепцію: перевірка сертифіката сервера у delegate).</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>enum APIError: Error {
+    case unauthorized, notFound
+    case server(code: Int), decoding(Error), transport(Error)
+}
+func request&lt;T: Decodable&gt;(_ endpoint: Endpoint) async throws -&gt; T {
+    let (data, response) = try await session.data(for: endpoint.urlRequest)
+    guard let http = response as? HTTPURLResponse else { throw APIError.server(code: -1) }
+    switch http.statusCode {
+    case 200..&lt;300: break
+    case 401: throw APIError.unauthorized      // → refresh token flow
+    case 404: throw APIError.notFound
+    default:  throw APIError.server(code: http.statusCode)
+    }
+    do { return try decoder.decode(T.self, from: data) }
+    catch { throw APIError.decoding(error) }
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>URLSession не кидає на 4xx/5xx — помилка транспорту ≠ помилка сервера; хто не перевіряє статус, декодить HTML-сторінку помилки як JSON.</li><li>Retry на 401: онови токен ОДИН раз і повтори; два запити одночасно отримали 401 — refresh має бути дедуплікований (actor/серіалізація), інакше подвійний refresh забанить сесію.</li><li>Background session вимагає delegate-API (не async), і система викликає колбеки навіть після перезапуску застосунку.</li><li>Таймаути: timeoutIntervalForRequest — на тишу між пакетами, не на весь запит.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Намалюй свій мережевий шар з роботи: шлях запиту від виклику до декодованої моделі, де ловляться помилки?</li><li>Чому URLSession не кидає помилку на 500 і що буде, якщо забути перевірити статус?</li><li>Як реалізувати refresh токена на 401 без подвійного refresh при паралельних запитах?</li><li>Як скасувати попередній пошуковий запит при введенні нового символа?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="adj-1" data-pillar="adj" data-prio="P1">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Persistence: UserDefaults, Keychain, Core Data / SwiftData, файли</h3>
+        <span class="prio P1">P1</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Чотири інструменти під чотири задачі. UserDefaults — маленькі налаштування (прапорці, вибрана мова); plist-файл, НЕ шифрований, вантажиться цілком у память. Keychain — секрети (токени, паролі): шифрується системою, переживає ВИДАЛЕННЯ застосунку, доступ через Security framework (усі користуються обгортками). Core Data — обʼєктний граф зі звʼязками, запитами, міграціями, lazy-loading (faults); це НЕ «обгортка SQLite», а фреймворк керування графом обʼєктів. Файли/FileManager — блоби: картинки, кеш JSON, документи.</p><p>Core Data стек: NSPersistentContainer → viewContext (main, для UI) + background contexts (newBackgroundContext / performBackgroundTask). Правило потоків: NSManagedObject живе У СВОЄМУ контексті — між потоками передається objectID, не обʼєкт. SwiftData — новий шар над тим самим ядром: @Model-макрос, @Query у SwiftUI.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Правильний вибір сховища — питання і безпеки, і перформансу: токен у UserDefaults читається з бекапа/джейлбрейка за секунди (провал секʼюріті-ревʼю); список з 10 000 обʼєктів у UserDefaults — секунди на кожен запуск; блокуючий запис Core Data на main — фризи UI.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Твій проєкт: access/refresh токени → Keychain; вибраний ресторан, мова, фіче-флаги онбордингу → UserDefaults; кеш меню для офлайн-старту → JSON-файл або Core Data; фото страв → диск через Kingfisher-кеш.</li><li>Background import: синк каталогу з бекенда — performBackgroundTask, збереження, main context підтягує зміни через automaticallyMergesChangesFromParent.</li><li>App Group + UserDefaults(suiteName:) — шаринг стану з віджетом/Live Activity (твоя фіча!).</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>// Токен — тільки Keychain:
+func saveToken(_ token: Data) {
+    let query: [String: Any] = [
+        kSecClass as String: kSecClassGenericPassword,
+        kSecAttrAccount as String: "accessToken",
+        kSecValueData as String: token,
+        kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
+    ]
+    SecItemDelete(query as CFDictionary)      // upsert: видалити старий
+    SecItemAdd(query as CFDictionary, nil)
+}
+// Core Data: масовий запис без блокування UI:
+container.performBackgroundTask { context in
+    for dto in dtos { _ = MenuItem(context: context, dto: dto) }
+    try? context.save()     // main context змерджить зміни автоматично
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Токен у UserDefaults — класична причина завалу секʼюріті-питання на співбесіді. Тільки Keychain.</li><li>Keychain переживає видалення застосунку — на першому запуску після перевстановлення можеш знайти старий токен; чисть за прапорцем першого запуску.</li><li>NSManagedObject між потоками — креш/UB; передавай objectID.</li><li>UserDefaults.synchronize() — не потрібен з iOS 12, викликати його — маркер застарілих знань.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Що куди зберігати: токен, налаштування, кеш меню, фото — і чому саме так?</li><li>Чому токен НЕ можна в UserDefaults — два конкретні ризики?</li><li>Як записати 1000 обʼєктів у Core Data, не заблокувавши UI?</li><li>Як шарити дані з віджетом/Live Activity (App Group) — твій робочий досвід?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="adj-2" data-pillar="adj" data-prio="P1">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Тестування: XCTest, моки, DI</h3>
+        <span class="prio P1">P1</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Unit-тест перевіряє одиницю логіки в ізоляції: швидкий (мілісекунди), детермінований, без мережі/диска/UI. Структура given-when-then. Async-логіка: await прямо в тесті (func test... async throws). XCTest — основний фреймворк; Swift Testing (нове покоління): @Test, #expect, параметризовані тести — знати, що існує.</p><p>Мокання: залежність за протоколом → тестова реалізація з контрольованою відповіддю (stub) і записом викликів (spy). DI через init робить підміну тривіальною. Піраміда: багато unit (логіка VM, парсери, форматери) → менше integration → мінімум UI-тестів (повільні й крихкі).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Тести вирішують страх рефакторингу і регресії: у твоєму мультибрендовому проєкті зміна в спільному коді може зламати 5 брендів — тести ловлять це до QA. Для співбесіди: відсутність тестів у резюме — найпомітніший твій геп; вміння написати тест VM з моком мережі закриває питання.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Найвигідніші перші тести у твоєму проєкті: розрахунок кошика (CartTotals — чиста логіка, ідеальний кандидат), парсери server-driven конфігів, форматери адрес/цін.</li><li>VM з моком: тест успіху, тест помилки мережі, тест порожнього стану — три тести на екран, і вже є що показати.</li><li>Fixtures: static func fixture(...) з дефолтами — читабельні тестові дані без шуму.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>final class MockOrderService: OrderService {
+    var result: Result&lt;[Order], Error&gt; = .success([])
+    private(set) var fetchCallCount = 0          // spy: перевірка взаємодії
+    func fetchOrders() async throws -&gt; [Order] {
+        fetchCallCount += 1
+        return try result.get()
+    }
+}
+final class OrdersViewModelTests: XCTestCase {
+    func testLoadFailure_showsError() async {
+        // given
+        let mock = MockOrderService()
+        mock.result = .failure(APIError.server(code: 500))
+        let vm = OrdersViewModel(service: mock)
+        // when
+        await vm.load()
+        // then
+        guard case .failed = vm.state else { return XCTFail("expected .failed") }
+        XCTAssertEqual(mock.fetchCallCount, 1)
+    }
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Тести, що ходять у реальну мережу — повільні, флакі, залежні від бекенда; це НЕ unit-тести.</li><li>Синглтони в коді = неможливість мокати; DI через init — передумова тестованості (тому питання про тести — це питання про архітектуру).</li><li>Тестуй поведінку, не імплементацію: перевіряй стан VM, а не «викликався приватний метод».</li><li>XCTestExpectation досі потрібен для callback-API; для async/await — просто await.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Напиши тест VM: успіх і помилка мережі — з моком через протокол.</li><li>Stub vs spy vs mock — різниця?</li><li>Що б ти покрив тестами першим у своєму проєкті і чому (підказка: CartTotals)?</li><li>Чому синглтони заважають тестуванню?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" data-id="adj-3" data-pillar="adj" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Архітектури і SOLID — розмовна тема</h3>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>MVC — Apple-дефолт: VC тримає і view-логіку, і презентаційну → «Massive View Controller». MVVM — презентаційна логіка й стан у ViewModel, який НЕ знає про UIKit/SwiftUI → тестований; природна пара для SwiftUI. MVP — presenter командує пасивною view через протокол. VIPER — + Interactor (бізнес-логіка), Router (навігація), Entity: багато файлів на екран, для великих команд із жорсткими межами. Clean Architecture — шари domain/data/presentation, залежності показують всередину (domain нічого не знає про UI і мережу).</p><p>SOLID на iOS-прикладах: S — VC, що і верстає, і ходить у мережу, і парсить — розділити; O — нова секція home page додається новим типом, а не switch-ом у 10 місцях (твій server-driven UI — буквально це); L — сабклас не ламає контракт базового; I — не UITableViewDataSource+Delegate в одному гігантському протоколі, а вузькі ролі; D — VM залежить від OrderService-протоколу, не від конкретного APIClient.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Архітектура вирішує масштабування коду командою: де шукати баг, як не зачепити чуже, як тестувати. На співбесіді це перевірка зрілості: чи розумієш ТРЕЙДОФИ (VIPER на 3-екранному застосунку — оверінжиніринг; MVC на 50 екранах — болото), а не «яка архітектура наймодніша».</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Твоя робоча відповідь: UIKit-екрани — MVC із винесеними менеджерами (CartTotalsManager, CreateOrderManager — по суті інтерактори), нові SwiftUI-екрани — MVVM; server-driven UI зверху. Сформулюй це ЯК СВОЮ архітектурну розповідь — 3 хвилини, впевнено.</li><li>Server-driven UI — твоя унікальна тема: конфіг з бекенда (таби, секції, кроки checkout) → фабрики екранів/секцій за типом → одна кодова база на N брендів. Підготуй схему словами: конфіг → парсинг → реєстр фабрик → рендер.</li><li>Патерни, які реально питають: Singleton (чому обережно: глобальний стан, нетестовність), Observer (NotificationCenter/Combine), Factory (твої фабрики секцій!), Coordinator, Adapter (обгортка сторонніх SDK), Facade (твої менеджери).</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>// D із SOLID — залежність від абстракції:
+protocol PaymentService {
+    func pay(order: Order) async throws -&gt; PaymentResult
+}
+struct ApplePayService: PaymentService { /* PassKit */ }
+struct StripeService: PaymentService { /* Stripe SDK */ }
+final class CheckoutViewModel {
+    private let payment: PaymentService     // не знає, ЯКА оплата
+    init(payment: PaymentService) { self.payment = payment }
+}
+// O — server-driven секції: новий тип = новий кейс фабрики, не switch по коду
+protocol HomeSectionFactory { func makeSection(config: SectionConfig) -&gt; UIView }</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>«Яка архітектура найкраща?» — питання-пастка: правильна відповідь через тредофи і розмір команди/проєкту, не назва.</li><li>Не вивчай VIPER напамʼять — вмій пояснити РОЛІ шарів і навіщо стільки межей.</li><li>Singleton ≠ зло, але: приховані залежності, глобальний мутабельний стан, нетестовність — тому DI навіть для shared-обʼєктів.</li><li>Готуй ВЛАСНІ приклади: SOLID без прикладів із свого коду звучить як переказ статті.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Опиши архітектуру Eatery Club за 3 хвилини: шари, потоки даних, як server-driven конфіг керує UI.</li><li>MVC vs MVVM — чому MVVM тестованіший? Покажи, ЩО саме тестуєш.</li><li>Кожна літера SOLID — з прикладом із твого коду.</li><li>Коли VIPER — правильний вибір, а коли оверінжиніринг?</li></ul>
+          </div>
+        </div>
+      </details>
+    </div></section>
+
+  <section>
+    <div class="pillar-head"><h2>РОЗКЛАД ПОВТОРЕННЯ — 4 ТИЖНІ (7–9 год/тиждень)</h2></div>
+    
+    <div class="week"><div class="when">Тиждень 1</div><div><h3>Swift: памʼять + closures + types</h3><p>Value/reference, optionals, properties, closures, ARC і retain cycles. Це половина всіх «валящих» питань. Щодня — одна тема: шість блоків, приклад коду рукою, контрольні питання вголос.</p></div></div>
+    <div class="week"><div class="when">Тиждень 2</div><div><h3>Swift: конкурентність + протоколи</h3><p>GCD (2 дні — найважче), async/await + actors (2 дні), протоколи/generics/dispatch (2 дні). Пиши приклади у Playground — на співбесіді просять код.</p></div></div>
+    <div class="week"><div class="when">Тиждень 3</div><div><h3>UIKit повністю + суміжне</h3><p>Lifecycle, AutoLayout, таблиці — по дню, ти це знаєш з роботи, треба структурувати відповіді. Далі responder chain, navigation, networking, persistence.</p></div></div>
+    <div class="week"><div class="when">Тиждень 4</div><div><h3>SwiftUI + архітектура + мок-співбесіди</h3><p>Data flow та identity (2 дні), layout/navigation/animations (2 дні). Останні 2 дні — прогін по контрольних питаннях уголос, англійською і українською.</p></div></div>
+    <div class="tips">
+      <div class="blk-t accent" style="margin-bottom:8px">Як відповідати, щоб звучати на middle</div>
+      <ul><li>Кожну теорію привʼязуй до свого досвіду: «weak delegate — у нас в Eatery Club так звʼязані...». У блоках «Де використовується» позначені твої робочі кейси — це готові відповіді.</li><li>Структура відповіді: яку проблему вирішує (1 речення) → як працює (2–3 речення) → пастка або приклад з практики. Відповідь «від проблеми» звучить на рівень вище.</li><li>Не знаєш — кажи чесно і міркуй уголос: «точно не скажу, але логічно припускаю...» — це цінують більше за мовчання.</li><li>Підготуй 3 готові історії: складний баг; фіча, якою пишаєшся (Live Activities!); дедлайн/конфлікт — для поведінкової частини.</li><li>Live coding: тренуй руками без автокомпліту — окремий тренажер із 22 завданнями в тебе вже є (iOS_LiveCoding_Trainer.html).</li></ul>
+    </div>
+  </section>
+
+  <footer>36 тем · Складено 03.07.2026 під профіль: 1.5 року iOS (Eatery Club, EchoCode), Swift · SwiftUI · UIKit. Прогрес синхронний із однойменним Word-документом — веди в одному місці.</footer>
+</div>
+
+<script>
+(function () {
+  const KEY = "ios-prep-deep-v1";
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) {}
+
+  const topics = Array.from(document.querySelectorAll(".topic"));
+  const sections = Array.from(document.querySelectorAll("section[data-pillar]"));
+  const count = document.getElementById("pcount");
+  const fill = document.getElementById("pfill");
+  let pillar = "all", prio = "all", hideDone = false;
+
+  function refresh() {
+    let done = 0;
+    topics.forEach(el => {
+      const isDone = el.classList.contains("done");
+      if (isDone) done++;
+      const ok = (pillar === "all" || el.dataset.pillar === pillar)
+              && (prio === "all" || el.dataset.prio === prio)
+              && (!hideDone || !isDone);
+      el.style.display = ok ? "" : "none";
+    });
+    sections.forEach(sec => {
+      const visible = sec.querySelectorAll(".topic:not([style*='display: none'])").length;
+      sec.style.display = visible ? "" : "none";
+    });
+    count.textContent = done + " / " + topics.length;
+    fill.style.width = (done / topics.length * 100) + "%";
+  }
+
+  topics.forEach(el => {
+    const box = el.querySelector("input[type=checkbox]");
+    if (saved[el.dataset.id]) { box.checked = true; el.classList.add("done"); }
+    box.addEventListener("change", () => {
+      el.classList.toggle("done", box.checked);
+      saved[el.dataset.id] = box.checked;
+      try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+      refresh();
+    });
+  });
+
+  document.querySelectorAll("#pillarFilters .fbtn").forEach(btn =>
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#pillarFilters .fbtn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      pillar = btn.dataset.pillar;
+      refresh();
+    }));
+
+  document.querySelectorAll("#prioFilters .fbtn[data-prio]").forEach(btn =>
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#prioFilters .fbtn[data-prio]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      prio = btn.dataset.prio;
+      refresh();
+    }));
+
+  document.getElementById("hideDone").addEventListener("click", function () {
+    hideDone = !hideDone;
+    this.classList.toggle("active", hideDone);
+    refresh();
+  });
+
+  refresh();
+})();
+</script>
+
+</body>
+</html>
