@@ -93,7 +93,7 @@
 
 <div class="wrap">
   <div class="eyebrow">iOS Interview Prep · розширена версія</div>
-  <h1>План підготовки до співбесід: 37 тем углиб</h1>
+  <h1>План підготовки до співбесід: 38 тем углиб</h1>
   <p class="lede">Кожна тема — шість блоків: як працює → яку проблему вирішує → де застосовується (з кейсами з твоєї роботи) → код → пастки → контрольні питання. Відповів на контрольні уголос за 1–2 хвилини — став галочку. Прогрес зберігається у браузері.</p>
 
   <div class="toolbar">
@@ -112,13 +112,13 @@
       <button class="fbtn" data-prio="P2">Лише P2</button>
       <button class="fbtn hide-done" id="hideDone">Сховати закриті</button>
     </div>
-    <div class="progress-label"><span>Закрито тем</span><b id="pcount">0 / 37</b></div>
+    <div class="progress-label"><span>Закрито тем</span><b id="pcount">0 / 38</b></div>
     <div class="pbar"><i id="pfill"></i></div>
   </div>
 
   
   <section data-pillar="swift">
-    <div class="pillar-head"><h2>SWIFT — 15 тем</h2></div>
+    <div class="pillar-head"><h2>SWIFT — 16 тем</h2></div>
     <p class="pillar-note">Мова — це 50–60% технічної співбесіди. Особливо памʼять і конкурентність: саме тут відсіюють між junior і middle.</p>
   
     <div class="topic" id="swift-0" data-id="swift-0" data-pillar="swift" data-prio="P0">
@@ -844,6 +844,107 @@ func minMax(_ a: [Int]) -&gt; (min: Int, max: Int)? {
           </div>
           <div class="blk cmt-blk">
             <button class="cmt-btn" data-term="Типи даних углиб: struct, class, enum, tuple">💬 Показати коментарі до теми</button>
+            <button class="cmt-btn code-tpl" title="Скопіювати markdown-заготовку для Swift-коду — встав її в коментар">⌨️ Шаблон коду</button>
+            <div class="cmt-slot"></div>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" id="swift-15" data-id="swift-15" data-pillar="swift" data-prio="P1">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>ООП: інкапсуляція, успадкування, поліморфізм, абстракція</h3>
+        <button class="note-btn open-cmt" title="Коментарі до цієї теми">💬</button>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22%D0%9E%D0%9E%D0%9F%3A%20%D1%96%D0%BD%D0%BA%D0%B0%D0%BF%D1%81%D1%83%D0%BB%D1%8F%D1%86%D1%96%D1%8F%2C%20%D1%83%D1%81%D0%BF%D0%B0%D0%B4%D0%BA%D1%83%D0%B2%D0%B0%D0%BD%D0%BD%D1%8F%2C%20%D0%BF%D0%BE%D0%BB%D1%96%D0%BC%D0%BE%D1%80%D1%84%D1%96%D0%B7%D0%BC%2C%20%D0%B0%D0%B1%D1%81%D1%82%D1%80%D0%B0%D0%BA%D1%86%D1%96%D1%8F%22" target="_blank" rel="noopener" title="Гілки цієї теми на GitHub">🧵</a>
+        <span class="prio P1">P1</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Обʼєктно-орієнтоване програмування у Swift базується на принципах інкапсуляції, успадкування, поліморфізму та абстракції.</p><p>1. Інкапсуляція означає обʼєднання даних (властивостей) і методів в одному типі, а також обмеження доступу до деяких компонентів обʼєкта. Приховування даних і доступ через методи або властивості: private var balance — зовні не видно, змінити можна лише через deposit/withdraw. Суть: ми не даємо прямого доступу до balance, а керуємо через методи. Рівні доступу в Swift: private, fileprivate, internal (дефолт), public, open; private(set) — читати можна всім, писати лише всередині типу.</p><p>2. Успадкування (наслідування) — створення класів на основі інших класів. Успадкування дозволяє одному класу успадковувати властивості та методи іншого класу. Це сприяє повторному використанню коду: спільна логіка в батьківському класі, специфіка — у нащадку. У Swift успадкування підтримують лише class (не struct і не enum). Нащадок викликає super.init(...) після ініціалізації своїх полів, super.method() — для доступу до реалізації батька.</p><p>3. Поліморфізм — один і той самий метод працює по-різному для різних обʼєктів. У Swift це зазвичай реалізується через успадкування (override методів) або через протоколи. Класичний приклад: масив [Animal] містить Dog і Cat — у циклі animal.sound() викликає правильну реалізацію кожного типу (динамічний dispatch).</p><p>4. Абстракція — протоколи (Protocols) визначають інтерфейс без обовʼязкової реалізації. Абстракція — це виділення головних характеристик та поведінки обʼєкта, приховуючи деталі реалізації. Мета: працювати з «що робить обʼєкт», а не «як він це робить». Абстракція означає виділення лише необхідних характеристик обʼєкта та приховування деталей реалізації. Вона дозволяє працювати з обʼєктами через загальний інтерфейс, не замислюючись про внутрішню реалізацію. У Swift це можна реалізувати через протоколи або «абстрактні» базові класи (базові класи, які не використовуються напряму, а лише наслідуються).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Без інкапсуляції будь-хто може зламати інваріанти обʼєкта (наприклад, встановити відʼємний balance). Без успадкування довелось би копіювати однаковий код у кожен клас. Без поліморфізму — писати if type(of: x) is Dog для кожної операції замість універсального циклу. Без абстракції код жорстко привʼязаний до конкретної реалізації і його важко тестувати чи замінювати.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Інкапсуляція: BankAccount з private var balance; ViewModel з private(set) var state — UI читає, змінює лише власник.</li><li>Успадкування: UIViewController → BaseViewController зі спільною логікою; UITableViewCell → кастомна комірка. У доменних моделях Apple радить struct + протоколи замість глибоких ієрархій class.</li><li>Поліморфізм: [UIView] з різними підкласами; override layoutSubviews; масив [Animal] з Dog і Cat; або [any PaymentMethod] з різними способами оплати.</li><li>Абстракція: protocol OrderService — ViewModel не знає, API це чи Mock; UITableViewDataSource — UITableView не знає, який саме екран його реалізує.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>// 1. Інкапсуляція — приховуємо balance, керуємо через методи
+final class BankAccount {
+    private var balance: Decimal = 0          // прямого доступу ззовні немає
+    var currentBalance: Decimal { balance }   // читати можна
+    func deposit(_ amount: Decimal) { balance += amount }
+    func withdraw(_ amount: Decimal) -&gt; Bool {
+        guard amount &lt;= balance else { return false }
+        balance -= amount; return true
+    }
+}
+
+// 2. Успадкування
+class Vehicle {
+    var speed: Double
+    init(speed: Double) { self.speed = speed }
+    func drive() {
+        print("Їду зі швидкістю \(speed) км/год")
+    }
+}
+class Bike: Vehicle {
+    var type: String
+    init(speed: Double, type: String) {
+        self.type = type
+        super.init(speed: speed)
+    }
+    func displayBikeInfo() {
+        print("Тип велосипеда: \(type), Швидкість: \(speed) км/год")
+    }
+}
+let myBike = Bike(speed: 15, type: "Гірський")
+myBike.displayBikeInfo()
+// Виведе: Тип велосипеда: Гірський, Швидкість: 15.0 км/год
+
+// 3. Поліморфізм — override у нащадках
+class Animal {
+    func sound() { print("Тварина видає звук") }
+}
+class Dog: Animal {
+    override func sound() { print("Гав!") }
+}
+class Cat: Animal {
+    override func sound() { print("Мяу!") }
+}
+let dog = Dog()
+let cat = Cat()
+let animals: [Animal] = [dog, cat]
+for animal in animals { animal.sound() }
+// Виведе:
+// Гав!
+// Мяу!
+
+// 4. Абстракція — протокол як загальний інтерфейс
+protocol PaymentMethod {
+    func pay(amount: Decimal)
+}
+struct ApplePay: PaymentMethod {
+    func pay(amount: Decimal) { print("Оплата \(amount) через Apple Pay") }
+}
+struct Cash: PaymentMethod {
+    func pay(amount: Decimal) { print("Оплата \(amount) готівкою") }
+}
+func checkout(methods: [any PaymentMethod], total: Decimal) {
+    methods.forEach { $0.pay(amount: total) }  // не важливо ЯК — важливо ЩО
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>У Swift struct і enum не успадковуються — лише class. Conformance до протоколу — це не успадкування.</li><li>override обовʼязковий у нащадка; без нього — помилка компіляції (або приховання методу батька).</li><li>Глибокі ієрархії class (3+ рівні) — антипатерн; Swift на практиці віддає перевагу композиції та протоколам (POP).</li><li>«Абстрактний клас» у Swift — не окреме ключове слово: базовий class, який не інстанціюють напряму, або протокол.</li><li>Поліморфізм через протокол без оголошення методу в тілі протоколу (лише в extension) — static dispatch; див. тему «Protocols і POP».</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Назви чотири принципи ООП і поясни кожен на прикладі Swift.</li><li>Інкапсуляція: чому balance — private, а не public var?</li><li>Успадкування: напиши Vehicle → Bike з super.init. Навіщо super після своїх полів?</li><li>Поліморфізм: що виведе цикл for animal in animals { animal.sound() }?</li><li>Абстракція: чим protocol PaymentMethod відрізняється від struct ApplePay?</li><li>Коли краще протокол, а коли успадкування class?</li></ul>
+          </div>
+          <div class="blk cmt-blk">
+            <button class="cmt-btn" data-term="ООП: інкапсуляція, успадкування, поліморфізм, абстракція">💬 Показати коментарі до теми</button>
             <button class="cmt-btn code-tpl" title="Скопіювати markdown-заготовку для Swift-коду — встав її в коментар">⌨️ Шаблон коду</button>
             <div class="cmt-slot"></div>
           </div>
