@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Розклад повторення — 4 тижні · iOS Interview Prep</title>
+<style>
+  :root {
+    --ground: #FAFBFC; --card: #FFFFFF; --ink: #1B2430; --muted: #5A6B7E;
+    --faint: #8B99A9; --line: #E3E8EE; --accent: #F05138; --accent-deep: #C93C27;
+    --accent-wash: #FEF0ED; --good: #2E7D4F; --good-wash: #EAF5EE;
+    --info: #2B6CB0; --info-wash: #EBF2FA;
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--ground); font-family: var(--sans); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 40px 20px 100px; }
+  .back { font-size: 13.5px; color: var(--info); text-decoration: none; }
+  .back:hover { text-decoration: underline; }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-deep); margin: 18px 0 10px; }
+  h1 { font-size: clamp(24px, 4vw, 33px); font-weight: 800; letter-spacing: -.02em; line-height: 1.13; margin-bottom: 10px; }
+  .lede { font-size: 15px; color: var(--muted); max-width: 70ch; margin-bottom: 22px; }
+
+  .toolbar { position: sticky; top: 0; z-index: 20; background: var(--ground); padding: 10px 0 12px; border-bottom: 1px solid var(--line); margin-bottom: 26px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); margin-bottom: 5px; }
+  .progress-label b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .pbar { height: 7px; background: #EDF0F3; border-radius: 4px; overflow: hidden; }
+  .pbar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-deep)); transition: width .25s; }
+
+  .week { margin-bottom: 34px; }
+  .week-head { display: flex; align-items: baseline; gap: 12px; border-bottom: 2px solid var(--ink); padding-bottom: 6px; margin-bottom: 5px; flex-wrap: wrap; }
+  .week-head .wn { font-family: var(--mono); font-size: 12.5px; color: var(--accent-deep); font-weight: 700; letter-spacing: .06em; }
+  .week-head h2 { font-size: 18px; font-weight: 800; letter-spacing: -.01em; }
+  .week-note { font-size: 13px; color: var(--muted); font-style: italic; margin: 5px 0 14px; max-width: 80ch; }
+
+  .days { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 10px; }
+  .day { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 7px; }
+  .day.done { opacity: .55; }
+  .day.done .focus { text-decoration: line-through; text-decoration-color: var(--faint); color: var(--faint); }
+  .day.rest { background: transparent; border-style: dashed; }
+  .day-top { display: flex; align-items: center; gap: 8px; }
+  .day-top .dn { font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: .07em; color: var(--muted); background: var(--ground); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; }
+  .day-top input { width: 17px; height: 17px; accent-color: var(--good); cursor: pointer; margin-left: auto; }
+  .focus { font-size: 13.5px; font-weight: 700; line-height: 1.35; }
+  .day ul { margin: 0; padding: 0; list-style: none; }
+  .day li { padding: 1.5px 0; }
+  .day a { font-size: 12.5px; color: var(--info); text-decoration: none; line-height: 1.4; display: inline-block; }
+  .day a:hover { text-decoration: underline; }
+  .day .hint { font-size: 12px; color: var(--muted); }
+
+  footer { margin-top: 40px; font-size: 12.5px; color: var(--faint); border-top: 1px solid var(--line); padding-top: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← На головну</a> &nbsp;·&nbsp; <a class="back" href="prep.html">Теорія</a> &nbsp;·&nbsp; <a class="back" href="trainer.html">Лайв-кодінг</a>
+  <div class="eyebrow">iOS Interview Prep · план на 4 тижні</div>
+  <h1>Розклад повторення</h1>
+  <p class="lede">7–9 годин на тиждень, один фокус на день. Клік на тему відкриває її на сторінці теорії (одразу розгорнуту). Закрив день — став галочку, прогрес зберігається у браузері.</p>
+
+  <div class="toolbar">
+    <div class="progress-label"><span>Закрито днів</span><b id="pcount">0 / 28</b></div>
+    <div class="pbar"><i id="pfill"></i></div>
+  </div>
+
+  <div class="week">
+    <div class="week-head"><span class="wn">ТИЖДЕНЬ 1</span><h2>Swift: памʼять, closures, типи</h2></div>
+    <p class="week-note">Це половина всіх «валящих» питань. Щодня: шість блоків теми, приклад коду рукою, контрольні питання вголос.</p>
+    <div class="days">
+      <div class="day" data-d="w1d1"><div class="day-top"><span class="dn">Д1</span><input type="checkbox"></div><div class="focus">Value vs Reference</div><ul><li><a href="prep.html#swift-0">Value vs Reference types, struct vs class</a></li></ul></div>
+      <div class="day" data-d="w1d2"><div class="day-top"><span class="dn">Д2</span><input type="checkbox"></div><div class="focus">Optionals</div><ul><li><a href="prep.html#swift-1">Optionals</a></li></ul></div>
+      <div class="day" data-d="w1d3"><div class="day-top"><span class="dn">Д3</span><input type="checkbox"></div><div class="focus">Properties</div><ul><li><a href="prep.html#swift-2">Stored, computed, lazy, observers, wrappers</a></li></ul></div>
+      <div class="day" data-d="w1d4"><div class="day-top"><span class="dn">Д4</span><input type="checkbox"></div><div class="focus">Closures</div><ul><li><a href="prep.html#swift-3">Closures і capture semantics</a></li></ul></div>
+      <div class="day" data-d="w1d5"><div class="day-top"><span class="dn">Д5</span><input type="checkbox"></div><div class="focus">Памʼять</div><ul><li><a href="prep.html#swift-4">ARC, memory management, retain cycles</a></li></ul></div>
+      <div class="day" data-d="w1d6"><div class="day-top"><span class="dn">Д6</span><input type="checkbox"></div><div class="focus">Повторення тижня</div><div class="hint">Контрольні питання Д1–Д5 уголос. Що просіло — перечитати.</div></div>
+      <div class="day rest" data-d="w1d7"><div class="day-top"><span class="dn">Д7</span><input type="checkbox"></div><div class="focus">Практика</div><ul><li><a href="trainer.html">Тренажер: 2–3 завдання Swift</a></li></ul></div>
+    </div>
+  </div>
+
+  <div class="week">
+    <div class="week-head"><span class="wn">ТИЖДЕНЬ 2</span><h2>Swift: конкурентність і протоколи</h2></div>
+    <p class="week-note">GCD — найважче, тому два дні. Пиши приклади у Playground — на співбесіді просять код.</p>
+    <div class="days">
+      <div class="day" data-d="w2d1"><div class="day-top"><span class="dn">Д1</span><input type="checkbox"></div><div class="focus">GCD, день 1</div><ul><li><a href="prep.html#swift-5">GCD і класична багатопотоковість</a></li></ul></div>
+      <div class="day" data-d="w2d2"><div class="day-top"><span class="dn">Д2</span><input type="checkbox"></div><div class="focus">GCD, день 2</div><div class="hint">Race conditions, барʼєри, приклади рукою.</div></div>
+      <div class="day" data-d="w2d3"><div class="day-top"><span class="dn">Д3</span><input type="checkbox"></div><div class="focus">Swift Concurrency, день 1</div><ul><li><a href="prep.html#swift-6">async/await, actors, Sendable</a></li></ul></div>
+      <div class="day" data-d="w2d4"><div class="day-top"><span class="dn">Д4</span><input type="checkbox"></div><div class="focus">Swift Concurrency, день 2</div><div class="hint">Structured concurrency, MainActor, приклади.</div></div>
+      <div class="day" data-d="w2d5"><div class="day-top"><span class="dn">Д5</span><input type="checkbox"></div><div class="focus">Протоколи + Generics</div><ul><li><a href="prep.html#swift-7">Protocols і POP</a></li><li><a href="prep.html#swift-8">Generics</a></li></ul></div>
+      <div class="day" data-d="w2d6"><div class="day-top"><span class="dn">Д6</span><input type="checkbox"></div><div class="focus">Dispatch + Enums</div><ul><li><a href="prep.html#swift-10">Method dispatch</a></li><li><a href="prep.html#swift-9">Enums, pattern matching, errors</a></li></ul></div>
+      <div class="day" data-d="w2d7"><div class="day-top"><span class="dn">Д7</span><input type="checkbox"></div><div class="focus">Дозбирати хвости</div><ul><li><a href="prep.html#swift-11">Колекції та функціональні операції</a></li><li><a href="prep.html#swift-12">Codable глибоко</a></li><li><a href="prep.html#swift-13">Init, access control, KeyPath</a></li></ul></div>
+    </div>
+  </div>
+
+  <div class="week">
+    <div class="week-head"><span class="wn">ТИЖДЕНЬ 3</span><h2>UIKit повністю + суміжне</h2></div>
+    <p class="week-note">Lifecycle, AutoLayout, таблиці ти знаєш з роботи — задача структурувати відповіді, а не вчити з нуля.</p>
+    <div class="days">
+      <div class="day" data-d="w3d1"><div class="day-top"><span class="dn">Д1</span><input type="checkbox"></div><div class="focus">Lifecycle ×2</div><ul><li><a href="prep.html#uikit-0">App lifecycle: AppDelegate, SceneDelegate</a></li><li><a href="prep.html#uikit-1">UIViewController lifecycle</a></li></ul></div>
+      <div class="day" data-d="w3d2"><div class="day-top"><span class="dn">Д2</span><input type="checkbox"></div><div class="focus">AutoLayout</div><ul><li><a href="prep.html#uikit-2">AutoLayout</a></li></ul></div>
+      <div class="day" data-d="w3d3"><div class="day-top"><span class="dn">Д3</span><input type="checkbox"></div><div class="focus">Таблиці й колекції</div><ul><li><a href="prep.html#uikit-3">UITableView / UICollectionView</a></li></ul></div>
+      <div class="day" data-d="w3d4"><div class="day-top"><span class="dn">Д4</span><input type="checkbox"></div><div class="focus">Rendering + тачі</div><ul><li><a href="prep.html#uikit-4">UIView, CALayer, rendering</a></li><li><a href="prep.html#uikit-5">Responder chain, gestures</a></li></ul></div>
+      <div class="day" data-d="w3d5"><div class="day-top"><span class="dn">Д5</span><input type="checkbox"></div><div class="focus">Navigation + решта</div><ul><li><a href="prep.html#uikit-6">Push, present, координатори</a></li><li><a href="prep.html#uikit-7">RunLoop, main thread, Timer</a></li><li><a href="prep.html#uikit-8">XIB / Storyboard vs код</a></li></ul></div>
+      <div class="day" data-d="w3d6"><div class="day-top"><span class="dn">Д6</span><input type="checkbox"></div><div class="focus">Мережа + сховище</div><ul><li><a href="prep.html#adj-0">Networking: URLSession</a></li><li><a href="prep.html#adj-1">Persistence: UserDefaults → SwiftData</a></li></ul></div>
+      <div class="day" data-d="w3d7"><div class="day-top"><span class="dn">Д7</span><input type="checkbox"></div><div class="focus">Тести + архітектури</div><ul><li><a href="prep.html#adj-2">Тестування: XCTest, моки, DI</a></li><li><a href="prep.html#adj-3">Архітектури і SOLID</a></li></ul></div>
+    </div>
+  </div>
+
+  <div class="week">
+    <div class="week-head"><span class="wn">ТИЖДЕНЬ 4</span><h2>SwiftUI + фінальний прогін</h2></div>
+    <p class="week-note">Останні два дні — прогін контрольних питань уголос, українською та англійською.</p>
+    <div class="days">
+      <div class="day" data-d="w4d1"><div class="day-top"><span class="dn">Д1</span><input type="checkbox"></div><div class="focus">Ментальна модель + data flow</div><ul><li><a href="prep.html#swiftui-0">View як value, identity, rerendering</a></li><li><a href="prep.html#swiftui-1">@State, @Binding, @StateObject, Observation</a></li></ul></div>
+      <div class="day" data-d="w4d2"><div class="day-top"><span class="dn">Д2</span><input type="checkbox"></div><div class="focus">Side effects + interop</div><ul><li><a href="prep.html#swiftui-6">task, onAppear, App protocol</a></li><li><a href="prep.html#swiftui-7">Interop із UIKit</a></li></ul></div>
+      <div class="day" data-d="w4d3"><div class="day-top"><span class="dn">Д3</span><input type="checkbox"></div><div class="focus">Layout + списки</div><ul><li><a href="prep.html#swiftui-2">Layout system</a></li><li><a href="prep.html#swiftui-3">Lists, lazy-контейнери, performance</a></li></ul></div>
+      <div class="day" data-d="w4d4"><div class="day-top"><span class="dn">Д4</span><input type="checkbox"></div><div class="focus">Navigation + анімації</div><ul><li><a href="prep.html#swiftui-4">Navigation</a></li><li><a href="prep.html#swiftui-5">Animations і transitions</a></li></ul></div>
+      <div class="day" data-d="w4d5"><div class="day-top"><span class="dn">Д5</span><input type="checkbox"></div><div class="focus">Архітектура SwiftUI</div><ul><li><a href="prep.html#swiftui-8">MVVM, DI, тестованість</a></li></ul></div>
+      <div class="day" data-d="w4d6"><div class="day-top"><span class="dn">Д6</span><input type="checkbox"></div><div class="focus">Прогін P0</div><div class="hint">Всі P0-теми: контрольні питання вголос, укр + англ.</div></div>
+      <div class="day" data-d="w4d7"><div class="day-top"><span class="dn">Д7</span><input type="checkbox"></div><div class="focus">Мок-співбесіда</div><ul><li><a href="trainer.html">Тренажер: 3–4 завдання під таймер</a></li></ul></div>
+    </div>
+  </div>
+
+  <footer>28 днів · 7–9 год/тиждень · Прогрес зберігається локально у браузері.</footer>
+</div>
+
+<script>
+(function () {
+  const KEY = "ios-prep-schedule-v1";
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) {}
+
+  const days = Array.from(document.querySelectorAll(".day"));
+  const count = document.getElementById("pcount");
+  const fill = document.getElementById("pfill");
+
+  function refresh() {
+    const done = days.filter(d => d.classList.contains("done")).length;
+    count.textContent = done + " / " + days.length;
+    fill.style.width = (done / days.length * 100) + "%";
+  }
+
+  days.forEach(el => {
+    const box = el.querySelector("input[type=checkbox]");
+    if (saved[el.dataset.d]) { box.checked = true; el.classList.add("done"); }
+    box.addEventListener("change", () => {
+      el.classList.toggle("done", box.checked);
+      saved[el.dataset.d] = box.checked;
+      try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+      refresh();
+    });
+  });
+
+  refresh();
+})();
+</script>
+</body>
+</html>
