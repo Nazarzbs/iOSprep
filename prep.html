@@ -3,8 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body>
 <title>iOS Interview Prep — розширений план: Swift · SwiftUI · UIKit</title>
 <style>
   :root {
@@ -38,9 +36,12 @@
   .pillar-head h2 { font-size: 21px; font-weight: 800; margin: 0; letter-spacing: -.01em; }
   .pillar-note { font-size: 13.5px; color: var(--muted); font-style: italic; margin: 6px 0 16px; max-width: 74ch; }
 
-  .topic { background: var(--card); border: 1px solid var(--line); border-radius: 13px; margin-bottom: 11px; overflow: hidden; }
+  .topic { background: var(--card); border: 1px solid var(--line); border-radius: 13px; margin-bottom: 11px; overflow: hidden; scroll-margin-top: 150px; }
   .topic.done { opacity: .6; }
-  .topic-head { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 13px 16px; }
+  .topic:target { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-wash); }
+  .topic-head { display: grid; grid-template-columns: auto 1fr auto auto auto; gap: 10px; align-items: center; padding: 13px 16px; }
+  .note-btn { text-decoration: none; font-size: 15px; line-height: 1; padding: 4px 6px; border-radius: 8px; border: 1px solid transparent; opacity: .55; }
+  .note-btn:hover { opacity: 1; border-color: var(--line); background: var(--ground); }
   .topic-head input { width: 19px; height: 19px; accent-color: var(--good); cursor: pointer; }
   .topic-head h3 { margin: 0; font-size: 15.5px; font-weight: 700; }
   .topic.done h3 { text-decoration: line-through; text-decoration-color: var(--faint); color: var(--faint); }
@@ -83,6 +84,8 @@
 
   footer { margin-top: 55px; font-size: 12.5px; color: var(--faint); border-top: 1px solid var(--line); padding-top: 14px; }
 </style>
+</head>
+<body>
 
 <div class="wrap">
   <div class="eyebrow">iOS Interview Prep · розширена версія</div>
@@ -113,10 +116,12 @@
     <div class="pillar-head"><h2>SWIFT — 14 тем</h2></div>
     <p class="pillar-note">Мова — це 50–60% технічної співбесіди. Особливо памʼять і конкурентність: саме тут відсіюють між junior і middle.</p>
   
-    <div class="topic" data-id="swift-0" data-pillar="swift" data-prio="P0">
+    <div class="topic" id="swift-0" data-id="swift-0" data-pillar="swift" data-prio="P0">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Value vs Reference types, struct vs class</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Value%20vs%20Reference%20types%2C%20struct%20vs%20class&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swift-0%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Value%20vs%20Reference%20types%2C%20struct%20vs%20class%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P0">P0</span>
       </div>
       <details>
@@ -151,10 +156,12 @@ c2.value = 10               // c1.value == 10 — один обʼєкт
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swift-1" data-pillar="swift" data-prio="P0">
+    <div class="topic" id="swift-1" data-id="swift-1" data-pillar="swift" data-prio="P0">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Optionals</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Optionals&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swift-1%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Optionals%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P0">P0</span>
       </div>
       <details>
@@ -189,10 +196,12 @@ c2.value = 10               // c1.value == 10 — один обʼєкт
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swift-2" data-pillar="swift" data-prio="P1">
+    <div class="topic" id="swift-2" data-id="swift-2" data-pillar="swift" data-prio="P1">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Properties: stored, computed, lazy, observers, wrappers</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Properties%3A%20stored%2C%20computed%2C%20lazy%2C%20observers%2C%20wrappers&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swift-2%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Properties%3A%20stored%2C%20computed%2C%20lazy%2C%20observers%2C%20wrappers%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P1">P1</span>
       </div>
       <details>
@@ -229,10 +238,12 @@ struct Settings {
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swift-3" data-pillar="swift" data-prio="P0">
+    <div class="topic" id="swift-3" data-id="swift-3" data-pillar="swift" data-prio="P0">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Closures і capture semantics</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Closures%20%D1%96%20capture%20semantics&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swift-3%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Closures%20%D1%96%20capture%20semantics%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P0">P0</span>
       </div>
       <details>
@@ -268,10 +279,12 @@ a() // 99        b() // 0</pre>
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swift-4" data-pillar="swift" data-prio="P0">
+    <div class="topic" id="swift-4" data-id="swift-4" data-pillar="swift" data-prio="P0">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>ARC, memory management, retain cycles</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=ARC%2C%20memory%20management%2C%20retain%20cycles&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swift-4%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22ARC%2C%20memory%20management%2C%20retain%20cycles%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P0">P0</span>
       </div>
       <details>
@@ -308,10 +321,12 @@ a() // 99        b() // 0</pre>
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swift-5" data-pillar="swift" data-prio="P0">
+    <div class="topic" id="swift-5" data-id="swift-5" data-pillar="swift" data-prio="P0">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>GCD і класична багатопотоковість</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=GCD%20%D1%96%20%D0%BA%D0%BB%D0%B0%D1%81%D0%B8%D1%87%D0%BD%D0%B0%20%D0%B1%D0%B0%D0%B3%D0%B0%D1%82%D0%BE%D0%BF%D0%BE%D1%82%D0%BE%D0%BA%D0%BE%D0%B2%D1%96%D1%81%D1%82%D1%8C&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swift-5%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22GCD%20%D1%96%20%D0%BA%D0%BB%D0%B0%D1%81%D0%B8%D1%87%D0%BD%D0%B0%20%D0%B1%D0%B0%D0%B3%D0%B0%D1%82%D0%BE%D0%BF%D0%BE%D1%82%D0%BE%D0%BA%D0%BE%D0%B2%D1%96%D1%81%D1%82%D1%8C%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P0">P0</span>
       </div>
       <details>
@@ -347,10 +362,12 @@ queue.sync { return self.cache[key] }                     // читання — 
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swift-6" data-pillar="swift" data-prio="P0">
+    <div class="topic" id="swift-6" data-id="swift-6" data-pillar="swift" data-prio="P0">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Swift Concurrency: async/await, actors, Sendable</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Swift%20Concurrency%3A%20async%2Fawait%2C%20actors%2C%20Sendable&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swift-6%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Swift%20Concurrency%3A%20async%2Fawait%2C%20actors%2C%20Sendable%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P0">P0</span>
       </div>
       <details>
@@ -393,10 +410,12 @@ actor ImageCache {
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swift-7" data-pillar="swift" data-prio="P0">
+    <div class="topic" id="swift-7" data-id="swift-7" data-pillar="swift" data-prio="P0">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Protocols і Protocol-Oriented Programming</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Protocols%20%D1%96%20Protocol-Oriented%20Programming&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swift-7%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Protocols%20%D1%96%20Protocol-Oriented%20Programming%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P0">P0</span>
       </div>
       <details>
@@ -437,10 +456,12 @@ g.hi()   // "proto"! — метод не в вимогах → static dispatch �
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swift-8" data-pillar="swift" data-prio="P1">
+    <div class="topic" id="swift-8" data-id="swift-8" data-pillar="swift" data-prio="P1">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Generics</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Generics&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swift-8%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Generics%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P1">P1</span>
       </div>
       <details>
@@ -479,10 +500,12 @@ let orders = try await request(.orders)   // тип виведено: [Order]</p
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swift-9" data-pillar="swift" data-prio="P1">
+    <div class="topic" id="swift-9" data-id="swift-9" data-pillar="swift" data-prio="P1">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Enums, pattern matching, error handling</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Enums%2C%20pattern%20matching%2C%20error%20handling&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swift-9%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Enums%2C%20pattern%20matching%2C%20error%20handling%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P1">P1</span>
       </div>
       <details>
@@ -523,10 +546,12 @@ if case .loaded(let orders) = state { print(orders.count) } // один кейс
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swift-10" data-pillar="swift" data-prio="P2">
+    <div class="topic" id="swift-10" data-id="swift-10" data-pillar="swift" data-prio="P2">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Method dispatch: static, table, message</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Method%20dispatch%3A%20static%2C%20table%2C%20message&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swift-10%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Method%20dispatch%3A%20static%2C%20table%2C%20message%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P2">P2</span>
       </div>
       <details>
@@ -561,10 +586,12 @@ extension Animal {
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swift-11" data-pillar="swift" data-prio="P1">
+    <div class="topic" id="swift-11" data-id="swift-11" data-pillar="swift" data-prio="P1">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Колекції та функціональні операції</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=%D0%9A%D0%BE%D0%BB%D0%B5%D0%BA%D1%86%D1%96%D1%97%20%D1%82%D0%B0%20%D1%84%D1%83%D0%BD%D0%BA%D1%86%D1%96%D0%BE%D0%BD%D0%B0%D0%BB%D1%8C%D0%BD%D1%96%20%D0%BE%D0%BF%D0%B5%D1%80%D0%B0%D1%86%D1%96%D1%97&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swift-11%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22%D0%9A%D0%BE%D0%BB%D0%B5%D0%BA%D1%86%D1%96%D1%97%20%D1%82%D0%B0%20%D1%84%D1%83%D0%BD%D0%BA%D1%86%D1%96%D0%BE%D0%BD%D0%B0%D0%BB%D1%8C%D0%BD%D1%96%20%D0%BE%D0%BF%D0%B5%D1%80%D0%B0%D1%86%D1%96%D1%97%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P1">P1</span>
       </div>
       <details>
@@ -599,10 +626,12 @@ let first = hugeArray.lazy
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swift-12" data-pillar="swift" data-prio="P1">
+    <div class="topic" id="swift-12" data-id="swift-12" data-pillar="swift" data-prio="P1">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Codable глибоко</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Codable%20%D0%B3%D0%BB%D0%B8%D0%B1%D0%BE%D0%BA%D0%BE&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swift-12%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Codable%20%D0%B3%D0%BB%D0%B8%D0%B1%D0%BE%D0%BA%D0%BE%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P1">P1</span>
       </div>
       <details>
@@ -646,10 +675,12 @@ struct FlexibleID: Decodable {
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swift-13" data-pillar="swift" data-prio="P2">
+    <div class="topic" id="swift-13" data-id="swift-13" data-pillar="swift" data-prio="P2">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Init, access control, KeyPath, type erasure</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Init%2C%20access%20control%2C%20KeyPath%2C%20type%20erasure&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swift-13%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Init%2C%20access%20control%2C%20KeyPath%2C%20type%20erasure%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P2">P2</span>
       </div>
       <details>
@@ -687,10 +718,12 @@ let adults = users.filter { $0.age &gt;= 18 }</pre>
     <div class="pillar-head"><h2>SWIFTUI — 9 тем</h2></div>
     <p class="pillar-note">Головна тема — data flow і identity: 80% питань зводяться до «чому вʼюха перемалювалась / не перемалювалась / скинула стан».</p>
   
-    <div class="topic" data-id="swiftui-0" data-pillar="swiftui" data-prio="P0">
+    <div class="topic" id="swiftui-0" data-id="swiftui-0" data-pillar="swiftui" data-prio="P0">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Ментальна модель: View як value, identity, rerendering</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=%D0%9C%D0%B5%D0%BD%D1%82%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%20%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D1%8C%3A%20View%20%D1%8F%D0%BA%20value%2C%20identity%2C%20rerendering&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swiftui-0%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22%D0%9C%D0%B5%D0%BD%D1%82%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%20%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D1%8C%3A%20View%20%D1%8F%D0%BA%20value%2C%20identity%2C%20rerendering%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P0">P0</span>
       </div>
       <details>
@@ -729,10 +762,12 @@ CounterView().id(resetToken)   // новий resetToken = новий лічил�
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swiftui-1" data-pillar="swiftui" data-prio="P0">
+    <div class="topic" id="swiftui-1" data-id="swiftui-1" data-pillar="swiftui" data-prio="P0">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Data flow: @State, @Binding, @StateObject, @ObservedObject, Observation</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Data%20flow%3A%20%40State%2C%20%40Binding%2C%20%40StateObject%2C%20%40ObservedObject%2C%20Observation&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swiftui-1%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Data%20flow%3A%20%40State%2C%20%40Binding%2C%20%40StateObject%2C%20%40ObservedObject%2C%20Observation%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P0">P0</span>
       </div>
       <details>
@@ -774,10 +809,12 @@ struct CheckoutView: View {
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swiftui-2" data-pillar="swiftui" data-prio="P0">
+    <div class="topic" id="swiftui-2" data-id="swiftui-2" data-pillar="swiftui" data-prio="P0">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Layout system</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Layout%20system&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swiftui-2%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Layout%20system%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P0">P0</span>
       </div>
       <details>
@@ -814,10 +851,12 @@ Button("Оплатити") { }
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swiftui-3" data-pillar="swiftui" data-prio="P1">
+    <div class="topic" id="swiftui-3" data-id="swiftui-3" data-pillar="swiftui" data-prio="P1">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Lists, ForEach, lazy-контейнери, performance</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Lists%2C%20ForEach%2C%20lazy-%D0%BA%D0%BE%D0%BD%D1%82%D0%B5%D0%B9%D0%BD%D0%B5%D1%80%D0%B8%2C%20performance&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swiftui-3%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Lists%2C%20ForEach%2C%20lazy-%D0%BA%D0%BE%D0%BD%D1%82%D0%B5%D0%B9%D0%BD%D0%B5%D1%80%D0%B8%2C%20performance%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P1">P1</span>
       </div>
       <details>
@@ -857,10 +896,12 @@ Button("Оплатити") { }
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swiftui-4" data-pillar="swiftui" data-prio="P1">
+    <div class="topic" id="swiftui-4" data-id="swiftui-4" data-pillar="swiftui" data-prio="P1">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Navigation</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Navigation&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swiftui-4%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Navigation%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P1">P1</span>
       </div>
       <details>
@@ -908,10 +949,12 @@ struct RootView: View {
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swiftui-5" data-pillar="swiftui" data-prio="P1">
+    <div class="topic" id="swiftui-5" data-id="swiftui-5" data-pillar="swiftui" data-prio="P1">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Animations і transitions</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Animations%20%D1%96%20transitions&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swiftui-5%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Animations%20%D1%96%20transitions%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P1">P1</span>
       </div>
       <details>
@@ -951,10 +994,12 @@ struct RootView: View {
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swiftui-6" data-pillar="swiftui" data-prio="P1">
+    <div class="topic" id="swiftui-6" data-id="swiftui-6" data-pillar="swiftui" data-prio="P1">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Life cycle і side effects: task, onAppear, App protocol</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Life%20cycle%20%D1%96%20side%20effects%3A%20task%2C%20onAppear%2C%20App%20protocol&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swiftui-6%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Life%20cycle%20%D1%96%20side%20effects%3A%20task%2C%20onAppear%2C%20App%20protocol%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P1">P1</span>
       </div>
       <details>
@@ -994,10 +1039,12 @@ struct RootView: View {
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swiftui-7" data-pillar="swiftui" data-prio="P0">
+    <div class="topic" id="swiftui-7" data-id="swiftui-7" data-pillar="swiftui" data-prio="P0">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Interop із UIKit</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Interop%20%D1%96%D0%B7%20UIKit&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swiftui-7%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Interop%20%D1%96%D0%B7%20UIKit%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P0">P0</span>
       </div>
       <details>
@@ -1044,10 +1091,12 @@ navigationController?.pushViewController(vc, animated: true)</pre>
         </div>
       </details>
     </div>
-    <div class="topic" data-id="swiftui-8" data-pillar="swiftui" data-prio="P1">
+    <div class="topic" id="swiftui-8" data-id="swiftui-8" data-pillar="swiftui" data-prio="P1">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Архітектура у SwiftUI: MVVM, DI, тестованість</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=%D0%90%D1%80%D1%85%D1%96%D1%82%D0%B5%D0%BA%D1%82%D1%83%D1%80%D0%B0%20%D1%83%20SwiftUI%3A%20MVVM%2C%20DI%2C%20%D1%82%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D0%B0%D0%BD%D1%96%D1%81%D1%82%D1%8C&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23swiftui-8%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22%D0%90%D1%80%D1%85%D1%96%D1%82%D0%B5%D0%BA%D1%82%D1%83%D1%80%D0%B0%20%D1%83%20SwiftUI%3A%20MVVM%2C%20DI%2C%20%D1%82%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D0%B0%D0%BD%D1%96%D1%81%D1%82%D1%8C%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P1">P1</span>
       </div>
       <details>
@@ -1097,10 +1146,12 @@ func testLoadSuccess() async {
     <div class="pillar-head"><h2>UIKIT — 9 тем</h2></div>
     <p class="pillar-note">Твоя щоденна робота — тут ти маєш звучати найупевненіше. Фокус на lifecycle, AutoLayout і таблицях: це 80% UIKit-питань.</p>
   
-    <div class="topic" data-id="uikit-0" data-pillar="uikit" data-prio="P0">
+    <div class="topic" id="uikit-0" data-id="uikit-0" data-pillar="uikit" data-prio="P0">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>App lifecycle: AppDelegate, SceneDelegate, стани</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=App%20lifecycle%3A%20AppDelegate%2C%20SceneDelegate%2C%20%D1%81%D1%82%D0%B0%D0%BD%D0%B8&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23uikit-0%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22App%20lifecycle%3A%20AppDelegate%2C%20SceneDelegate%2C%20%D1%81%D1%82%D0%B0%D0%BD%D0%B8%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P0">P0</span>
       </div>
       <details>
@@ -1141,10 +1192,12 @@ func userNotificationCenter(_ c: UNUserNotificationCenter,
         </div>
       </details>
     </div>
-    <div class="topic" data-id="uikit-1" data-pillar="uikit" data-prio="P0">
+    <div class="topic" id="uikit-1" data-id="uikit-1" data-pillar="uikit" data-prio="P0">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>UIViewController lifecycle</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=UIViewController%20lifecycle&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23uikit-1%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22UIViewController%20lifecycle%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P0">P0</span>
       </div>
       <details>
@@ -1188,10 +1241,12 @@ override func viewDidLayoutSubviews() {
         </div>
       </details>
     </div>
-    <div class="topic" data-id="uikit-2" data-pillar="uikit" data-prio="P0">
+    <div class="topic" id="uikit-2" data-id="uikit-2" data-pillar="uikit" data-prio="P0">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>AutoLayout</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=AutoLayout&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23uikit-2%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22AutoLayout%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P0">P0</span>
       </div>
       <details>
@@ -1228,10 +1283,12 @@ UIView.animate(withDuration: 0.3) {
         </div>
       </details>
     </div>
-    <div class="topic" data-id="uikit-3" data-pillar="uikit" data-prio="P0">
+    <div class="topic" id="uikit-3" data-id="uikit-3" data-pillar="uikit" data-prio="P0">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>UITableView / UICollectionView</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=UITableView%20%2F%20UICollectionView&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23uikit-3%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22UITableView%20%2F%20UICollectionView%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P0">P0</span>
       </div>
       <details>
@@ -1273,10 +1330,12 @@ dataSource.apply(snapshot, animatingDifferences: true)</pre>
         </div>
       </details>
     </div>
-    <div class="topic" data-id="uikit-4" data-pillar="uikit" data-prio="P1">
+    <div class="topic" id="uikit-4" data-id="uikit-4" data-pillar="uikit" data-prio="P1">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>UIView, CALayer, rendering</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=UIView%2C%20CALayer%2C%20rendering&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23uikit-4%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22UIView%2C%20CALayer%2C%20rendering%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P1">P1</span>
       </div>
       <details>
@@ -1312,10 +1371,12 @@ contentView.layer.masksToBounds = true           // ріже ВНУТРІШНІ�
         </div>
       </details>
     </div>
-    <div class="topic" data-id="uikit-5" data-pillar="uikit" data-prio="P1">
+    <div class="topic" id="uikit-5" data-id="uikit-5" data-pillar="uikit" data-prio="P1">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Responder chain, hit testing, gestures</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Responder%20chain%2C%20hit%20testing%2C%20gestures&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23uikit-5%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Responder%20chain%2C%20hit%20testing%2C%20gestures%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P1">P1</span>
       </div>
       <details>
@@ -1354,10 +1415,12 @@ override func hitTest(_ point: CGPoint, with event: UIEvent?) -&gt; UIView? {
         </div>
       </details>
     </div>
-    <div class="topic" data-id="uikit-6" data-pillar="uikit" data-prio="P1">
+    <div class="topic" id="uikit-6" data-id="uikit-6" data-pillar="uikit" data-prio="P1">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Navigation: push, present, координатори</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Navigation%3A%20push%2C%20present%2C%20%D0%BA%D0%BE%D0%BE%D1%80%D0%B4%D0%B8%D0%BD%D0%B0%D1%82%D0%BE%D1%80%D0%B8&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23uikit-6%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Navigation%3A%20push%2C%20present%2C%20%D0%BA%D0%BE%D0%BE%D1%80%D0%B4%D0%B8%D0%BD%D0%B0%D1%82%D0%BE%D1%80%D0%B8%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P1">P1</span>
       </div>
       <details>
@@ -1399,10 +1462,12 @@ override func hitTest(_ point: CGPoint, with event: UIEvent?) -&gt; UIView? {
         </div>
       </details>
     </div>
-    <div class="topic" data-id="uikit-7" data-pillar="uikit" data-prio="P2">
+    <div class="topic" id="uikit-7" data-id="uikit-7" data-pillar="uikit" data-prio="P2">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>RunLoop, main thread, Timer</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=RunLoop%2C%20main%20thread%2C%20Timer&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23uikit-7%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22RunLoop%2C%20main%20thread%2C%20Timer%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P2">P2</span>
       </div>
       <details>
@@ -1433,10 +1498,12 @@ RunLoop.main.add(timer, forMode: .common)   // не завмирає при ск
         </div>
       </details>
     </div>
-    <div class="topic" data-id="uikit-8" data-pillar="uikit" data-prio="P2">
+    <div class="topic" id="uikit-8" data-id="uikit-8" data-pillar="uikit" data-prio="P2">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>XIB / Storyboard vs код</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=XIB%20%2F%20Storyboard%20vs%20%D0%BA%D0%BE%D0%B4&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23uikit-8%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22XIB%20%2F%20Storyboard%20vs%20%D0%BA%D0%BE%D0%B4%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P2">P2</span>
       </div>
       <details>
@@ -1472,10 +1539,12 @@ let cell = tableView.dequeueReusableCell(withIdentifier: "DishCell",
     <div class="pillar-head"><h2>СУМІЖНЕ, ЩО СПИТАЮТЬ ОДНАКОВО — 4 теми</h2></div>
     <p class="pillar-note">Мережа, сховище, тести й архітектура — питають на кожній співбесіді незалежно від стека UI.</p>
   
-    <div class="topic" data-id="adj-0" data-pillar="adj" data-prio="P0">
+    <div class="topic" id="adj-0" data-id="adj-0" data-pillar="adj" data-prio="P0">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Networking: URLSession і дизайн мережевого шару</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Networking%3A%20URLSession%20%D1%96%20%D0%B4%D0%B8%D0%B7%D0%B0%D0%B9%D0%BD%20%D0%BC%D0%B5%D1%80%D0%B5%D0%B6%D0%B5%D0%B2%D0%BE%D0%B3%D0%BE%20%D1%88%D0%B0%D1%80%D1%83&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23adj-0%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Networking%3A%20URLSession%20%D1%96%20%D0%B4%D0%B8%D0%B7%D0%B0%D0%B9%D0%BD%20%D0%BC%D0%B5%D1%80%D0%B5%D0%B6%D0%B5%D0%B2%D0%BE%D0%B3%D0%BE%20%D1%88%D0%B0%D1%80%D1%83%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P0">P0</span>
       </div>
       <details>
@@ -1518,10 +1587,12 @@ func request&lt;T: Decodable&gt;(_ endpoint: Endpoint) async throws -&gt; T {
         </div>
       </details>
     </div>
-    <div class="topic" data-id="adj-1" data-pillar="adj" data-prio="P1">
+    <div class="topic" id="adj-1" data-id="adj-1" data-pillar="adj" data-prio="P1">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Persistence: UserDefaults, Keychain, Core Data / SwiftData, файли</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=Persistence%3A%20UserDefaults%2C%20Keychain%2C%20Core%20Data%20%2F%20SwiftData%2C%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B8&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23adj-1%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Persistence%3A%20UserDefaults%2C%20Keychain%2C%20Core%20Data%20%2F%20SwiftData%2C%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B8%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P1">P1</span>
       </div>
       <details>
@@ -1564,10 +1635,12 @@ container.performBackgroundTask { context in
         </div>
       </details>
     </div>
-    <div class="topic" data-id="adj-2" data-pillar="adj" data-prio="P1">
+    <div class="topic" id="adj-2" data-id="adj-2" data-pillar="adj" data-prio="P1">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Тестування: XCTest, моки, DI</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=%D0%A2%D0%B5%D1%81%D1%82%D1%83%D0%B2%D0%B0%D0%BD%D0%BD%D1%8F%3A%20XCTest%2C%20%D0%BC%D0%BE%D0%BA%D0%B8%2C%20DI&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23adj-2%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22%D0%A2%D0%B5%D1%81%D1%82%D1%83%D0%B2%D0%B0%D0%BD%D0%BD%D1%8F%3A%20XCTest%2C%20%D0%BC%D0%BE%D0%BA%D0%B8%2C%20DI%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P1">P1</span>
       </div>
       <details>
@@ -1615,10 +1688,12 @@ final class OrdersViewModelTests: XCTestCase {
         </div>
       </details>
     </div>
-    <div class="topic" data-id="adj-3" data-pillar="adj" data-prio="P0">
+    <div class="topic" id="adj-3" data-id="adj-3" data-pillar="adj" data-prio="P0">
       <div class="topic-head">
         <input type="checkbox" aria-label="закрито">
         <h3>Архітектури і SOLID — розмовна тема</h3>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions/new?category=general&amp;title=%D0%90%D1%80%D1%85%D1%96%D1%82%D0%B5%D0%BA%D1%82%D1%83%D1%80%D0%B8%20%D1%96%20SOLID%20%E2%80%94%20%D1%80%D0%BE%D0%B7%D0%BC%D0%BE%D0%B2%D0%BD%D0%B0%20%D1%82%D0%B5%D0%BC%D0%B0&amp;body=%F0%9F%93%8D%20%D0%A2%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82%D1%96%3A%20https%3A%2F%2Fnazarzbs.github.io%2FiOSprep%2Fprep.html%23adj-3%0A%0A---%0A%0A" target="_blank" rel="noopener" title="Додати нотатку до цієї теми (GitHub Discussions)">💬</a>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22%D0%90%D1%80%D1%85%D1%96%D1%82%D0%B5%D0%BA%D1%82%D1%83%D1%80%D0%B8%20%D1%96%20SOLID%20%E2%80%94%20%D1%80%D0%BE%D0%B7%D0%BC%D0%BE%D0%B2%D0%BD%D0%B0%20%D1%82%D0%B5%D0%BC%D0%B0%22" target="_blank" rel="noopener" title="Переглянути наявні нотатки до цієї теми">🧵</a>
         <span class="prio P0">P0</span>
       </div>
       <details>
@@ -1737,9 +1812,17 @@ protocol HomeSectionFactory { func makeSection(config: SectionConfig) -&gt; UIVi
     refresh();
   });
 
+  if (location.hash) {
+    const target = document.querySelector(location.hash);
+    if (target) {
+      const det = target.querySelector("details");
+      if (det) det.open = true;
+      setTimeout(() => target.scrollIntoView({ block: "start" }), 50);
+    }
+  }
+
   refresh();
 })();
 </script>
-
 </body>
 </html>
