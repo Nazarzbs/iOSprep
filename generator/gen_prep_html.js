@@ -27,6 +27,16 @@ for (const { key, data } of pillars) {
     const noteBody = `📍 Тема на сайті: ${SITE}#${id}\n\n---\n\n`;
     const noteURL = `${REPO}/discussions/new?category=general&title=${encodeURIComponent(topic.name)}&body=${encodeURIComponent(noteBody)}`;
     const threadsURL = `${REPO}/discussions?discussions_q=${encodeURIComponent('"' + topic.name + '"')}`;
+    const sectionsHTML = (topic.sections || []).map(s => `
+          <div class="blk blk-sub">
+            <div class="blk-t info">${esc(s.title)}</div>
+            <p>${esc(s.text)}</p>
+            ${s.code && s.code.length ? `<pre>${esc(s.code.join("\n"))}</pre>` : ""}
+          </div>`).join("");
+    const codeHTML = !topic.sections?.length && topic.code && topic.code.length ? `
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>${esc(topic.code.join("\n"))}</pre>
+          </div>` : "";
     topicsHTML += `
     <div class="topic" id="${id}" data-id="${id}" data-pillar="${key}" data-prio="${topic.p}">
       <div class="topic-head">
@@ -41,17 +51,13 @@ for (const { key, data } of pillars) {
         <div class="topic-body">
           <div class="blk"><div class="blk-t accent">Що це і як працює</div>
             ${topic.what.map(p => `<p>${esc(p)}</p>`).join("")}
-          </div>
+          </div>${sectionsHTML}
           <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
             <p>${esc(topic.problem)}</p>
           </div>
           <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
             <ul>${topic.where.map(w => `<li>${esc(w)}</li>`).join("")}</ul>
-          </div>
-          ${topic.code && topic.code.length ? `
-          <div class="blk"><div class="blk-t info">Приклад</div>
-            <pre>${esc(topic.code.join("\n"))}</pre>
-          </div>` : ""}
+          </div>${codeHTML}
           <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
             <ul class="warn-list">${topic.traps.map(t => `<li>${esc(t)}</li>`).join("")}</ul>
           </div>
@@ -149,6 +155,8 @@ const html = `<!doctype html>
   .topic-body { padding: 6px 18px 16px; }
 
   .blk { margin-top: 12px; }
+  .blk.blk-sub { margin-top: 16px; border-left: 2px solid var(--line); padding-left: 14px; }
+  .blk.blk-sub pre { margin-top: 6px; }
   .blk-t { font-family: var(--mono); font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase; font-weight: 700; margin-bottom: 5px; }
   .blk-t.accent { color: var(--accent-deep); }
   .blk-t.info { color: var(--info); }
