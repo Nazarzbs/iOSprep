@@ -93,7 +93,7 @@
 
 <div class="wrap">
   <div class="eyebrow">iOS Interview Prep · розширена версія</div>
-  <h1>План підготовки до співбесід: 36 тем углиб</h1>
+  <h1>План підготовки до співбесід: 37 тем углиб</h1>
   <p class="lede">Кожна тема — шість блоків: як працює → яку проблему вирішує → де застосовується (з кейсами з твоєї роботи) → код → пастки → контрольні питання. Відповів на контрольні уголос за 1–2 хвилини — став галочку. Прогрес зберігається у браузері.</p>
 
   <div class="toolbar">
@@ -112,13 +112,13 @@
       <button class="fbtn" data-prio="P2">Лише P2</button>
       <button class="fbtn hide-done" id="hideDone">Сховати закриті</button>
     </div>
-    <div class="progress-label"><span>Закрито тем</span><b id="pcount">0 / 36</b></div>
+    <div class="progress-label"><span>Закрито тем</span><b id="pcount">0 / 37</b></div>
     <div class="pbar"><i id="pfill"></i></div>
   </div>
 
   
   <section data-pillar="swift">
-    <div class="pillar-head"><h2>SWIFT — 14 тем</h2></div>
+    <div class="pillar-head"><h2>SWIFT — 15 тем</h2></div>
     <p class="pillar-note">Мова — це 50–60% технічної співбесіди. Особливо памʼять і конкурентність: саме тут відсіюють між junior і middle.</p>
   
     <div class="topic" id="swift-0" data-id="swift-0" data-pillar="swift" data-prio="P0">
@@ -783,6 +783,67 @@ let adults = users.filter { $0.age &gt;= 18 }</pre>
           </div>
           <div class="blk cmt-blk">
             <button class="cmt-btn" data-term="Init, access control, KeyPath, type erasure">💬 Показати коментарі до теми</button>
+            <button class="cmt-btn code-tpl" title="Скопіювати markdown-заготовку для Swift-коду — встав її в коментар">⌨️ Шаблон коду</button>
+            <div class="cmt-slot"></div>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" id="swift-14" data-id="swift-14" data-pillar="swift" data-prio="P1">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Типи даних углиб: struct, class, enum, tuple</h3>
+        <button class="note-btn open-cmt" title="Коментарі до цієї теми">💬</button>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22%D0%A2%D0%B8%D0%BF%D0%B8%20%D0%B4%D0%B0%D0%BD%D0%B8%D1%85%20%D1%83%D0%B3%D0%BB%D0%B8%D0%B1%3A%20struct%2C%20class%2C%20enum%2C%20tuple%22" target="_blank" rel="noopener" title="Гілки цієї теми на GitHub">🧵</a>
+        <span class="prio P1">P1</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Struct: отримує memberwise init безкоштовно (Point(x: 1, y: 2) безписання init руками — але будь-який кастомний init в тілі структури його вимикає). Методи, що змінюють властивості, позначаються mutating — під капотом вони отримують новий self (метод неявно приймає inout self). Свій Copy-on-Write будується через клас-буфер усередині структури + isKnownUniquelyReferenced(&amp;buffer): якщо буфер тримає хтось ще — копіюємо перед мутацією.</p><p>Class: єдиний тип з успадкуванням і deinit. Ідентичність перевіряється оператором === (той самий обʼєкт у памʼяті), а рівність — == (той самий вміст, вимагає Equatable). Два різні обʼєкти можуть бути == але не ===. required init — зобовʼязує сабкласи; convenience init — делегує до designated.</p><p>Tuple: легка анонімна група значень — (min: 3, max: 10). Це value-тип без імені: не може мати методів, не підкоряється протоколам (не буде Codable/Equatable у своєму API), не може бути рекурсивним. Правило: tuple — для локального повернення двох-трьох значень з функції; щойно тип перетинає межу файлу/шару або потребує логіки — перетворюй на struct.</p><p>Nested types — типи всередині типів для простору імен: Order.Status краще за OrderStatus (звʼязок видно з імені). typealias — синонім типу: typealias Completion = (Result&lt;Order, APIError&gt;) -&gt; Void прибирає шум у сигнатурах. Any — будь-який тип узагалі (включно зі struct і функціями), AnyObject — лише class-типи (тому протоколи делегатів позначають AnyObject, щоб можна було weak).</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Ця тема вирішує проблему вибору інструмента: коли struct, коли class, коли вистачить tuple. Неправильний вибір коштує дорого пізніше: моделі на класах дають несподівані спільні мутації, tuple-и, що розповзлись по шарах — неможливість додати метод чи conformance без глобального рефакторингу, а Any у публічних API — втрату типобезпеки і касти в рантаймі.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Свій COW — питання на співбесідах рівня middle+: «як зробити великий value-тип дешевим у копіюванні» — показуєш буфер-клас + isKnownUniquelyReferenced.</li><li>=== використовується у кастомному Equatable для класів (спершу швидка перевірка ідентичності, потім полів) і в тестах — перевірити, що це САМЕ той інстанс (наприклад, синглтон або той самий делегат).</li><li>Tuple щодня: повернення пари з функції — func minMax(_ a: [Int]) -&gt; (min: Int, max: Int), координати, результат enumerated() у циклі.</li><li>Nested types у моделях: Order.Status, Order.Payment — типовий стиль чистих доменних моделей; у твоєму проєкті так природно лягають статуси замовлення.</li><li>AnyObject — обмеження протоколу делегата (protocol CartDelegate: AnyObject), без нього weak var delegate не скомпілюється.</li></ul>
+          </div>
+          
+          <div class="blk"><div class="blk-t info">Приклад</div>
+            <pre>// COW своїми руками:
+final class Buffer { var data: [Int] = [] }
+struct BigValue {
+    private var buffer = Buffer()
+    var data: [Int] { buffer.data }
+    mutating func append(_ x: Int) {
+        if !isKnownUniquelyReferenced(&amp;buffer) {
+            buffer = Buffer(); // копія лише коли буфер спільний
+        }
+        buffer.data.append(x)
+    }
+}
+
+// Ідентичність vs рівність:
+class User: Equatable {
+    let id: String; init(id: String) { self.id = id }
+    static func == (l: User, r: User) -&gt; Bool { l === r || l.id == r.id }
+}
+
+// Tuple: добре локально…
+func minMax(_ a: [Int]) -&gt; (min: Int, max: Int)? {
+    guard let f = a.first else { return nil }
+    return a.dropFirst().reduce((f, f)) { (Swift.min($0.0, $1), Swift.max($0.1, $1)) }
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Кастомний init у ТІЛІ структури вимикає memberwise init; той самий init у extension — зберігає обидва. Тому кастомні ініціалізатори структур пишуть в extension.</li><li>mutating-метод на let-структурі — помилка компіляції; властивість-структура всередині класу, оголошена let — теж незмінна, навіть якщо клас var.</li><li>Tuple з іменами і без — сумісні за позицією: (min: 3, max: 5) можна присвоїти у (Int, Int) — імена загубляться мовчки.</li><li>Порівняння tuple-ів працює лише до 6 елементів (обмеження стандартної бібліотеки) і лише якщо всі елементи Comparable/Equatable.</li><li>Any ховає навіть Optional: масив [Any] може містити nil як Optional&lt;T&gt;.none — і as? розгортання дає сюрпризи. Побачив Any у своєму API — подумай ще раз.</li><li>deinit не викликається детерміновано при крешах/exit(0) — не клади туди критичне збереження даних.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Коли зникає memberwise init і як зберегти його разом із кастомним?</li><li>Напиши COW-обгортку: що робить isKnownUniquelyReferenced і чому параметр inout?</li><li>=== vs == — різниця? Чи можуть два обʼєкти бути == але не ===?</li><li>Коли tuple стає боргом і його час міняти на struct? Назви три обмеження tuple.</li><li>Any vs AnyObject — різниця, і чому протокол делегата має бути AnyObject?</li></ul>
+          </div>
+          <div class="blk cmt-blk">
+            <button class="cmt-btn" data-term="Типи даних углиб: struct, class, enum, tuple">💬 Показати коментарі до теми</button>
             <button class="cmt-btn code-tpl" title="Скопіювати markdown-заготовку для Swift-коду — встав її в коментар">⌨️ Шаблон коду</button>
             <div class="cmt-slot"></div>
           </div>
