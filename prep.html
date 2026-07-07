@@ -95,7 +95,7 @@
 
 <div class="wrap">
   <div class="eyebrow">iOS Interview Prep · розширена версія</div>
-  <h1>План підготовки до співбесід: 39 тем углиб</h1>
+  <h1>План підготовки до співбесід: 40 тем углиб</h1>
   <p class="lede">Кожна тема — шість блоків: як працює → яку проблему вирішує → де застосовується (з кейсами з твоєї роботи) → код → пастки → контрольні питання. Відповів на контрольні уголос за 1–2 хвилини — став галочку. Прогрес зберігається у браузері.</p>
 
   <div class="toolbar">
@@ -114,13 +114,13 @@
       <button class="fbtn" data-prio="P2">Лише P2</button>
       <button class="fbtn hide-done" id="hideDone">Сховати закриті</button>
     </div>
-    <div class="progress-label"><span>Закрито тем</span><b id="pcount">0 / 39</b></div>
+    <div class="progress-label"><span>Закрито тем</span><b id="pcount">0 / 40</b></div>
     <div class="pbar"><i id="pfill"></i></div>
   </div>
 
   
   <section data-pillar="swift">
-    <div class="pillar-head"><h2>SWIFT — 17 тем</h2></div>
+    <div class="pillar-head"><h2>SWIFT — 18 тем</h2></div>
     <p class="pillar-note">Мова — це 50–60% технічної співбесіди. Особливо памʼять і конкурентність: саме тут відсіюють між junior і middle.</p>
   
     <div class="topic" id="swift-0" data-id="swift-0" data-pillar="swift" data-prio="P0">
@@ -1061,6 +1061,157 @@ let cat = Cat()
           </div>
           <div class="blk cmt-blk">
             <button class="cmt-btn" data-term="Classes: відмінності від struct, успадкування, deinit">💬 Показати коментарі до теми</button>
+            <button class="cmt-btn code-tpl" title="Скопіювати markdown-заготовку для Swift-коду — встав її в коментар">⌨️ Шаблон коду</button>
+            <div class="cmt-slot"></div>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" id="swift-17" data-id="swift-17" data-pillar="swift" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Error Handling: throw, throws, try, catch</h3>
+        <button class="note-btn open-cmt" title="Коментарі до цієї теми">💬</button>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Error%20Handling%3A%20throw%2C%20throws%2C%20try%2C%20catch%22" target="_blank" rel="noopener" title="Гілки цієї теми на GitHub">🧵</a>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Error Handling — механізм Swift, який дозволяє безпечно повідомляти про помилки та обробляти їх, замість того щоб застосунок аварійно завершувався. Ключові слова: Error (протокол типу помилки) → throws (функція може кинути) → throw (кинути конкретну помилку) → try (виклик throwing-функції) → catch (обробити).</p><p>Як запамʼятати: Error описує які помилки можуть існувати; throws каже, що функція може завершитися помилкою; throw створює та викидає конкретну помилку; try викликає таку функцію; catch ловить і обробляє. Головне для співбесіди: throw ≠ crash — він лише передає інформацію про помилку тому, хто викликав функцію.</p>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">1. Протокол Error і власні типи помилок</div>
+            <p>Error — вбудований протокол Swift без методів і властивостей. Його єдина задача — повідомити компілятору: «цей тип можна використовувати як помилку». Найчастіше помилки — enum з кейсами (зручно для switch у catch). Можна також struct або class — головне conformance до Error.</p>
+            <pre>// protocol Error { }  — порожній маркерний протокол
+
+enum LoginError: Error {
+    case wrongPassword
+    case userNotFound
+}
+
+struct NetworkError: Error {
+    let message: String
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">2. throw — викинути помилку</div>
+            <p>throw — оператор, який зупиняє виконання функції і передає помилку вгору по стеку викликів. «Я не можу продовжити — повідомляю про проблему». Використовуємо, коли функція не може виконати задачу: неправильний пароль, файл не знайдено, немає доступу, помилка сервера, ділення на нуль. Не кожна незручна ситуація — помилка: якщо «користувача не знайдено» — очікуваний кейс, краще повернути nil (User?), а не throw.</p>
+            <pre>enum AgeError: Error { case underAge }
+
+func enterClub(age: Int) throws {
+    if age &lt; 18 { throw AgeError.underAge }
+    print("Welcome!")
+}
+
+enum MathError: Error { case divideByZero }
+func divide(_ a: Int, by b: Int) throws -&gt; Int {
+    if b == 0 { throw MathError.divideByZero }
+    return a / b
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">3. throws — функція може кинути помилку</div>
+            <p>throws у сигнатурі означає: «ця функція може викинути помилку всередині». Компілятор знає про throw і змушує викликача явно обробити ризик — через try + do-catch, try?, try! або пробросити далі (throws у викликаючій функції). Без цього код не скомпілюється.</p>
+            <pre>func login(password: String) throws { ... }
+func divide(_ a: Int, by b: Int) throws -&gt; Int { ... }
+
+// Пробросити помилку далі — не ловити тут:
+func loadAndParse() throws -&gt; Data {
+    let data = try Data(contentsOf: fileURL)  // throw піде вгору
+    return data
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">4. try і do-catch — обробити помилку</div>
+            <p>Якщо функція має throws, викликаємо її через try. do-catch — основний спосіб обробки: спробувати виконати блок, при throw перейти в catch. У catch без типу — локальна змінна error містить викинуту помилку. Можна ловити конкретні кейси: catch LoginError.wrongPassword { ... }.</p>
+            <pre>do {
+    let result = try divide(10, by: 2)
+    print(result)                    // 5
+} catch {
+    print(error)                     // будь-яка помилка
+}
+
+do {
+    try enterClub(age: 15)
+} catch AgeError.underAge {
+    print("Access denied")
+} catch {
+    print("Інша помилка: \(error)")
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">5. try? і try! — без do-catch</div>
+            <p>try? — якщо помилка, повертає nil замість crash. Тип результату стає Optional: try? divide(10, by: 0) → Int?. Зручно, коли nil — прийнятна відповідь, але причина помилки губиться — для продакшн-дебагу краще do/catch з логом. try! — «на 100% впевнений, що помилки не буде». Якщо помилка все ж виникне — crash (як force unwrap). Легітимно лише для ресурсів, які гарантовано є в бандлі.</p>
+            <pre>let ok = try? divide(10, by: 2)      // Optional(5)
+let fail = try? divide(10, by: 0)  // nil
+
+let safe = try! divide(10, by: 2)    // 5 — OK
+// let crash = try! divide(10, by: 0) // 💥 runtime crash</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">6. throw ≠ crash — обробка в UI</div>
+            <p>Коли використовуєш throw + do-catch, застосунок не падає — ти сам вирішуєш у catch: показати Alert, повторити запит, записати в лог, повернути на попередній екран. Crash буде лише при try! на помилці. Swift змушує обробити throws на етапі компіляції — не можна викликати throwing-функцію «мовчки».</p>
+            <pre>enum LoginError: Error {
+    case emptyPassword
+    case wrongPassword
+}
+func login(password: String) throws {
+    if password.isEmpty { throw LoginError.emptyPassword }
+    if password != "1234" { throw LoginError.wrongPassword }
+    print("Login successful")
+}
+
+// Користувач натиснув «Увійти» → throw → catch → Alert → вводить знову
+do {
+    try login(password: userInput)
+} catch LoginError.wrongPassword {
+    showAlert(title: "Помилка", message: "Неправильний пароль")
+} catch {
+    showAlert(title: "Помилка", message: error.localizedDescription)
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">7. Повний приклад — кілька catch</div>
+            <p>Один do може мати кілька catch-блоків — спочатку конкретні типи/кейси, загальний catch — останнім. Порядок важливий: від специфічного до загального.</p>
+            <pre>do {
+    try login(password: "1111")
+} catch LoginError.emptyPassword {
+    print("Password is empty")
+} catch LoginError.wrongPassword {
+    print("Wrong password")
+} catch {
+    print(error)
+}
+// Виведе: Wrong password</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">8. throw vs Optional — коли що</div>
+            <p>throw — коли збій неочікуваний або критичний для поточної операції (мережа, парсинг, авторизація). Optional/nil — коли відсутність результату нормальна (пошук у словнику, findUser(id:) → User?). Result&lt;T, Error&gt; — коли потрібно зберегти успіх або помилку без throw (колбеки, до async/await).</p>
+            <pre>// Очікувана відсутність — Optional:
+func findUser(id: Int) -&gt; User? { ... }
+
+// Критична операція — throws:
+func fetchUser(id: Int) async throws -&gt; User {
+  let (data, _) = try await URLSession.shared.data(from: url)
+  return try JSONDecoder().decode(User.self, from: data)
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Без типізованого error handling помилки перетворюються на креші, мовчазні nil або неконтрольовані print. throws + Error дають: помилки в системі типів (компілятор змушує обробити), зрозумілі доменні кейси (LoginError.wrongPassword), і контрольовану реакцію в UI — без падіння застосунку.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Мережевий шар: enum APIError: Error { case unauthorized, server(code: Int), decoding } — централізована обробка (див. також тему Enums).</li><li>async throws у URLSession, JSONDecoder.decode, FileManager — стандартна бібліотека повсюдно throwing.</li><li>ViewModel: do/catch навколо try await fetchOrders(), у catch — оновити state на .failed(message).</li><li>Логін/реєстрація: throw LoginError → catch → UIAlertController або SwiftUI .alert.</li><li>Codable: try decoder.decode — DecodingError з codingPath для дебагу продакшн-парсингу.</li></ul>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>try? ковтає причину помилки — для дебагу краще do/catch з логуванням error.</li><li>try! у продакшні — креш, який знайде користувач; як force unwrap для помилок.</li><li>throw для очікуваних кейсів (user not found) — overkill; краще Optional або Result.</li><li>Забути throws у викликаючій функції — не скомпілюється; це фіча, не баг.</li><li>catch без загального блоку після специфічних — необроблені кейси enum можуть «просочитись» (exhaustiveness у switch, не в catch — але порядок catch важливий).</li><li>Плутати throw (runtime) з fatalError/preconditionFailure (навмисний crash для програмістських багів).</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Що таке протокол Error і навіщо він порожній?</li><li>Різниця throw, throws, try — по одному реченню на кожне.</li><li>throw означає crash? Що буде в catch після throw LoginError.wrongPassword?</li><li>try? vs try! vs do-catch — коли що?</li><li>Коли повернути User?, а коли throw?</li><li>Напиши enum LoginError і func login(password:) throws з двома перевірками.</li><li>Як показати Alert користувачу після помилки мережевого запиту?</li></ul>
+          </div>
+          <div class="blk cmt-blk">
+            <button class="cmt-btn" data-term="Error Handling: throw, throws, try, catch">💬 Показати коментарі до теми</button>
             <button class="cmt-btn code-tpl" title="Скопіювати markdown-заготовку для Swift-коду — встав її в коментар">⌨️ Шаблон коду</button>
             <div class="cmt-slot"></div>
           </div>
