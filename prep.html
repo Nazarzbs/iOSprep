@@ -95,7 +95,7 @@
 
 <div class="wrap">
   <div class="eyebrow">iOS Interview Prep · розширена версія</div>
-  <h1>План підготовки до співбесід: 40 тем углиб</h1>
+  <h1>План підготовки до співбесід: 41 тем углиб</h1>
   <p class="lede">Кожна тема — шість блоків: як працює → яку проблему вирішує → де застосовується (з кейсами з твоєї роботи) → код → пастки → контрольні питання. Відповів на контрольні уголос за 1–2 хвилини — став галочку. Прогрес зберігається у браузері.</p>
 
   <div class="toolbar">
@@ -114,7 +114,7 @@
       <button class="fbtn" data-prio="P2">Лише P2</button>
       <button class="fbtn hide-done" id="hideDone">Сховати закриті</button>
     </div>
-    <div class="progress-label"><span>Закрито тем</span><b id="pcount">0 / 40</b></div>
+    <div class="progress-label"><span>Закрито тем</span><b id="pcount">0 / 41</b></div>
     <div class="pbar"><i id="pfill"></i></div>
   </div>
 
@@ -1683,7 +1683,7 @@ func testLoadSuccess() async {
       </details>
     </div></section>
   <section data-pillar="uikit">
-    <div class="pillar-head"><h2>UIKIT — 9 тем</h2></div>
+    <div class="pillar-head"><h2>UIKIT — 10 тем</h2></div>
     <p class="pillar-note">Твоя щоденна робота — тут ти маєш звучати найупевненіше. Фокус на lifecycle, AutoLayout і таблицях: це 80% UIKit-питань.</p>
   
     <div class="topic" id="uikit-0" data-id="uikit-0" data-pillar="uikit" data-prio="P0">
@@ -2105,6 +2105,213 @@ let cell = tableView.dequeueReusableCell(withIdentifier: "DishCell",
           </div>
           <div class="blk cmt-blk">
             <button class="cmt-btn" data-term="XIB / Storyboard vs код">💬 Показати коментарі до теми</button>
+            <button class="cmt-btn code-tpl" title="Скопіювати markdown-заготовку для Swift-коду — встав її в коментар">⌨️ Шаблон коду</button>
+            <div class="cmt-slot"></div>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" id="uikit-9" data-id="uikit-9" data-pillar="uikit" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Основні UIViewController у UIKit</h3>
+        <button class="note-btn open-cmt" title="Коментарі до цієї теми">💬</button>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22%D0%9E%D1%81%D0%BD%D0%BE%D0%B2%D0%BD%D1%96%20UIViewController%20%D1%83%20UIKit%22" target="_blank" rel="noopener" title="Гілки цієї теми на GitHub">🧵</a>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>UIKit побудований навколо UIViewController — базового класу для будь-якого екрана. Усі інші «контролери» — це підкласи з додатковою спеціалізацією: UITableViewController (список), UICollectionViewController (сітка), UINavigationController (стек екранів), UITabBarController (вкладки), UISplitViewController (два екрани на iPad), UIPageViewController (сторінки свайпом). На співбесіді важливо розуміти не назви, а роль кожного: хто малює контент, а хто лише керує навігацією.</p><p>Ієрархія успадкування: UIViewController → UITableViewController, UICollectionViewController, UINavigationController, UITabBarController, UISplitViewController, UIPageViewController, … Кожен має свою спеціалізацію, але 90% екранів у реальних проєктах — звичайний UIViewController всередині UINavigationController.</p>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">1. UIViewController — базовий екран</div>
+            <p>UIViewController — найпоширеніший контролер. Використовуй, коли екран містить будь-яку комбінацію елементів: UILabel, UIButton, UIImageView, UITextField, UITableView, UICollectionView, Map, WebView. Приклади екранів: Login, Profile, Settings, Product Details, Chat, Forms, Camera. Ти повністю відповідаєш за: створення subviews, addSubview, Auto Layout constraints, delegate/dataSource, реєстрацію комірок. Це дає максимальну гнучкість — саме тому сучасні екрани майже завжди будуються на UIViewController, навіть якщо головний елемент — таблиця.</p>
+            <pre>class ProfileViewController: UIViewController {
+    private let avatarView = UIImageView()
+    private let nameLabel = UILabel()
+    private let followButton = UIButton()
+    private let tableView = UITableView()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.addSubview(avatarView)
+        view.addSubview(nameLabel)
+        view.addSubview(followButton)
+        view.addSubview(tableView)
+        // constraints для кожного елемента
+        // tableView.delegate = self, dataSource = self
+        // tableView.register(...)
+    }
+}
+// Екран: Avatar → Name → Button → UITableView</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">2. UIViewController + UITableView — ти сам створюєш таблицю</div>
+            <p>Питання на співбесіді: «У чому різниця між let tableView = UITableView() і UITableViewController?» Відповідь: різниця не в самому рядку коду, а в тому, ХТО створює UITableView. У UIViewController ти сам створюєш таблицю і несеш повну відповідальність. Тобі потрібно: (1) створити UITableView, (2) додати її в view через addSubview, (3) налаштувати constraints (pin to edges або під search bar), (4) призначити delegate і dataSource, (5) зареєструвати комірки (register / registerNib). Вся відповідальність на тобі — але ти контролюєш розташування таблиці відносно інших елементів.</p>
+            <pre>class UsersViewController: UIViewController {
+    let tableView = UITableView()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.addSubview(tableView)
+        // constraints: tableView.pin(to: view.safeAreaLayoutGuide)
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+    }
+}
+// ✅ Ти повністю контролюєш створення та розташування таблиці</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">3. UITableViewController — таблиця вже створена</div>
+            <p>UITableViewController — спеціалізований підклас для екранів, що майже повністю складаються зі списку (Users: John, Mike, Kate…). Тут НЕ потрібно писати let tableView = UITableView() і view.addSubview(tableView) — UITableViewController вже має готову tableView. Вона створюється автоматично при завантаженні контролера. Спрощено всередині це виглядає так: class UITableViewController: UIViewController { let tableView = UITableView() } — реальний код складніший (автоматичний layout, tableView займає весь view, contentInsetAdjustmentBehavior). Переваги: менше boilerplate, вбудований refreshControl для pull-to-refresh. Недолік: якщо потрібні інші елементи на екрані — складно, бо view контролера І Є tableView.</p>
+            <pre>class UsersViewController: UITableViewController {
+    // let tableView = UITableView()  — НЕ потрібно!
+    // view.addSubview(tableView)     — НЕ потрібно!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        tableView.register(UITableViewCell.self,
+                           forCellReuseIdentifier: "Cell")
+        tableView.reloadData()
+    }
+}
+// ➡️ Таблиця вже існує. Ти просто працюєш з нею.</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">4. Чому зараз частіше UIViewController + UITableView?</div>
+            <p>Сучасний екран рідко складається лише з таблиці. Типова структура: Search Bar зверху → Banner → UITableView → Floating Button знизу. Таку композицію набагато простіше зробити через UIViewController, бо ти сам керуєш усіма елементами і їх constraints. UITableViewController заточений під «таблиця = весь екран». Для співбесіди: «UITableViewController — для простих full-screen списків; UIViewController + UITableView — для реальних екранів зі змішаним UI». У більшості production-проєктів (включно з food delivery) саме другий варіант.</p>
+            <pre>// Сучасний екран (UIViewController):
+// ┌─────────────────────┐
+// │     Search Bar      │
+// ├─────────────────────┤
+// │       Banner        │
+// ├─────────────────────┤
+// │                     │
+// │     UITableView     │
+// │                     │
+// ├─────────────────────┤
+// │  [ Floating Cart ]  │
+// └─────────────────────┘
+
+class MenuViewController: UIViewController {
+    let searchBar = UISearchBar()
+    let bannerView = PromoBannerView()
+    let tableView = UITableView()
+    let cartButton = UIButton()
+    // кожен елемент — окремий subview з constraints
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">5. UICollectionViewController — сітки і галереї</div>
+            <p>Аналог UITableViewController, але для UICollectionView. Таблиця — одна колонка рядків; collection view — grid (□ □ □), mosaic, horizontal scroll (📱 📱 📱), Pinterest layout. Має готову collectionView — не створюєш вручну. Використовується: Gallery, Photos, App Store, Netflix, Pinterest. Якщо на екрані grid + header + filter — краще UIViewController + UICollectionView (та сама логіка, що з таблицею).</p>
+            <pre>class PhotosViewController: UICollectionViewController {
+    // collectionView вже є
+    override func collectionView(_ collectionView: UICollectionView,
+                                numberOfItemsInSection section: Int) -&gt; Int {
+        photos.count
+    }
+}
+// Grid:  □ □ □
+//         □ □ □</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">6. UINavigationController — стек екранів (push / pop)</div>
+            <p>UINavigationController не малює контент — він керує переходами між екранами як стек (LIFO). Home → push → Profile → push → Settings. Back (кнопка або свайп) → pop → Profile. Методи: pushViewController(_:animated:) — додати екран зверху; popViewController(animated:) — повернутись; popToRootViewController — на початок стеку. Майже кожен UIKit-застосунок має UINavigationController. Сам navigation controller — це UIViewController-обгортка з navigation bar зверху; контент — твій UIViewController всередині.</p>
+            <pre>let home = HomeViewController()
+let nav = UINavigationController(rootViewController: home)
+
+// Home → Profile → Settings
+nav.pushViewController(ProfileViewController(), animated: true)
+nav.pushViewController(SettingsViewController(), animated: true)
+
+// Back: Settings → Profile
+nav.popViewController(animated: true)</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">7. UITabBarController — нижні вкладки</div>
+            <p>Керує вкладками внизу екрана: Home | Search | Cart | Profile. Кожна вкладка — окремий UIViewController (зазвичай обгорнутий у UINavigationController, щоб усередині вкладки працював push/pop). Структура: TabBarController.viewControllers = [homeNav, searchNav, cartNav, profileNav]. Використовується: Instagram, YouTube, App Store, Facebook. selectedIndex — перемикання програмно. TabBar — корінь застосунку або один з рівнів ієрархії.</p>
+            <pre>let tabBar = UITabBarController()
+
+let homeNav = UINavigationController(rootViewController: HomeVC())
+let searchNav = UINavigationController(rootViewController: SearchVC())
+let cartNav = UINavigationController(rootViewController: CartVC())
+let profileNav = UINavigationController(rootViewController: ProfileVC())
+
+tabBar.viewControllers = [homeNav, searchNav, cartNav, profileNav]
+// Home | Search | Cart | Profile</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">8. UISplitViewController — два екрани (iPad)</div>
+            <p>Показує два екрани одночасно: master (список) | detail (вміст). Переважно iPad: Mail (Folders | Email), Notes (Sidebar | Note), Files. На iPhone згортається — показує або master, або detail через navigation. Використовуй, коли на великому екрані потрібен постійний sidebar + контент.</p>
+            <pre>let split = UISplitViewController(style: .doubleColumn)
+split.viewControllers = [
+    UINavigationController(rootViewController: FoldersVC()),  // master
+    UINavigationController(rootViewController: EmailDetailVC()), // detail
+]
+// iPad:  Folders | Email body
+// iPhone: спочатку Folders, tap → Email</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">9. UIPageViewController — сторінки свайпом</div>
+            <p>Дозволяє гортати сторінки горизонтально свайпом: ◀️ Page 1 ▶️ ◀️ Page 2 ▶️. Використовується: Onboarding (3–4 екрани вітання), Stories, PDF Reader, Tutorials. Ти надаєш масив UIViewController і керуєш переходами через dataSource (яка сторінка до/після) і delegate.</p>
+            <pre>let pageVC = UIPageViewController(
+    transitionStyle: .scroll,
+    navigationOrientation: .horizontal)
+pageVC.dataSource = self
+pageVC.setViewControllers([onboardingPage1],
+                          direction: .forward, animated: true)</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">10. Системні контролери (готові, не наслідуєш)</div>
+            <p>Apple надає готові контролери для типових задач — ти їх present-иш, а не пишеш з нуля. UIImagePickerController — камера або photo library (для library застарілий). PHPickerViewController — сучасний вибір фото, рекомендований з iOS 14 (privacy-friendly, не потребує повного доступу до бібліотеки). SFSafariViewController — Safari всередині застосунку (оплата, terms of service). MFMailComposeViewController — написати email з app.</p>
+            <pre>// PHPicker (рекомендований для фото):
+var config = PHPickerConfiguration()
+config.selectionLimit = 5
+let picker = PHPickerViewController(configuration: config)
+picker.delegate = self
+present(picker, animated: true)
+
+// Safari в app:
+let safari = SFSafariViewController(url: termsURL)
+present(safari, animated: true)</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">11. Архітектура реального застосунку + шпаргалка</div>
+            <p>Типова структура UIKit-app: UITabBarController (корінь) → кілька UINavigationController (по одному на вкладку) → UIViewController (контент екранів). Navigation і TabBar не малюють UI — вони керують навігацією та структурою. Усередині майже всі екрани — UIViewController. Шпаргалка для співбесіди: UIViewController — будь-який екран зі змішаним UI; UITableViewController — простий список на весь екран; UICollectionViewController — сітки/галереї; UINavigationController — push/pop; UITabBarController — нижні вкладки; UISplitViewController — два екрани (iPad); UIPageViewController — свайп-сторінки.</p>
+            <pre>// UITabBarController
+// │
+// ├── UINavigationController
+// │      ├── HomeViewController
+// │      └── ProductViewController
+// │
+// ├── UINavigationController
+// │      ├── SearchViewController
+// │      └── ResultViewController
+// │
+// └── UINavigationController
+//        ├── ProfileViewController
+//        └── SettingsViewController
+
+// 90% екранів = UIViewController
+// Nav + TabBar = керують, не малюють</pre>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Без розуміння ролі кожного контролера легко: (1) взяти UITableViewController для екрана з search bar і banner — і боротись з обмеженнями; (2) не знати різницю push vs present; (3) не вміти намалювати дерево TabBar → Nav → VC на співбесіді. Ця тема — карта UIKit-навігації: що обирати і чому.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>UIViewController + UITableView — щоденна робота: search bar, банер, список страв, floating cart button (твій food-delivery проєкт).</li><li>UINavigationController — push на деталі замовлення/страви, pop назад; present модально для login/checkout.</li><li>UITabBarController — корінь app: Menu | Orders | Profile.</li><li>UITableViewController — legacy-екрани «просто список налаштувань»; у нових фічах рідше.</li><li>PHPickerViewController — вибір фото для аватара/відгуку замість UIImagePicker.</li><li>UIPageViewController — onboarding нового користувача після реєстрації.</li></ul>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>UITableViewController: view контролера = tableView. Не додавай інші subviews у view без розуміння — краще UIViewController.</li><li>Плутати UINavigationController (стек всередині вкладки) і UITabBarController (перемикання між розділами).</li><li>Думати, що let tableView = UITableView() — це «погано»; ні, це стандарт для складних екранів.</li><li>present fullScreen — viewWillAppear батька не викликається після dismiss; оновлюй дані в completion.</li><li>UIImagePicker для photo library — застарілий; PHPicker з iOS 14+.</li><li>UINavigationController і UITabBarController — контейнери, не екрани з контентом.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>У чому різниця між UIViewController + let tableView = UITableView() і UITableViewController? Що ти повинен зробити в кожному варіанті?</li><li>Чому зараз частіше UIViewController + UITableView? Наведи приклад екрана з кількома елементами.</li><li>Що всередині UITableViewController — чому не потрібен addSubview?</li><li>Поясни UINavigationController як стек: push Home → Profile → Settings, потім Back.</li><li>Як влаштований UITabBarController? Що в кожній вкладці і навіщо Nav всередині?</li><li>Намалюй дерево UIKit-app: TabBar → Nav → VC для food-delivery.</li><li>Коли UITableViewController, а коли UICollectionViewController?</li><li>Чим PHPicker кращий за UIImagePicker для photo library?</li><li>UIViewController vs UINavigationController vs UITabBarController — хто малює контент, хто керує навігацією?</li></ul>
+          </div>
+          <div class="blk cmt-blk">
+            <button class="cmt-btn" data-term="Основні UIViewController у UIKit">💬 Показати коментарі до теми</button>
             <button class="cmt-btn code-tpl" title="Скопіювати markdown-заготовку для Swift-коду — встав її в коментар">⌨️ Шаблон коду</button>
             <div class="cmt-slot"></div>
           </div>
