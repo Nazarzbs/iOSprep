@@ -95,7 +95,7 @@
 
 <div class="wrap">
   <div class="eyebrow">iOS Interview Prep · розширена версія</div>
-  <h1>План підготовки до співбесід: 38 тем углиб</h1>
+  <h1>План підготовки до співбесід: 39 тем углиб</h1>
   <p class="lede">Кожна тема — шість блоків: як працює → яку проблему вирішує → де застосовується (з кейсами з твоєї роботи) → код → пастки → контрольні питання. Відповів на контрольні уголос за 1–2 хвилини — став галочку. Прогрес зберігається у браузері.</p>
 
   <div class="toolbar">
@@ -114,13 +114,13 @@
       <button class="fbtn" data-prio="P2">Лише P2</button>
       <button class="fbtn hide-done" id="hideDone">Сховати закриті</button>
     </div>
-    <div class="progress-label"><span>Закрито тем</span><b id="pcount">0 / 38</b></div>
+    <div class="progress-label"><span>Закрито тем</span><b id="pcount">0 / 39</b></div>
     <div class="pbar"><i id="pfill"></i></div>
   </div>
 
   
   <section data-pillar="swift">
-    <div class="pillar-head"><h2>SWIFT — 16 тем</h2></div>
+    <div class="pillar-head"><h2>SWIFT — 17 тем</h2></div>
     <p class="pillar-note">Мова — це 50–60% технічної співбесіди. Особливо памʼять і конкурентність: саме тут відсіюють між junior і middle.</p>
   
     <div class="topic" id="swift-0" data-id="swift-0" data-pillar="swift" data-prio="P0">
@@ -938,6 +938,129 @@ func checkout(methods: [any PaymentMethod], total: Decimal) {
           </div>
           <div class="blk cmt-blk">
             <button class="cmt-btn" data-term="ООП: інкапсуляція, успадкування, поліморфізм, абстракція">💬 Показати коментарі до теми</button>
+            <button class="cmt-btn code-tpl" title="Скопіювати markdown-заготовку для Swift-коду — встав її в коментар">⌨️ Шаблон коду</button>
+            <div class="cmt-slot"></div>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" id="swift-16" data-id="swift-16" data-pillar="swift" data-prio="P1">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Classes: відмінності від struct, успадкування, deinit</h3>
+        <button class="note-btn open-cmt" title="Коментарі до цієї теми">💬</button>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22Classes%3A%20%D0%B2%D1%96%D0%B4%D0%BC%D1%96%D0%BD%D0%BD%D0%BE%D1%81%D1%82%D1%96%20%D0%B2%D1%96%D0%B4%20struct%2C%20%D1%83%D1%81%D0%BF%D0%B0%D0%B4%D0%BA%D1%83%D0%B2%D0%B0%D0%BD%D0%BD%D1%8F%2C%20deinit%22" target="_blank" rel="noopener" title="Гілки цієї теми на GitHub">🧵</a>
+        <span class="prio P1">P1</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>На перший погляд class схожий на struct: і той і той дозволяє створити новий тип з властивостями та методами. Але class додає успадкування — можливість будувати один клас на основі іншого. Це потужна фіча, і в реальних iOS-додатках (UIKit, AppKit) без класів не обійтись. Але тримай код простим: наявність фічі не означає, що її треба використовувати. Як писав Martin Fowler: «будь-хто може написати код, зрозумілий компʼютеру; хороші програмісти пишуть код, зрозумілий людям».</p><p>Джерело структури теми: [Hacking with Swift — Day 10: Classes](https://www.hackingwithswift.com/100/10). Нижче — пʼять ключових відмінностей class від struct, кожна з прикладом коду.</p>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">1. Створення class — немає memberwise init</div>
+            <p>На відміну від struct, class ніколи не отримує безкоштовний memberwise initializer. Якщо у class є stored properties без дефолтного значення — потрібен свій init. Три варіанти: зробити поля optional (зазвичай погано), дати дефолтні значення, або написати init вручну — це правильний шлях. init — спеціальний метод без ключового слова func; self. розрізняє параметр і властивість.</p>
+            <pre>class Dog {
+    var name: String
+    var breed: String
+
+    init(name: String, breed: String) {
+        self.name = name
+        self.breed = breed
+    }
+}
+let poppy = Dog(name: "Poppy", breed: "Poodle")</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">2. Class inheritance — успадкування</div>
+            <p>Class може будуватись на іншому class: CountrySinger: Singer. Двокрапка означає «extends». Нащадок (subclass) отримує властивості й методи батька (superclass) і додає свої. У UIKit/AppKit ієрархії класів — скрізь: UIView → UILabel, UIViewController → твій екран. Не копіюй код батька вручну — зміни в батьківському класі інакше не потраплять у нащадків.</p>
+            <pre>class Singer {
+    var name: String
+    init(name: String) { self.name = name }
+    func sing() { print("La la la") }
+}
+class CountrySinger: Singer {
+    override func sing() {
+        print("Trucks, guitars, and liquor")
+    }
+}
+let taylor = CountrySinger(name: "Taylor")
+taylor.sing()  // Trucks, guitars, and liquor</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">3. Overriding methods — override</div>
+            <p>Щоб змінити метод, успадкований від батька, потрібно override func. Ключове слово override робить намір явним і дозволяє компілятору перевірити: без override — не скомпілюється; override без методу в батьку — теж помилка. Якщо нащадок додає власні stored properties, init нащадка спочатку ініціалізує свої поля, потім викликає super.init(...) — передає параметри батьківському класу.</p>
+            <pre>class HeavyMetalSinger: Singer {
+    var noiseLevel: Int
+    init(name: String, noiseLevel: Int) {
+        self.noiseLevel = noiseLevel
+        super.init(name: name)       // після своїх полів!
+    }
+    override func sing() {
+        print("Grrrrr rargh!")
+    }
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">4. Final classes — заборона успадкування</div>
+            <p>final class забороняє створювати підкласи. Це явний намір («цей клас не для розширення») і оптимізація: компілятор може застосувати static dispatch замість dynamic. Оголошуй final класи, які не плануєш наслідувати: ViewModel, сервіси, утиліти. У великих кодових базах final — дефолт, open — лише для SDK і бібліотек.</p>
+            <pre>final class OrderViewModel {
+    private(set) var orders: [Order] = []
+    // ніхто не зможе зробити class EvilVM: OrderViewModel
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">5. Copying objects — reference semantics</div>
+            <p>При копіюванні struct отримуєш незалежну копію (value type). При «копіюванні» class обидві змінні вказують на той самий обʼєкт у heap (reference type): зміна через одну — видна через іншу. Class дає гнучкість (спільний стан), struct — безпеку (ізольовані копії). UIKit: UI-елементи — class (ідентичність на екрані), моделі даних — struct.</p>
+            <pre>class Counter { var value = 0 }
+let a = Counter()
+let b = a              // не копія обʼєкта — те саме посилання
+b.value = 10
+print(a.value)         // 10
+
+struct Point { var x = 0 }
+var p1 = Point(); var p2 = p1
+p2.x = 5
+print(p1.x)            // 0 — незалежна копія</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">6. Deinitializers — deinit</div>
+            <p>Лише class має deinit — метод, що викликається, коли останнє strong-посилання зникає (ARC → 0). Struct не має deinit — value-типи зникають разом із областю видимості. deinit — місце для cleanup: invalidate таймерів, зняття observers, логування для дебагу ліків. Не покладайся на deinit для критичного збереження даних при креші.</p>
+            <pre>class Screen {
+    var timer: Timer?
+    deinit {
+        timer?.invalidate()
+        print("Screen deinit")  // якщо не друкується — можливий retain cycle
+    }
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">7. Mutability — let class vs let struct</div>
+            <p>let struct заморожує весь вміст — змінити var-поле неможливо. let class фіксує лише посилання: переприсвоїти інший обʼєкт не можна, але var-властивості всередині змінювати можна. Це одна з найчастіших пасток на співбесідах після value vs reference.</p>
+            <pre>class Dog { var name = "Rex" }
+let dog = Dog()
+dog.name = "Buddy"     // OK — змінюємо вміст обʼєкта
+// dog = Dog()         // помилка — посилання незмінне
+
+struct Cat { var name = "Mia" }
+let cat = Cat()
+// cat.name = "Leo"   // помилка — let struct незмінний</pre>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Class вирішує задачі, де потрібна ідентичність обʼєкта, спільний мутабельний стан, успадкування (UIKit) і детерміноване звільнення ресурсів через deinit. Без розуміння цих відмінностей від struct легко отримати несподівані спільні мутації, ліки памʼяті або помилки з init/super.init.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>UIView, UIViewController, UITableViewCell — усе class з глибокими ієрархіями успадкування.</li><li>ViewModel (ObservableObject), мережеві менеджери, кеші — class для спільного стану між частинами app.</li><li>override — у кожному кастомному UIViewController (viewDidLoad), UITableViewCell, делегатах.</li><li>final — ViewModel і сервіси, які не плануєш наслідувати.</li><li>deinit — перевірка, що VC деалокується після pop (print/debug); invalidate таймерів і NotificationCenter observers.</li><li>@objc / @objcMembers — коли UIKit/Objective-C runtime має викликати метод Swift-класу (селектори, #selector).</li></ul>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Забув super.init у init нащадка — помилка компіляції або невизначена поведінка.</li><li>override без ключового слова — не скомпілюється.</li><li>Думаєш, що let class = незмінний обʼєкт — насправді незмінне лише посилання.</li><li>Копіювання class-змінної — не копія обʼєкта; для справжньої копії потрібен NSCopying або власна логіка.</li><li>Глибокі ієрархії (A → B → C → D) — важко підтримувати; не копіюй патерн UIKit у доменні моделі.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Назви пʼять відмінностей class від struct. Чому struct має memberwise init, а class — ні?</li><li>Що означає override і коли потрібен super.init?</li><li>Навіщо final class? Що дає компілятору?</li><li>Що виведе код з двома посиланнями на один Counter?</li><li>Чому let dog.name = "Buddy" працює для class, але не для let struct?</li><li>Коли викликається deinit і чому struct його не має?</li><li>Class дає гнучкість чи безпеку порівняно з struct — і коли що обирати?</li></ul>
+          </div>
+          <div class="blk cmt-blk">
+            <button class="cmt-btn" data-term="Classes: відмінності від struct, успадкування, deinit">💬 Показати коментарі до теми</button>
             <button class="cmt-btn code-tpl" title="Скопіювати markdown-заготовку для Swift-коду — встав її в коментар">⌨️ Шаблон коду</button>
             <div class="cmt-slot"></div>
           </div>
