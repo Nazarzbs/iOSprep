@@ -95,7 +95,7 @@
 
 <div class="wrap">
   <div class="eyebrow">iOS Interview Prep · розширена версія</div>
-  <h1>План підготовки до співбесід: 41 тем углиб</h1>
+  <h1>План підготовки до співбесід: 45 тем углиб</h1>
   <p class="lede">Кожна тема — шість блоків: як працює → яку проблему вирішує → де застосовується (з кейсами з твоєї роботи) → код → пастки → контрольні питання. Відповів на контрольні уголос за 1–2 хвилини — став галочку. Прогрес зберігається у браузері.</p>
 
   <div class="toolbar">
@@ -114,13 +114,13 @@
       <button class="fbtn" data-prio="P2">Лише P2</button>
       <button class="fbtn hide-done" id="hideDone">Сховати закриті</button>
     </div>
-    <div class="progress-label"><span>Закрито тем</span><b id="pcount">0 / 41</b></div>
+    <div class="progress-label"><span>Закрито тем</span><b id="pcount">0 / 45</b></div>
     <div class="pbar"><i id="pfill"></i></div>
   </div>
 
   
   <section data-pillar="swift">
-    <div class="pillar-head"><h2>SWIFT — 18 тем</h2></div>
+    <div class="pillar-head"><h2>SWIFT — 19 тем</h2></div>
     <p class="pillar-note">Мова — це 50–60% технічної співбесіди. Особливо памʼять і конкурентність: саме тут відсіюють між junior і middle.</p>
   
     <div class="topic" id="swift-0" data-id="swift-0" data-pillar="swift" data-prio="P0">
@@ -1217,6 +1217,143 @@ func fetchUser(id: Int) async throws -&gt; User {
           </div>
         </div>
       </details>
+    </div>
+    <div class="topic" id="swift-18" data-id="swift-18" data-pillar="swift" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Асинхронність: completion handlers → async/await → Task/TaskGroup → actors</h3>
+        <button class="note-btn open-cmt" title="Коментарі до цієї теми">💬</button>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22%D0%90%D1%81%D0%B8%D0%BD%D1%85%D1%80%D0%BE%D0%BD%D0%BD%D1%96%D1%81%D1%82%D1%8C%3A%20completion%20handlers%20%E2%86%92%20async%2Fawait%20%E2%86%92%20Task%2FTaskGroup%20%E2%86%92%20actors%22" target="_blank" rel="noopener" title="Гілки цієї теми на GitHub">🧵</a>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Асинхронність — це виконання роботи «паралельно» основному потоку, без блокування UI: мережа, диск, важкі обчислення, очікування таймерів. В iOS-співбесідах майже завжди питають еволюцію підходів: старий completion handler API → сучасний async/await → Task/TaskGroup для керування життєвим циклом → actors для безпечного спільного стану.</p><p>Сучасний підхід у Swift: async/await як базовий інструмент для request/response, Task для cancellation і пріоритетів, TaskGroup для паралельних незалежних підзадач, actor для захисту mutable state. Completion handlers усе ще потрібні для старих API/SDK і деяких UIKit callback-ів — важливо вміти мостити їх у async/await.</p>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">1. Completion handler — класичний callback-підхід</div>
+            <p>Completion handler — це замикання, яке викликають, коли асинхронна робота завершилась. Плюси: працює всюди, сумісно з legacy API. Мінуси: вкладеність (callback hell), складне скасування, важче читати потік помилок (Result/optional/error параметр), легко отримати retain cycle, якщо closure тримає self сильно. На співбесіді важливо сказати: «callback — це контракт: коли закінчу, викличу completion на потрібній черзі (main для UI)».</p>
+            <pre>enum APIError: Error { case transport(Error), server(code: Int) }
+
+func fetchOrders(completion: @escaping (Result&lt;[Order], APIError&gt;) -&gt; Void) {
+    URLSession.shared.dataTask(with: url) { data, response, error in
+        if let error { return completion(.failure(.transport(error))) }
+        let code = (response as? HTTPURLResponse)?.statusCode ?? -1
+        guard (200..&lt;300).contains(code) else { return completion(.failure(.server(code: code))) }
+        // decode…
+        completion(.success([]))
+    }.resume()
+}
+
+fetchOrders { result in
+    DispatchQueue.main.async {
+        // оновлення UI
+    }
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">2. async/await — сучасний «прямий» потік коду</div>
+            <p>async/await робить асинхронний код схожим на синхронний: await «припиняє» поточну задачу без блокування потоку, а виконання продовжується після завершення. Плюси: читабельно, природний error handling через throws, простіше cancellation через Task. Мінуси: не всі API ще async; інколи треба мостити callbacks; потрібно розуміти, що await — це точка можливого переключення (suspension point).</p>
+            <pre>func fetchOrders() async throws -&gt; [Order] {
+    let (data, response) = try await URLSession.shared.data(from: url)
+    let code = (response as? HTTPURLResponse)?.statusCode ?? -1
+    guard (200..&lt;300).contains(code) else { throw APIError.server(code: code) }
+    return try JSONDecoder().decode([Order].self, from: data)
+}
+
+Task {
+    do {
+        let orders = try await fetchOrders()
+        await MainActor.run { /* update UI */ }
+    } catch {
+        await MainActor.run { /* show error */ }
+    }
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">3. Task — життєвий цикл, cancellation, пріоритети</div>
+            <p>Task — одиниця конкурентної роботи в Swift Concurrency. Через Task ти стартуєш async роботу з UIKit (наприклад, у viewDidLoad), можеш її скасувати (cancel), задати пріоритет, і впорядкувати життєвий цикл (наприклад, скасувати запит при deinit або при новому пошуку). Важливо: cancellation кооперативне — твій код має перевіряти Task.isCancelled або викликати try Task.checkCancellation().</p>
+            <pre>final class OrdersVC: UIViewController {
+    private var loadTask: Task&lt;Void, Never&gt;?
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        loadTask = Task { [weak self] in
+            guard let self else { return }
+            do { _ = try await fetchOrders() } catch { }
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        loadTask?.cancel()
+    }
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">4. TaskGroup — паралельні підзадачі (fan-out/fan-in)</div>
+            <p>TaskGroup використовують, коли треба запустити кілька незалежних async-операцій паралельно і зібрати результати: наприклад, завантажити 10 картинок, або одночасно підтягнути меню, профіль і промо. Плюси: паралельність без ручного менеджменту потоків, структурована конкурентність (задачі живуть всередині scope). Мінуси: потрібно акуратно обробляти помилки (throwing task group) і порядок результатів (збираються в порядку завершення, не додавання).</p>
+            <pre>func loadImages(urls: [URL]) async throws -&gt; [Data] {
+    try await withThrowingTaskGroup(of: Data.self) { group in
+        for url in urls {
+            group.addTask {
+                let (data, _) = try await URLSession.shared.data(from: url)
+                return data
+            }
+        }
+        var result: [Data] = []
+        for try await data in group { result.append(data) }
+        return result
+    }
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">5. Actor — захист спільного mutable state</div>
+            <p>Actor — це reference type, який серіалізує доступ до свого стану: одночасно виконується лише один actor-isolated фрагмент коду. Це «вбудований лок» на рівні мови, але без ручного lock/unlock. Доречно для кешів, лічильників, менеджерів стану, де є доступ з кількох задач. Мінуси: потрібне await при доступі ззовні (може зʼявитись багато suspension points), і треба розуміти, що await всередині actor-методу — «дірка», під час якої інші задачі можуть виконатись (тому інваріанти треба тримати обережно).</p>
+            <pre>actor ImageCache {
+    private var storage: [URL: Data] = [:]
+    func get(_ url: URL) -&gt; Data? { storage[url] }
+    func set(_ data: Data, for url: URL) { storage[url] = data }
+}
+
+let cache = ImageCache()
+Task {
+    let url = URL(string: "https://example.com/a.png")!
+    if let data = await cache.get(url) { print(data.count) }
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">6. Міст: completion → async (continuation)</div>
+            <p>На практиці багато SDK/старих API ще повертають completion. Swift дає continuation, щоб обгорнути callback у async-функцію. Це часто питають: «як мігрувати метод з completion на async/await?». Важливо: continuation потрібно резюмити рівно один раз (інакше UB).</p>
+            <pre>func fetchOrdersAsync() async throws -&gt; [Order] {
+    try await withCheckedThrowingContinuation { cont in
+        fetchOrders { result in
+            cont.resume(with: result)
+        }
+    }
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Без правильного підходу до асинхронності отримуєш: фризи UI (блокування main), callback hell, гонки даних і retain cycles. Swift Concurrency дає структуровану конкурентність: задачі мають scope (Task/TaskGroup), помилки — в типах (throws), спільний стан — захищений (actors), а cancellation — керований.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Completion handlers: старі SDK, делегатні API UIKit, колбеки в сторонніх бібліотеках.</li><li>async/await: URLSession, JSONDecoder, FileManager, бізнес-операції VM/UseCase.</li><li>Task: запуск async з UIKit lifecycle, cancel при уході з екрана, search cancel previous.</li><li>TaskGroup: паралельно завантажити ресурси для екрана (меню+профіль+промо) або багато картинок.</li><li>Actor: кеші, менеджери токена/refresh, серіалізація доступу до спільного стану між задачами.</li></ul>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>UI оновлюємо тільки з main: MainActor.run / @MainActor — інакше race/crash.</li><li>Cancellation кооперативне: cancel() не «вбиває» роботу миттєво, якщо код не перевіряє isCancelled/checkCancellation.</li><li>Task { } в VC без cancel у didDisappear/deinit → робота продовжиться після закриття екрана.</li><li>TaskGroup: результати приходять у порядку завершення, не у порядку urls.</li><li>Actor: await всередині actor-методу — під час нього інші задачі можуть змінити стан; тримай інваріанти.</li><li>Continuation: resume рівно один раз; подвійний resume = баг.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Completion handler vs async/await — що змінилось концептуально і в коді?</li><li>Як скасувати мережевий запит при уході з екрана? (Task cancel + перевірка cancellation)</li><li>Task vs TaskGroup — коли що?</li><li>Actor: що він гарантує і чим відрізняється від класу + lock?</li><li>Як обгорнути callback API у async/await через continuation?</li><li>Чому await — це «точка переключення» і чому це важливо для state?</li></ul>
+          </div>
+          <div class="blk cmt-blk">
+            <button class="cmt-btn" data-term="Асинхронність: completion handlers → async/await → Task/TaskGroup → actors">💬 Показати коментарі до теми</button>
+            <button class="cmt-btn code-tpl" title="Скопіювати markdown-заготовку для Swift-коду — встав її в коментар">⌨️ Шаблон коду</button>
+            <div class="cmt-slot"></div>
+          </div>
+        </div>
+      </details>
     </div></section>
   <section data-pillar="swiftui">
     <div class="pillar-head"><h2>SWIFTUI — 9 тем</h2></div>
@@ -1683,7 +1820,7 @@ func testLoadSuccess() async {
       </details>
     </div></section>
   <section data-pillar="uikit">
-    <div class="pillar-head"><h2>UIKIT — 10 тем</h2></div>
+    <div class="pillar-head"><h2>UIKIT — 11 тем</h2></div>
     <p class="pillar-note">Твоя щоденна робота — тут ти маєш звучати найупевненіше. Фокус на lifecycle, AutoLayout і таблицях: це 80% UIKit-питань.</p>
   
     <div class="topic" id="uikit-0" data-id="uikit-0" data-pillar="uikit" data-prio="P0">
@@ -2317,9 +2454,183 @@ present(safari, animated: true)</pre>
           </div>
         </div>
       </details>
+    </div>
+    <div class="topic" id="uikit-10" data-id="uikit-10" data-pillar="uikit" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Механізми передачі даних у UIKit</h3>
+        <button class="note-btn open-cmt" title="Коментарі до цієї теми">💬</button>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22%D0%9C%D0%B5%D1%85%D0%B0%D0%BD%D1%96%D0%B7%D0%BC%D0%B8%20%D0%BF%D0%B5%D1%80%D0%B5%D0%B4%D0%B0%D1%87%D1%96%20%D0%B4%D0%B0%D0%BD%D0%B8%D1%85%20%D1%83%20UIKit%22" target="_blank" rel="noopener" title="Гілки цієї теми на GitHub">🧵</a>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Питання «як один обʼєкт передає інформацію іншому» в UIKit майже завжди зводиться до напрямку передачі та рівня звʼязності між обʼєктами. На співбесіді виграєш, якщо не просто перелічиш механізми, а швидко класифікуєш: вперед (A → B), назад (B → A), глобально (подія/стан для багатьох).</p><p>Класифікація (зручна для співбесіди): передача даних вперед — property injection / dependency injection; передача назад — delegate / closure; глобальна передача подій — NotificationCenter; глобальний доступ до спільних даних — singleton/shared store. Нижче — коли що доречно, плюси/мінуси і приклади.</p>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">0. Ключова ідея: напрямок і життєвий цикл</div>
+            <p>Перед тим як вибирати механізм, відповідай на 3 питання: (1) Хто «володіє» даними — батько чи дитина? (2) Це одноразова передача чи потік подій? (3) Хто кого знає (сильна залежність) і чи потрібна відписка (lifecycle)? Зазвичай: батько передає дані в дитину при створенні (forward), а дитина повертає результат батьку (back).</p>
+            <pre>// Forward: Parent → Child (налаштовує перед показом)
+// Back: Child → Parent (повертає результат після дії користувача)
+// Global event: багато слухачів (не знають одне одного)
+// Shared state: один store, який читають/пишуть багато екранів</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">1. Property injection (передача вперед)</div>
+            <p>Ти створюєш екран і перед показом записуєш у його публічні властивості дані, які йому потрібні. Це просто і читабельно, але важливо: властивості мають бути встановлені ДО того, як екран їх використає (зазвичай до push/present). Добре для простих параметрів: userId, mode, початковий state.</p>
+            <pre>final class UserDetailsVC: UIViewController {
+    var userID: String!          // встановлюється ззовні перед показом
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        loadUser(id: userID)
+    }
+}
+
+final class UsersVC: UIViewController {
+    func openUser(_ id: String) {
+        let vc = UserDetailsVC()
+        vc.userID = id            // ✅ property injection (forward)
+        navigationController?.pushViewController(vc, animated: true)
+    }
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">2. Dependency injection (передача вперед + тестованість)</div>
+            <p>DI — це передача залежностей (сервісів) у клас ззовні, щоб він не створював їх сам. У UIKit зазвичай роблять init-injection: залежності передаються в init і стають let-властивостями. Це робить код тестованим (можна підставити mock), зменшує звʼязність і прибирає синглтони «звідусіль».</p>
+            <pre>protocol UsersService {
+    func fetchUsers() async throws -&gt; [User]
+}
+
+final class UsersVC: UIViewController {
+    private let service: UsersService
+    init(service: UsersService) {
+        self.service = service
+        super.init(nibName: nil, bundle: nil)
+    }
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+}
+
+// Composition root (SceneDelegate/AppCoordinator):
+let vc = UsersVC(service: APIUsersService())</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">3. Delegate (передача назад)</div>
+            <p>Delegate — класичний UIKit-патерн для «дитина повідомляє батька». Дитина має protocol з методами, батько підписується і стає delegate. Важливо: delegate майже завжди weak (і протокол — AnyObject), щоб не створити retain cycle. Delegate зручний, коли подій кілька або вони мають сенс як «контракт».</p>
+            <pre>protocol EditProfileDelegate: AnyObject {
+    func editProfile(_ vc: EditProfileVC, didSave name: String)
+    func editProfileDidCancel(_ vc: EditProfileVC)
+}
+
+final class EditProfileVC: UIViewController {
+    weak var delegate: EditProfileDelegate?
+    func saveTapped() {
+        delegate?.editProfile(self, didSave: nameTextField.text ?? "")
+    }
+    func cancelTapped() {
+        delegate?.editProfileDidCancel(self)
+    }
+}
+
+final class ProfileVC: UIViewController, EditProfileDelegate {
+    func openEdit() {
+        let vc = EditProfileVC()
+        vc.delegate = self          // ✅ back channel
+        present(vc, animated: true)
+    }
+    func editProfile(_ vc: EditProfileVC, didSave name: String) { updateUI(name) }
+    func editProfileDidCancel(_ vc: EditProfileVC) { dismiss(animated: true) }
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">4. Closure / Callback (передача назад)</div>
+            <p>Closure — легший варіант delegate, коли подія одна (або 2–3 простих). Ти передаєш у дитину замикання, і дитина викликає його при завершенні. Перевага: менше шаблонного коду. Ризик: retain cycle, якщо захопити self сильно — у виклику часто потрібен [weak self].</p>
+            <pre>final class ChooseCityVC: UIViewController {
+    var onChoose: ((City) -&gt; Void)?
+    func didSelect(_ city: City) {
+        onChoose?(city)
+    }
+}
+
+final class CheckoutVC: UIViewController {
+    func openCityPicker() {
+        let vc = ChooseCityVC()
+        vc.onChoose = { [weak self] city in
+            self?.selectedCity = city
+            self?.updateUI()
+        }
+        navigationController?.pushViewController(vc, animated: true)
+    }
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">5. NotificationCenter (глобальна подія)</div>
+            <p>NotificationCenter — pub/sub для подій, де відправник і слухачі не мають знати одне про одного. Підходить для крос-скрінних сигналів: «userLoggedOut», «orderUpdated». Мінуси: слабка типізація (name + userInfo), легко отримати хаос, і важливо управляти життєвим циклом підписки (особливо зі старим addObserver/removeObserver).</p>
+            <pre>extension Notification.Name {
+    static let userLoggedOut = Notification.Name("userLoggedOut")
+}
+
+// Publisher:
+NotificationCenter.default.post(name: .userLoggedOut, object: nil)
+
+// Subscriber (iOS 9+ токен-API):
+final class HomeVC: UIViewController {
+    private var token: NSObjectProtocol?
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        token = NotificationCenter.default.addObserver(forName: .userLoggedOut, object: nil, queue: .main) { [weak self] _ in
+            self?.showLogin()
+        }
+    }
+    deinit { if let token { NotificationCenter.default.removeObserver(token) } }
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">6. Singleton / Shared store (глобальний доступ до стану)</div>
+            <p>Singleton (shared) дає глобальну точку доступу до даних: Session.shared.user, CartStore.shared.items. Плюс: просто. Мінуси: глобальний мутабельний стан, складно тестувати, приховані залежності, ризик гонок (thread-safety). На співбесіді важливо вміти сказати: «так, інколи ок, але краще DI».
+
+Shared store краще робити як окремий обʼєкт (store) з API (методи, нотифікації, Combine/closures), а не як набір глобальних змінних.</p>
+            <pre>final class Session {
+    static let shared = Session()
+    private init() { }
+    private(set) var token: String? = nil
+    func updateToken(_ t: String?) { token = t }
+}
+
+// Використання:
+if let token = Session.shared.token { /* authorized */ }</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">7. Dependency injection vs Singleton — як відповісти на співбесіді</div>
+            <p>Шаблон відповіді: «Для даних вперед — property injection (прості параметри) або init-based DI (залежності/сервіси). Назад — delegate (контракт, багато подій) або closure (1 подія). Глобально — NotificationCenter (події між модулями) або shared store (стан, який читають багато екранів). Синглтони — крайній варіант; краще DI, бо тестованість і явні залежності».</p>
+            <pre>// Forward:  init/props
+// Back:     delegate / closure
+// Global:   NotificationCenter (event) / Store (state)
+// Preferred: DI &gt; Singleton</pre>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Ця тема закриває типове інтервʼю-питання: «як передати дані між екранами/обʼєктами в UIKit». Без чіткої структури легко перетворити відповідь на список слів. Класифікація за напрямком (forward/back/global) допомагає швидко обрати правильний механізм і пояснити чому він доречний саме тут.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Forward (A → B): push на деталі (передати id), init-injection сервісів/VM у новий екран.</li><li>Back (B → A): модалка «редагувати» повертає результат (delegate/closure).</li><li>Global event: «userLoggedOut» змушує різні екрани показати login (NotificationCenter).</li><li>Shared state: кошик/сесія користувача доступні з різних вкладок (store).</li></ul>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Delegate має бути weak, а протокол — AnyObject, інакше retain cycle або неможливість weak.</li><li>У closure легко захопити self сильно → retain cycle. Часто потрібен [weak self].</li><li>NotificationCenter без контролю підписок = дублікати і memory leaks (особливо якщо не знімати observer/token).</li><li>Singleton приховує залежності й ламає тести — якщо можеш, передавай через DI.</li><li>Property injection небезпечний з implicit unwrap (var userID: String!) — краще let + init, якщо дані обовʼязкові.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Класифікуй механізми передачі даних: forward / back / global event / shared state.</li><li>Delegate vs closure — коли що? Які плюси/мінуси?</li><li>Чому delegate зазвичай weak? Який протокол для цього потрібен?</li><li>Коли NotificationCenter доречний, а коли це «code smell»?</li><li>Чим DI кращий за Singleton? Як би ти передав UsersService у UsersVC?</li><li>Як уникнути retain cycle у callback closure?</li></ul>
+          </div>
+          <div class="blk cmt-blk">
+            <button class="cmt-btn" data-term="Механізми передачі даних у UIKit">💬 Показати коментарі до теми</button>
+            <button class="cmt-btn code-tpl" title="Скопіювати markdown-заготовку для Swift-коду — встав її в коментар">⌨️ Шаблон коду</button>
+            <div class="cmt-slot"></div>
+          </div>
+        </div>
+      </details>
     </div></section>
   <section data-pillar="adj">
-    <div class="pillar-head"><h2>СУМІЖНЕ, ЩО СПИТАЮТЬ ОДНАКОВО — 4 теми</h2></div>
+    <div class="pillar-head"><h2>СУМІЖНЕ, ЩО СПИТАЮТЬ ОДНАКОВО — 6 тем</h2></div>
     <p class="pillar-note">Мережа, сховище, тести й архітектура — питають на кожній співбесіді незалежно від стека UI.</p>
   
     <div class="topic" id="adj-0" data-id="adj-0" data-pillar="adj" data-prio="P0">
@@ -2525,6 +2836,223 @@ protocol HomeSectionFactory { func makeSection(config: SectionConfig) -&gt; UIVi
           </div>
           <div class="blk cmt-blk">
             <button class="cmt-btn" data-term="Архітектури і SOLID — розмовна тема">💬 Показати коментарі до теми</button>
+            <button class="cmt-btn code-tpl" title="Скопіювати markdown-заготовку для Swift-коду — встав її в коментар">⌨️ Шаблон коду</button>
+            <div class="cmt-slot"></div>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" id="adj-4" data-id="adj-4" data-pillar="adj" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Архітектури: MVC, MVVM, MVP, VIPER, Clean, TCA — коли доречні, плюси/мінуси</h3>
+        <button class="note-btn open-cmt" title="Коментарі до цієї теми">💬</button>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22%D0%90%D1%80%D1%85%D1%96%D1%82%D0%B5%D0%BA%D1%82%D1%83%D1%80%D0%B8%3A%20MVC%2C%20MVVM%2C%20MVP%2C%20VIPER%2C%20Clean%2C%20TCA%20%E2%80%94%20%D0%BA%D0%BE%D0%BB%D0%B8%20%D0%B4%D0%BE%D1%80%D0%B5%D1%87%D0%BD%D1%96%2C%20%D0%BF%D0%BB%D1%8E%D1%81%D0%B8%2F%D0%BC%D1%96%D0%BD%D1%83%D1%81%D0%B8%22" target="_blank" rel="noopener" title="Гілки цієї теми на GitHub">🧵</a>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>Це «топ‑питання» на співбесіді: тебе оцінюють не за те, чи знаєш розшифровку абревіатур, а чи розумієш trade-offs. Правильна відповідь виглядає так: (1) яку проблему вирішує архітектура (масштаб/тестованість/розділення відповідальностей), (2) які її ролі, (3) коли вона доречна, (4) коли вона стає оверінжинірингом.</p><p>Сучасний підхід в iOS найчастіше = «просте ядро + явні залежності»: UI-шар (UIKit/SwiftUI) → презентаційний шар (VM/Presenter/Reducer) → доменна логіка (Use Cases) → data layer (API/DB). Незалежно від назви архітектури, ці межі йдуть разом з DI, тестами й чіткою навігацією (Coordinator/Router).</p>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">0. Як вибирати архітектуру (шпаргалка рішення)</div>
+            <p>Запитай себе: (1) команда і тривалість проєкту (1–2 dev на 2 міс чи 10 dev на 2 роки?), (2) складність стану/фіч (checkout з багатьма кроками vs статична форма), (3) потреба в тестах (чи є критичні бізнес-правила), (4) кількість інтеграцій і залежностей (SDK, платежі, аналітика). Чим більше цих факторів — тим більше сенсу в шарах (Clean) і жорсткіших межах (VIPER/TCA).</p>
+            <pre>// Малий проєкт/екран: MVC або легкий MVVM
+// Середній: MVVM + DI + Coordinator (+ UseCases, якщо є бізнес-логіка)
+// Великий/довгий: Clean Architecture (шари) + MVVM/MVP у presentation
+// Дуже складний state: TCA (або інший unidirectional data flow)</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">1. MVC (UIKit-дефолт) — коли доречний</div>
+            <p>MVC в UIKit історично означає: UIViewController = Controller, UIView = View, модель = Model. Проблема: в реальному житті VC швидко стає місцем, де живе все (мережа, парсинг, бізнес-логіка, навігація) → «Massive View Controller». MVC доречний на простих екранах, у прототипах, або як «тонкий» контролер, якщо логіку винесено в окремі сервіси/менеджери (по суті, ти вже робиш MV* без назви).</p>
+            <pre>// Антипатерн: VC ходить у мережу + парсить + форматує + керує навігацією
+// Краще: VC лише збирає UI та викликає сервіси/VM</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">2. MVVM — сучасний мейнстрім (особливо зі SwiftUI)</div>
+            <p>MVVM розділяє: View (UIKit/SwiftUI) показує стан і відправляє дії; ViewModel тримає стан і логіку представлення (formatting, mapping model → view state), викликає use cases / services. Плюси: тестованість без UI, менше логіки в контролері, прозорі стани (loading/loaded/error). Мінуси: ризик «Massive ViewModel», якщо тягнути туди доменну логіку; також важливо мати чітку навігацію (Coordinator/Router), щоб VM не «знала про UIKit».</p>
+            <pre>enum ScreenState&lt;T&gt; { case idle, loading, loaded(T), failed(String) }
+final class OrdersVM {
+    private let service: OrderService
+    private(set) var state: ScreenState&lt;[Order]&gt; = .idle
+    init(service: OrderService) { self.service = service }
+    func load() async { /* state = .loading → try await → .loaded/.failed */ }
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">3. MVP — коли хочеш «пасивну» View</div>
+            <p>MVP схожий на MVVM, але Presenter керує View через протокол (View стає пасивною і не містить логіки). Це зручно в UIKit, коли хочеш чіткий контракт і легке мокання View у тестах. Плюси: дуже тестовано, прозорий API між Presenter і View. Мінуси: більше бойлерплейту (протокол + presenter + адаптація), легко «перегнути» на простих екранах.</p>
+            <pre>protocol OrdersView: AnyObject {
+    func showLoading()
+    func showOrders(_ orders: [Order])
+    func showError(_ message: String)
+}
+final class OrdersPresenter {
+    weak var view: OrdersView?
+    private let service: OrderService
+    init(service: OrderService) { self.service = service }
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">4. VIPER — «жорсткі межі» для великих команд</div>
+            <p>VIPER розкладає екран на ролі: View (UI), Interactor (use cases/бізнес-логіка), Presenter (підготовка даних для View), Entity (моделі), Router (навігація). Плюси: сильна модульність, легко паралелити роботу в команді, прості тести Interactor/Presenter. Мінуси: дуже багато файлів і коду на один екран, високий overhead, складно підтримувати на маленькому проєкті. Доречно: великий продукт, довгий життєвий цикл, жорсткі команди/модулі.</p>
+            <pre>// VIPER: View ↔ Presenter → Interactor → (Services) → Presenter → View
+// Router відповідає за navigation (push/present)</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">5. Clean Architecture — не «патерн екрану», а про шари</div>
+            <p>Clean Architecture — це про напрямок залежностей: domain всередині (Entities + Use Cases) нічого не знає про UI/мережу/БД; data layer реалізує протоколи репозиторіїв; presentation викликає use cases. Плюси: ізоляція бізнес-логіки, тести use cases без UI/мережі, легше міняти API/DB. Мінуси: більше абстракцій (репозиторії, DTO ↔ domain mapping), потребує дисципліни, може бути overkill, якщо бізнес-логіки майже нема.</p>
+            <pre>// Domain:
+protocol OrdersRepository { func fetchOrders() async throws -&gt; [Order] }
+struct LoadOrdersUseCase {
+    let repo: OrdersRepository
+    func callAsFunction() async throws -&gt; [Order] { try await repo.fetchOrders() }
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">6. TCA (The Composable Architecture) — для складного state</div>
+            <p>TCA — це unidirectional data flow: State (єдине джерело правди) + Action (всі події) + Reducer (як state змінюється) + Effects (async робота). Плюси: дуже прогнозовано, сильна тестованість редʼюсерів, композиція фіч, зрозумілий потік даних, зручно для складних екранів/флоу. Мінуси: високий поріг входу, багато «формального» коду, легко зробити overkill для простих екранів. Доречно: складні checkout/onboarding, багато синхронних/async подій, необхідність чіткої композиції фіч у великому продукті.</p>
+            <pre>// Скелет TCA (псевдо):
+struct State { var isLoading = false }
+enum Action { case onAppear, loaded(Result&lt;[Order], Error&gt;) }
+// reducer: (inout State, Action) -&gt; Effect&lt;Action&gt;</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">7. «Сучасний підхід» — що сказати на співбесіді у 30–60 секунд</div>
+            <p>Сильна відповідь: «У UIKit я зазвичай використовую MVVM (або легкий MVC) з DI через init, щоб логіка була тестована, а залежності — явні. Навігацію виношу в Coordinator/Router, щоб presentation не знала про UIKit. Для бізнес-логіки використовую use cases (Clean-підхід). VIPER — якщо дуже велика команда й потрібні жорсткі межі. TCA — якщо state дуже складний і потрібна композиція фіч та надійні тести».</p>
+            <pre>// Ключові слова: DI, testability, clear boundaries, avoid Massive VC/VM, Coordinator</pre>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Архітектура потрібна, щоб код пережив масштабування: більше фіч → більше станів → більше залежностей → більше розробників. Вона зменшує coupling, робить залежності явними (DI), дозволяє тестувати логіку без UI, і дає зрозуміле місце для навігації. Без цього проєкт деградує до «все в одному VC» або «все в одному VM».</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>MVC: прості екрани або legacy UIKit, де логіка винесена в сервіси/менеджери.</li><li>MVVM: типові UIKit/SwiftUI екрани зі станом loading/empty/error; коли потрібні тести VM.</li><li>MVP: коли хочеш пасивну View і дуже тестовану presentation-логіку в UIKit.</li><li>VIPER: великі команди/модулі, де важлива паралельна розробка та чіткі межі.</li><li>Clean Architecture: коли є доменна логіка і треба відʼєднати UI від data layer.</li><li>TCA: складні флоу зі складним state, ефектами, композицією фіч і вимогою до тестів.</li></ul>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Пастка питання «найкраща архітектура» — відповідати треба trade-offs + контекст, не назвою.</li><li>MVVM без DI і без чіткої навігації часто перетворюється на Massive ViewModel.</li><li>VIPER/TCA на простих екранах = оверінжиніринг і падіння швидкості розробки.</li><li>Clean без реальної доменної логіки може додати зайві абстракції (репозиторії «для галочки»).</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Як би ти пояснив MVC vs MVVM одним прикладом екрана зі станом loading/error?</li><li>Коли delegate/closure/NotificationCenter вписуються в MVVM/MVP/VIPER?</li><li>Коли VIPER доречний, а коли MVVM достатньо? Назви 2 критерії.</li><li>Clean Architecture: що таке dependency rule і чому domain не має знати про мережу?</li><li>TCA: що таке state/action/reducer/effect і чому це тестовано?</li><li>Дай рекомендацію «сучасного підходу» для нового UIKit-проєкту на 10+ екранів.</li></ul>
+          </div>
+          <div class="blk cmt-blk">
+            <button class="cmt-btn" data-term="Архітектури: MVC, MVVM, MVP, VIPER, Clean, TCA — коли доречні, плюси/мінуси">💬 Показати коментарі до теми</button>
+            <button class="cmt-btn code-tpl" title="Скопіювати markdown-заготовку для Swift-коду — встав її в коментар">⌨️ Шаблон коду</button>
+            <div class="cmt-slot"></div>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" id="adj-5" data-id="adj-5" data-pillar="adj" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>Реактивність: Combine, RxSwift, @Observable, AsyncSequence</h3>
+        <button class="note-btn open-cmt" title="Коментарі до цієї теми">💬</button>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22%D0%A0%D0%B5%D0%B0%D0%BA%D1%82%D0%B8%D0%B2%D0%BD%D1%96%D1%81%D1%82%D1%8C%3A%20Combine%2C%20RxSwift%2C%20%40Observable%2C%20AsyncSequence%22" target="_blank" rel="noopener" title="Гілки цієї теми на GitHub">🧵</a>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>«Реактивність» у iOS — це набір інструментів, які дозволяють моделювати зміни як потік значень/подій у часі: user input, нотифікації, мережеві відповіді, таймери, стани екрана. На співбесіді важливо пояснити, що це вирішує: (1) привʼязка UI до стану без купи ручних колбеків, (2) композиція асинхронних операцій (debounce, retry, combineLatest), (3) керування життєвим циклом підписок (cancellation).</p><p>Сучасний тренд у Swift: async/await як база для одноразових операцій + AsyncSequence для потоків + Observation (`@Observable` / SwiftUI) для оновлення UI. Combine і RxSwift — для складної композиції потоків і legacy/кросплатформних команд. У правильному дизайні View/VC не знає про мережу — він підписується на стан (MVVM/Reducer).</p>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">1. Combine — реактивність від Apple</div>
+            <p>Combine — фреймворк Apple (iOS 13+) для publisher/subscriber. Publisher продукує значення або completion; Subscriber їх споживає. Дуже часто Combine використовують як «трубу» між ViewModel і UI: @Published state → sink → оновити таблицю/лейбл. Переваги: нативний, інтеграції з URLSession, NotificationCenter, KVO; багато операторів (map, filter, debounce, combineLatest). Мінуси: крута крива навчання, складний дебаг, інколи шумний код; у SwiftUI часто вистачає @Observable без Combine.</p>
+            <pre>final class SearchVM {
+    @Published var query: String = ""
+    @Published private(set) var results: [String] = []
+    private var bag = Set&lt;AnyCancellable&gt;()
+
+    init(api: SearchAPI) {
+        $query
+            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
+            .removeDuplicates()
+            .flatMap { api.searchPublisher(query: $0).replaceError(with: []) }
+            .assign(to: &amp;$results)
+    }
+}
+
+// UIKit:
+vm.$results
+  .receive(on: RunLoop.main)
+  .sink { [weak self] _ in self?.tableView.reloadData() }
+  .store(in: &amp;bag)</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">2. RxSwift — стандарт де-факто в legacy/великій кількості проєктів</div>
+            <p>RxSwift — стороння бібліотека, але дуже поширена, особливо в старих кодових базах і великих компаніях. Концепції подібні: Observable/Observer, оператори, dispose bag. Плюси: зріла екосистема, багато прикладів, RxCocoa для UIKit binding. Мінуси: залежність + крива навчання, інтеграція з async/await вимагає мостів; у нових Swift-only проєктах часто обирають Combine або взагалі async/await + Observation.</p>
+            <pre>// Скетч (псевдо, без імпорту):
+final class SearchVM {
+    let query = BehaviorRelay&lt;String&gt;(value: "")
+    let results = BehaviorRelay&lt;[String]&gt;(value: [])
+    let bag = DisposeBag()
+
+    init(api: SearchAPI) {
+        query.asObservable()
+            .debounce(.milliseconds(300), scheduler: MainScheduler.instance)
+            .distinctUntilChanged()
+            .flatMapLatest { api.searchObservable(query: $0).catchAndReturn([]) }
+            .bind(to: results)
+            .disposed(by: bag)
+    }
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">3. @Observable (Observation) — сучасний підхід до state для UI</div>
+            <p>Observation (`@Observable`) — сучасний спосіб зробити модель/VM спостережуваною без Combine. Ідея: змінюється state → UI автоматично інвалідиться. Це особливо природно в SwiftUI, але можна використовувати і в UIKit (через власний адаптер/observer). Плюси: простіший код, менше «труб», фокус на state. Мінуси: це не про «оператори потоків»; для debounce/retry/combineLatest все ще потрібні AsyncSequence/Combine/Rx або ручна логіка.</p>
+            <pre>@Observable
+final class CounterState {
+    var value: Int = 0
+    func inc() { value += 1 }
+}
+
+// SwiftUI (ідея): View читає state.value → автоматичний update</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">4. AsyncSequence — «реактивність» через Swift Concurrency</div>
+            <p>AsyncSequence — це послідовність значень у часі, яку ти споживаєш через for await. Це «нативний» спосіб для потоків подій у Swift Concurrency. Ти можеш будувати власні потоки через AsyncStream/AsyncThrowingStream (наприклад, обгортка delegate/NotificationCenter), або використовувати готові асинхронні послідовності (де доступні). Плюси: простий mental model, cancellation через Task, добре поєднується з async/await. Мінуси: менше готових операторів порівняно з Combine/Rx (хоча є AsyncAlgorithms як окрема бібліотека).</p>
+            <pre>func makeTicker() -&gt; AsyncStream&lt;Int&gt; {
+    AsyncStream { continuation in
+        var i = 0
+        let timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            continuation.yield(i); i += 1
+        }
+        continuation.onTermination = { _ in timer.invalidate() }
+    }
+}
+
+Task {
+    for await tick in makeTicker() {
+        print("tick \(tick)")
+    }
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">5. Коли що обирати (сучасна відповідь на співбесіді)</div>
+            <p>Практичний вибір: 1) одноразові асинхронні операції (запит → відповідь) — async/await; 2) потоки подій (таймер/keyboard/input) — AsyncSequence або Combine/Rx; 3) state для UI — @Observable (SwiftUI) або MVVM з чітким state; 4) якщо в проєкті вже RxSwift — не «переписуємо все», а додаємо нове акуратно, інколи через мости. Combine доречний, якщо потрібні оператори (debounce, combineLatest) і нативні інтеграції; RxSwift — якщо екосистема проєкту на Rx.</p>
+            <pre>// Interview one-liner:
+// async/await — для request/response
+// AsyncSequence — для потоків подій у Concurrency
+// @Observable — для UI state
+// Combine/Rx — коли потрібна композиція потоків і оператори</pre>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>Без реактивного/потокового підходу код деградує до «callback hell»: купа делегатів, нотифікацій і ручних оновлень UI. Combine/Rx/AsyncSequence дають композицію подій (debounce, merge), а Observation робить оновлення UI від state природним. Правильний вибір інструмента зменшує баги з життєвим циклом (відписки/скасування) і спрощує тестування.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>Search: debounce введення, cancel попереднього запиту (flatMapLatest / Task cancellation).</li><li>Форми: валідація полів «на льоту» (combineLatest кількох input).</li><li>Реакція на системні події: NotificationCenter publishers/streams.</li><li>MVVM/TCA-подібні флоу: UI підписаний на state і реагує на зміни.</li></ul>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>Забув зберегти AnyCancellable / dispose — підписка одразу деалокується або навпаки «тече».</li><li>Retain cycle в sink/closure: завжди думай про [weak self].</li><li>Rx/Combine «склеїли» UI і data layer — важко тестувати; краще підписувати UI на state VM.</li><li>AsyncStream без onTermination → таймер/ресурс не інвалідиться.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Поясни різницю між async/await і реактивними потоками (Combine/Rx/AsyncSequence).</li><li>Коли Combine доречніший за AsyncSequence? А коли навпаки?</li><li>Як реалізувати search з debounce + cancel попереднього запиту у Combine або Concurrency?</li><li>Що таке @Observable і чим він відрізняється від @Published?</li><li>DisposeBag / AnyCancellable — навіщо вони?</li></ul>
+          </div>
+          <div class="blk cmt-blk">
+            <button class="cmt-btn" data-term="Реактивність: Combine, RxSwift, @Observable, AsyncSequence">💬 Показати коментарі до теми</button>
             <button class="cmt-btn code-tpl" title="Скопіювати markdown-заготовку для Swift-коду — встав її в коментар">⌨️ Шаблон коду</button>
             <div class="cmt-slot"></div>
           </div>
