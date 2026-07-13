@@ -95,7 +95,7 @@
 
 <div class="wrap">
   <div class="eyebrow">iOS Interview Prep · розширена версія</div>
-  <h1>План підготовки до співбесід: 45 тем углиб</h1>
+  <h1>План підготовки до співбесід: 46 тем углиб</h1>
   <p class="lede">Кожна тема — шість блоків: як працює → яку проблему вирішує → де застосовується (з кейсами з твоєї роботи) → код → пастки → контрольні питання. Відповів на контрольні уголос за 1–2 хвилини — став галочку. Прогрес зберігається у браузері.</p>
 
   <div class="toolbar">
@@ -114,13 +114,13 @@
       <button class="fbtn" data-prio="P2">Лише P2</button>
       <button class="fbtn hide-done" id="hideDone">Сховати закриті</button>
     </div>
-    <div class="progress-label"><span>Закрито тем</span><b id="pcount">0 / 45</b></div>
+    <div class="progress-label"><span>Закрито тем</span><b id="pcount">0 / 46</b></div>
     <div class="pbar"><i id="pfill"></i></div>
   </div>
 
   
   <section data-pillar="swift">
-    <div class="pillar-head"><h2>SWIFT — 19 тем</h2></div>
+    <div class="pillar-head"><h2>SWIFT — 20 тем</h2></div>
     <p class="pillar-note">Мова — це 50–60% технічної співбесіди. Особливо памʼять і конкурентність: саме тут відсіюють між junior і middle.</p>
   
     <div class="topic" id="swift-0" data-id="swift-0" data-pillar="swift" data-prio="P0">
@@ -1349,6 +1349,137 @@ Task {
           </div>
           <div class="blk cmt-blk">
             <button class="cmt-btn" data-term="Асинхронність: completion handlers → async/await → Task/TaskGroup → actors">💬 Показати коментарі до теми</button>
+            <button class="cmt-btn code-tpl" title="Скопіювати markdown-заготовку для Swift-коду — встав її в коментар">⌨️ Шаблон коду</button>
+            <div class="cmt-slot"></div>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="topic" id="swift-19" data-id="swift-19" data-pillar="swift" data-prio="P0">
+      <div class="topic-head">
+        <input type="checkbox" aria-label="закрито">
+        <h3>let, var, static і access control</h3>
+        <button class="note-btn open-cmt" title="Коментарі до цієї теми">💬</button>
+        <a class="note-btn" href="https://github.com/Nazarzbs/iOSprep/discussions?discussions_q=%22let%2C%20var%2C%20static%20%D1%96%20access%20control%22" target="_blank" rel="noopener" title="Гілки цієї теми на GitHub">🧵</a>
+        <span class="prio P0">P0</span>
+      </div>
+      <details>
+        <summary>Розгорнути тему</summary>
+        <div class="topic-body">
+          <div class="blk"><div class="blk-t accent">Що це і як працює</div>
+            <p>У Swift два способи оголошення змінних: let — константа (присвоїти можна лише один раз), var — змінна (можна змінювати скільки завгодно). Обидва можна оголосити без початкового значення, якщо вказати тип і гарантувати присвоєння до першого використання.</p><p>static — властивість або метод належить типу, а не екземпляру (одне значення на весь тип). У class для override використовують class замість static.</p><p>Access control керує видимістю: private &lt; fileprivate &lt; internal (дефолт) &lt; public &lt; open. private(set) — читати можна ззовні, писати лише всередині типу.</p>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">1. let — константа</div>
+            <p>Константа зберігає значення, яке не можна змінити після першого присвоєння. Можна одразу задати значення (let name = "Nazar") або оголосити з типом і присвоїти пізніше — але лише один раз і до першого використання. Swift вимагає, щоб усі гілки if/switch присвоїли значення, інакше — помилка «used before being initialized».</p>
+            <pre>let name = "Nazar"
+name = "John"              // ❌ Cannot assign to 'let'
+
+let username: String
+if isLoggedIn { username = "Nazar" } else { username = "Guest" }
+print(username)            // ✅ будь-який шлях присвоїв значення
+
+let x: String
+if flag { x = "a" }
+print(x)                   // ❌ якщо flag == false — не ініціалізовано</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">2. var — змінна</div>
+            <p>Змінну можна змінювати необмежену кількість разів. На відміну від let, повторне присвоєння дозволене. Можна оголосити без значення (var score: Int) і присвоїти пізніше.</p>
+            <pre>var name = "Nazar"
+name = "John"
+name = "Alex"              // ✅ скільки завгодно разів
+
+var score = 0
+score += 10
+score += 5</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">3. let vs var — порівняння</div>
+            <p>Найкраща практика: let за замовчуванням, var лише коли значення реально змінюється. Це зменшує кількість місць, де стан може змінитись несподівано, і полегшує читання коду.</p>
+            <pre>let pi = 3.14159           // не змінюється
+let maxPlayers = 4
+var score = 0              // змінюється
+score += 10</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">4. static — належить типу, не екземпляру</div>
+            <p>static let/var — одне значення на весь тип, доступ без створення екземпляра. static let — константа типу; static var — можна змінювати. У struct/enum — лише static. У class: static (не override) або class func (можна override). Типовий кейс: shared instance, factory, константи конфігурації.</p>
+            <pre>struct Config {
+    static let apiBaseURL = "https://api.example.com"
+    static var requestCount = 0
+}
+Config.apiBaseURL            // ✅ без екземпляра
+
+final class SessionManager {
+    static let shared = SessionManager()
+    private init() {}
+}
+
+class Animal {
+    class func species() -&gt; String { "Animal" }
+}
+class Dog: Animal {
+    override class func species() -&gt; String { "Dog" }
+}</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">5. Access control: private, fileprivate, internal, public, open</div>
+            <p>Рівні доступу від найвужчого: private (лише тип + extensions у файлі) &lt; fileprivate (увесь .swift файл) &lt; internal (модуль/target, дефолт) &lt; public (видно ззовні модуля) &lt; open (як public + можна успадковувати/override ззовні). На співбесіді для звичайного iOS-аппа найчастіше питають private/fileprivate/internal; public/open — для SDK/SPM-пакетів.</p>
+            <pre>class BankAccount {
+    private var balance: Double = 0
+    func deposit(_ amount: Double) { balance += amount }
+}
+// account.balance            // ❌ inaccessible
+
+fileprivate func formatPrice(_ v: Decimal) -&gt; String { "\(v) ₴" }
+// видно в усьому файлі, не в інших
+
+class OrderService { }         // internal за замовчуванням</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">6. private(set) — read-only ззовні</div>
+            <p>private(set) var — ззовні можна читати, писати лише всередині типу. Типовий патерн у ViewModel: UI читає стан, змінює лише власник. let/var визначає чи можна змінити значення; access control — хто бачить і хто може писати.</p>
+            <pre>final class OrderViewModel {
+    private(set) var orders: [Order] = []
+    private let service: OrderService
+    init(service: OrderService) { self.service = service }
+    func load() async { orders = await service.fetch() }
+}
+// vm.orders = []             // ❌ setter inaccessible
+// print(vm.orders)           // ✅ read OK</pre>
+          </div>
+          <div class="blk blk-sub">
+            <div class="blk-t info">7. Приклад UIKit: let + private + static</div>
+            <p>У UIViewController часто: let для immutable даних з init, private для subviews і деталей реалізації, static let для reuse identifier або storyboard ID, private(set) для стану, який UI читає але не мутує.</p>
+            <pre>final class DetailViewController: UIViewController {
+    static let storyboardID = "DetailVC"
+    private let imageName: String
+    private(set) var isLoading = false
+
+    init(imageName: String) {
+        self.imageName = imageName
+        super.init(nibName: nil, bundle: nil)
+    }
+    required init?(coder: NSCoder) { fatalError() }
+
+    func startLoading() { isLoading = true }
+}</pre>
+          </div>
+          <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
+            <p>let/var — базова дисципліна мутабельності: менше let → більше місць, де стан змінюється несподівано. static відокремлює стан типу від стану екземпляра. Access control — інкапсуляція: приховуєш деталі реалізації, залишаєш контрольований API (private(set), методи). Без цього код стає «все public» і його важко підтримувати в команді.</p>
+          </div>
+          <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
+            <ul><li>let за замовчуванням для моделей, констант, immutable полів у init (imageName, orderId).</li><li>var — лічильники, UI-стан, буфери, що змінюються під час роботи.</li><li>static let shared / factory — синглтони, конфіг, reuseID для UITableViewCell.</li><li>private — subviews, сервіси, деталі VM; fileprivate — helpers у файлі.</li><li>private(set) var у ViewModel/ObservableObject — View читає, змінює лише VM.</li></ul>
+          </div>
+          <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
+            <ul class="warn-list"><li>let для class фіксує посилання, не вміст — можна змінювати властивості обʼєкта, але не переприсвоїти змінну.</li><li>let без ініціалізації в усіх гілках if — compile error «used before being initialized».</li><li>private у Swift мʼякший за Java: extensions того ж типу в тому ж файлі бачать private.</li><li>static var — спільний mutable state між усіма; обережно з потокобезпекою.</li><li>Плутати let (мутабельність значення) з private (видимість) — це різні осі.</li></ul>
+          </div>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
+            <ul><li>Чим let відрізняється від var? Коли що використовувати за замовчуванням?</li><li>Можна let оголосити без значення? За яких умов?</li><li>private vs fileprivate vs internal — різниця і приклад?</li><li>Що таке private(set) і навіщо в ViewModel?</li><li>static let vs static var — коли що? Чим static відрізняється від звичайної властивості?</li><li>let imageName в init UIViewController — чому let, а не var?</li></ul>
+          </div>
+          <div class="blk cmt-blk">
+            <button class="cmt-btn" data-term="let, var, static і access control">💬 Показати коментарі до теми</button>
             <button class="cmt-btn code-tpl" title="Скопіювати markdown-заготовку для Swift-коду — встав її в коментар">⌨️ Шаблон коду</button>
             <div class="cmt-slot"></div>
           </div>
