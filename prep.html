@@ -135,7 +135,7 @@
         <summary>Розгорнути тему</summary>
         <div class="topic-body">
           <div class="blk"><div class="blk-t accent">Що це і як працює</div>
-            <p>Value-типи (struct, enum, tuple) при присвоєнні та передачі у функцію копіюються — кожна змінна володіє власним незалежним значенням. Reference-типи (class, closure, actor) передаються за посиланням: кілька змінних вказують на один обʼєкт у купі (heap), і зміна через одне посилання видна всім.</p><p>Стандартні колекції (Array, String, Dictionary, Set) — value-типи з оптимізацією Copy-on-Write: фізичне копіювання буфера відбувається лише в момент першої мутації, а не при присвоєнні. Тому передати масив на 100 000 елементів у функцію — дешево, доки функція його не змінює.</p>
+            <p>Value-типи (struct, enum, tuple) при присвоєнні та передачі у функцію копіюються — кожна змінна володіє власним незалежним значенням. Reference-типи (class, closure, actor) передаються за посиланням: кілька змінних вказують на один обʼєкт у купі (heap), і зміна через одне посилання видна всім.</p><p>Стандартні колекції (Array, String, Dictionary, Set) — value-типи з оптимізацією Copy-on-Write: фізичне копіювання буфера відбувається лише в момент першої мутації, а не при присвоєнні. Тому передати масив на 100 000 елементів у функцію — дешево, доки функція його не змінює.</p><p>Identity (тожність) існує лише у reference-типів: === питає «це той самий обʼєкт у памʼяті?», == — «значення рівні?» (Equatable). Для struct === немає взагалі: у двох копій нема спільної адреси, яку можна порівнювати. Із identity звʼязаний і ARC — лічильник посилань має сенс тільки там, де є посилання, тому retain/release, weak та unowned — історія виключно про class (і closure/actor).</p>
           </div>
           <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
             <p>Головна проблема, яку вирішують value-типи — спільний мутабельний стан (shared mutable state): коли два шматки коду тримають один обʼєкт і несподівано змінюють його один одному «під ногами». З value-типами про шматок коду можна міркувати локально: ніхто ззовні твою копію не змінить. Це також безкоштовна потокобезпечність — копії незалежні.</p>
@@ -151,13 +151,18 @@ b.x = 10                    // a.x == 0 — незалежна копія
 final class Counter { var value = 0 }
 let c1 = Counter(); let c2 = c1
 c2.value = 10               // c1.value == 10 — один обʼєкт
-// let для класу фіксує ПОСИЛАННЯ, не вміст!</pre>
+// let для класу фіксує ПОСИЛАННЯ, не вміст!
+
+let c3 = Counter()
+c1 === c2                   // true — те саме посилання (identity)
+c1 === c3                   // false — інший обʼєкт
+// для struct === не існує: порівнювати нема чого</pre>
           </div>
           <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
             <ul class="warn-list"><li>Struct, який містить class-властивість: копіюється struct, але посилання всередині вказує на той самий обʼєкт — «value-семантика» ламається.</li><li>let класу не робить обʼєкт незмінним — лише забороняє переприсвоїти посилання. let структури — заморожує все.</li><li>mutating-метод структури неможливо викликати на let-змінній — і це фіча, а не обмеження.</li><li>Дуже великий struct, який часто копіюється у гарячому коді, може програти класу за перформансом — міряй Instruments, а не вгадуй.</li></ul>
           </div>
           <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
-            <ul><li>Що виведе код, де struct присвоєно у дві змінні і одну змінили?</li><li>Чому Apple рекомендує struct за замовчуванням?</li><li>Як COW впливає на продуктивність передачі великого масиву у функцію? Як перевірити, що копія відбулась?</li><li>Наведи приклад зі свого проєкту, де value-семантика врятувала від бага (або де потрібен був саме class).</li></ul>
+            <ul><li>Що виведе код, де struct присвоєно у дві змінні й одну змінили? А якщо це class?</li><li>Чому Apple рекомендує struct за замовчуванням — і в яких випадках ти одразу обереш class?</li><li>Як працює Copy-on-Write і як перевірити, що фізична копія буфера дійсно відбулася?</li><li>Як COW впливає на продуктивність передачі великого масиву у функцію? Чому Array — struct, але копіювання великого масиву майже нічого не коштує?</li><li>Чим відрізняються == і ===? Що таке identity і чому вона є лише у class?</li><li>Що таке shared mutable state і чому він небезпечний?</li><li>Чому let для class не робить обʼєкт immutable, а let для struct забороняє змінювати будь-яку властивість?</li><li>Що означає ключове слово mutating і чому воно потрібне саме структурам?</li><li>Чому ARC працює лише для class? Що таке reference counting і для чого потрібні weak та unowned?</li><li>Що станеться, якщо struct містить властивість типу class?</li><li>Чому UIViewController — це class, а View у SwiftUI — struct?</li><li>Чому ObservableObject майже завжди реалізують як class, а моделі (Codable) — як struct?</li><li>Коли великий struct може працювати повільніше за class? Чим відрізняється передача struct і class у функцію?</li><li>Де саме в твоєму проєкті ти використовував struct, а де — class, і чому?</li><li>Наведи приклад, коли value-семантика врятувала від бага, і приклад, коли потрібна була саме reference-семантика.</li></ul>
           </div>
           <div class="blk cmt-blk">
             <button class="cmt-btn" data-term="Value vs Reference types, struct vs class">💬 Показати коментарі до теми</button>
@@ -223,7 +228,7 @@ c2.value = 10               // c1.value == 10 — один обʼєкт
         <summary>Розгорнути тему</summary>
         <div class="topic-body">
           <div class="blk"><div class="blk-t accent">Що це і як працює</div>
-            <p>Stored — зберігає значення в памʼяті обʼєкта. Computed — не зберігає нічого, обчислюється при кожному звертанні (get, опційно set). lazy — stored, який ініціалізується при першому звертанні, а не при створенні обʼєкта. Observers willSet/didSet — хуки навколо запису у stored property.</p><p>Property wrapper — тип із var wrappedValue, який інкапсулює логіку зберігання; @State, @Published, @AppStorage — усе це property wrappers. projectedValue (доступ через $) дає додаткове представлення — наприклад, Binding у SwiftUI.</p>
+            <p>Stored — зберігає значення в памʼяті обʼєкта. Computed — не зберігає нічого, обчислюється при кожному звертанні (get, опційно set). lazy — stored, який ініціалізується при першому звертанні, а не при створенні обʼєкта. Observers willSet/didSet — хуки навколо запису у stored property.</p><p>Property wrapper — тип із var wrappedValue, який інкапсулює логіку зберігання; @State, @Published, @AppStorage — усе це property wrappers. projectedValue (доступ через $) дає додаткове представлення — наприклад, Binding у SwiftUI.</p><p>lazy vs computed — за кількістю обчислень і памʼяттю: lazy обчислюється ОДИН раз при першому звертанні і далі займає памʼять під збережене значення; computed памʼяті під значення не займає, але виконує тіло при КОЖНОМУ звертанні. Звідси правило: lazy — для дорогого й незмінного (formatter, важкий парсер), computed — для похідного, що має бути завжди актуальним.</p><p>projectedValue — друге, «проєктоване» представлення обгортки: компілятор перетворює $x на x.projectedValue. У @Published це Publisher (можна .sink), у @State/@Binding — Binding&lt;Value&gt;, який передають у дочірню View, у власному wrapper — будь-що корисне. Не оголосив projectedValue — $ для цієї обгортки просто не працює.</p><p>@State: до Xcode 27 — property wrapper, реалізований через механізм @propertyWrapper; з Xcode 27 / SwiftUI 2026 — macro: код керування станом генерується під час компіляції. API для розробника лишився таким самим, змінилась тільки реалізація під капотом.</p>
           </div>
           <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
             <p>lazy вирішує проблему дорогої ініціалізації, яка може не знадобитись (важкий DateFormatter, обчислення на великих даних). Observers — проблему «тримати щось синхронним зі значенням» без ручних викликів (оновити UI при зміні моделі). Wrappers — проблему копіпасти навколо зберігання (та сама логіка UserDefaults для 20 налаштувань — один wrapper замість 20 однакових get/set).</p>
@@ -241,10 +246,27 @@ c2.value = 10               // c1.value == 10 — один обʼєкт
 }
 struct Settings {
     @UserDefault(key: "isDark", defaultValue: false) static var isDark: Bool
-}</pre>
+}
+
+// @Clamped(0...100) — обрізає значення і в init, і при кожному записі
+@propertyWrapper struct Clamped&lt;T: Comparable&gt; {
+    private var value: T
+    let range: ClosedRange&lt;T&gt;
+    init(wrappedValue: T, _ range: ClosedRange&lt;T&gt;) {   // wrappedValue — завжди перший
+        self.range = range
+        self.value = min(max(wrappedValue, range.lowerBound), range.upperBound)
+    }
+    var wrappedValue: T {
+        get { value }
+        set { value = min(max(newValue, range.lowerBound), range.upperBound) }
+    }
+    var projectedValue: ClosedRange&lt;T&gt; { range }        // $percent → 0...100
+}
+struct Upload { @Clamped(0...100) var percent: Int = 0 }
+var u = Upload(); u.percent = 150      // 100 — обрізало; u.$percent → 0...100</pre>
           </div>
           <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
-            <ul class="warn-list"><li>lazy НЕ потокобезпечний: два потоки при першому звертанні можуть ініціалізувати двічі. І lazy — тільки var.</li><li>willSet/didSet не викликаються під час init (пряме присвоєння у сховище) — частий сюрприз.</li><li>Computed property обчислюється при КОЖНОМУ звертанні — дорогий обрахунок у ньому в циклі = просідання.</li><li>didSet, який присвоює цю ж властивість — рекурсії не буде (спрацює лише раз), але код заплутаний.</li></ul>
+            <ul class="warn-list"><li>lazy НЕ потокобезпечний: два потоки при першому звертанні можуть ініціалізувати двічі. І lazy — тільки var.</li><li>willSet/didSet не викликаються під час init (пряме присвоєння у сховище) — частий сюрприз.</li><li>Computed property обчислюється при КОЖНОМУ звертанні — дорогий обрахунок у ньому в циклі = просідання.</li><li>didSet, який присвоює цю ж властивість — рекурсії не буде (спрацює лише раз), але код заплутаний.</li><li>Параметр обгортки передається лише через init(wrappedValue:_:), і wrappedValue у ньому мусить бути ПЕРШИМ аргументом — інакше @Clamped(0...100) не скомпілюється.</li><li>@State з Xcode 27 — macro, а не property wrapper: API той самий, але в поясненні «як це працює» вже не варто спиратися на @propertyWrapper-механіку.</li></ul>
           </div>
           <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
             <ul><li>Чим lazy var відрізняється від computed property за кількістю обчислень і памʼяттю?</li><li>Чому didSet не викликається з ініціалізатора і як усе-таки виконати логіку?</li><li>Напиши property wrapper @Clamped(0...100) для відсотків.</li><li>Що таке projectedValue і що повертає $ у @Published/@State?</li></ul>
@@ -269,7 +291,7 @@ struct Settings {
         <summary>Розгорнути тему</summary>
         <div class="topic-body">
           <div class="blk"><div class="blk-t accent">Що це і як працює</div>
-            <p>Closure — блок коду першого класу, який можна зберігати і передавати. Це reference-тип: він живе в купі й захоплює (capture) змінні з контексту створення. var захоплюється за посиланням — closure бачить актуальне значення і може його змінювати. Capture list ([x], [weak self]) — копіює значення/послаблює посилання В МОМЕНТ СТВОРЕННЯ closure.</p><p>@escaping — closure переживає виклик функції (зберігається, викликається пізніше — completion handlers). Non-escaping (за замовчуванням) виконується до повернення функції, тому не вимагає self і не створює циклів.</p>
+            <p>Closure — блок коду першого класу, який можна зберігати і передавати. Це reference-тип: він живе в купі й захоплює (capture) змінні з контексту створення. var захоплюється за посиланням — closure бачить актуальне значення і може його змінювати. Capture list ([x], [weak self]) — копіює значення/послаблює посилання В МОМЕНТ СТВОРЕННЯ closure.</p><p>@escaping — closure переживає виклик функції (зберігається, викликається пізніше — completion handlers). Non-escaping (за замовчуванням) виконується до повернення функції, тому не вимагає self і не створює циклів.</p><p>Retain cycle через closure потребує ДВОХ сильних посилань одночасно: self утримує closure (наприклад, тримає його у властивості) і closure сильно захоплює self. Не виконано хоч одну умову — циклу немає. Саме тому DispatchQueue.global().async { self.load() } безпечний: closure тимчасово тримає черга, self черги не тримає, після виконання все звільняється.</p><p>Практичне правило перед тим, як писати closure: «хто буде його зберігати?». Ніхто (map, filter, sorted, разовий UIView.animate) — [weak self] зазвичай зайвий. Зберігає інший обʼєкт (властивість, completion handler, callback у ViewModel чи сервісі) — перевір, чи не захоплюється self сильно, і розривай через [weak self].</p>
           </div>
           <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
             <p>Closures вирішують проблему «передати поведінку як дані»: колбеки завершення асинхронних операцій, конфігурація (map/filter), відкладене виконання. Capture list вирішує дві проблеми: retain cycle (closure тримає self, а self тримає closure) і «захоплення останнього значення» у циклах.</p>
@@ -286,13 +308,21 @@ var x = 0
 let a = { print(x) }                      // захоплення за посиланням
 let b = { [x] in print(x) }               // копія на момент створення
 x = 99
-a() // 99        b() // 0</pre>
+a() // 99        b() // 0
+
+final class ViewModel {
+    var completion: (() -&gt; Void)?
+    func setup() {
+        completion = { self.loadData() }                  // ❌ VM → closure → VM
+        completion = { [weak self] in self?.loadData() }   // ✅ коло розірвано
+    }
+}</pre>
           </div>
           <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
-            <ul class="warn-list"><li>Retain cycle: self.completion = { self.doSomething() } — self тримає closure, closure тримає self. Розрив: [weak self].</li><li>[weak self] робить self опціональним усередині — guard let self else { return } на початку.</li><li>unowned self — креш, якщо closure викличеться після смерті self. Тільки коли життя closure гарантовано коротше за self.</li><li>[weak self] не потрібен там, де closure не зберігається надовго: разовий DispatchQueue.main.async лише відкладе звільнення на мить — це не цикл.</li></ul>
+            <ul class="warn-list"><li>Retain cycle: self.completion = { self.doSomething() } — self тримає closure, closure тримає self. Розрив: [weak self].</li><li>[weak self] робить self опціональним усередині — guard let self else { return } на початку.</li><li>unowned self — креш, якщо closure викличеться після смерті self. Тільки коли життя closure гарантовано коротше за self.</li><li>[weak self] не потрібен там, де closure не зберігається надовго: разовий DispatchQueue.main.async лише відкладе звільнення на мить — це не цикл.</li><li>Non-escaping closure не вимагає явного self і не може створити цикл — питання про [weak self] взагалі не стоїть, доки closure не @escaping.</li></ul>
           </div>
           <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
-            <ul><li>Що виведе код вище і чому a() та b() дають різні результати?</li><li>Чому @escaping вимагає явного self? Що перевіряє компілятор?</li><li>Namaлюй retain cycle через closure і два способи розірвати.</li><li>Коли [weak self] зайвий і лише додає шуму?</li></ul>
+            <ul><li>Що виведе код вище і чому a() та b() дають різні результати?</li><li>Чому @escaping вимагає явного self? Що перевіряє компілятор?</li><li>Namaлюй retain cycle через closure і два способи розірвати.</li><li>Коли [weak self] зайвий і лише додає шуму?</li><li>Дві умови, за яких виникає retain cycle через closure — і чому DispatchQueue.global().async їх не виконує?</li><li>Escaping vs non-escaping: коли виконується, чи зберігається, чи можливий цикл, чи потрібен явний self?</li></ul>
           </div>
           <div class="blk cmt-blk">
             <button class="cmt-btn" data-term="Closures і capture semantics">💬 Показати коментарі до теми</button>
@@ -314,13 +344,13 @@ a() // 99        b() // 0</pre>
         <summary>Розгорнути тему</summary>
         <div class="topic-body">
           <div class="blk"><div class="blk-t accent">Що це і як працює</div>
-            <p>ARC (Automatic Reference Counting) — компілятор на етапі збірки вставляє retain/release виклики. Кожен обʼєкт має лічильник сильних посилань; коли він падає до нуля — deinit і звільнення. На відміну від garbage collection: детерміновано (обʼєкт помирає одразу), без пауз збирача, але не вміє розривати цикли — це відповідальність розробника.</p><p>weak — не збільшує лічильник, автоматично стає nil після смерті обʼєкта (тому завжди optional var). unowned — не збільшує лічильник, але НЕ обнуляється: звертання після смерті = креш. strong — за замовчуванням.</p>
+            <p>ARC (Automatic Reference Counting) — компілятор на етапі збірки вставляє retain/release виклики. Кожен обʼєкт має лічильник сильних посилань; коли він падає до нуля — deinit і звільнення. На відміну від garbage collection: детерміновано (обʼєкт помирає одразу), без пауз збирача, але не вміє розривати цикли — це відповідальність розробника.</p><p>weak — не збільшує лічильник, автоматично стає nil після смерті обʼєкта (тому завжди optional var). unowned — не збільшує лічильник, але НЕ обнуляється: звертання після смерті = креш. strong — за замовчуванням.</p><p>«Власник» — це той, хто має strong-посилання, і тим самим відповідає за час життя обʼєкта. Головне правило ARC формулюється саме через власність: strong тримає лише власник, усі інші посилання (delegate, зворотне посилання на батька, self у збереженому closure) — weak або, рідше, unowned. За замовчуванням strong усюди: властивості, елементи Array/Dictionary/Set, локальні змінні та параметри функцій.</p><p>weak можна повісити тільки на властивість класу — weak для локальної змінної чи параметра функції не компілюється. unowned не є Optional і не обнуляється: звертання після смерті обʼєкта = краш, тому його беруть лише там, де час життя власника гарантовано довший (класика — CreditCard, що не існує без Customer).</p>
           </div>
           <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
             <p>Вирішує проблему ручного керування памʼяттю (retain/release руками в старому Obj-C — джерело крешів і ліків). Retain cycle — головна ціна: два обʼєкти тримають один одного сильно, лічильники ніколи не впадуть до нуля, память тече. У великому застосунку типовий симптом — контролер не деінітиться і продовжує слухати нотифікації/оновлювати дані.</p>
           </div>
           <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
-            <ul><li>delegate завжди weak var delegate: SomeDelegate? — інакше цикл: VC тримає tableView, tableView тримає delegate (VC).</li><li>closure + self — див. тему closures; це 90% реальних ліків.</li><li>Timer.scheduledTimer(target: self) — RunLoop тримає таймер, таймер СИЛЬНО тримає target. Не інвалідував таймер — VC живе вічно.</li><li>Батько-дитина: батько тримає дітей strong, дитина батька — weak (view ієрархії, координатори).</li></ul>
+            <ul><li>delegate завжди weak var delegate: SomeDelegate? — інакше цикл: VC тримає tableView, tableView тримає delegate (VC).</li><li>closure + self — див. тему closures; це 90% реальних ліків.</li><li>Timer.scheduledTimer(target: self) — RunLoop тримає таймер, таймер СИЛЬНО тримає target. Не інвалідував таймер — VC живе вічно.</li><li>Батько-дитина: батько тримає дітей strong, дитина батька — weak (view ієрархії, координатори).</li><li>[weak self] потрібен, коли closure зберігається іншим обʼєктом і буде викликаний пізніше: cell.onTap, viewModel.onUpdate, service.completion — усі callback-и, що живуть довше за функцію, яка їх створила.</li><li>[weak self] зазвичай НЕ потрібен: map / filter / sorted, UIView.animate, разовий DispatchQueue.main.async — closure виконується один раз і звільняється; а якщо self у closure не згадується, захоплювати взагалі нічого.</li><li>Шпаргалка по UIKit: звичайна властивість — strong; delegate — weak; parent → child — strong; child → parent — weak; self у збереженому closure — weak (рідше unowned); Array/Dictionary/Set обʼєктів — strong.</li></ul>
           </div>
           <div class="blk"><div class="blk-t info">Приклад</div>
             <pre>final class OrderVC: UIViewController {
@@ -332,13 +362,19 @@ a() // 99        b() // 0</pre>
         }
     }
     deinit { timer?.invalidate(); print("OrderVC deinit") } // лог = перевірка ліків
-}</pre>
+}
+
+// Цикл через callback і його розрив
+final class DetailVC: UIViewController { var onLike: (() -&gt; Void)? }
+detail.onLike = { self.reloadData() }                  // ❌ self → detail → closure → self
+detail.onLike = { [weak self] in self?.reloadData() }  // ✅ weak розриває коло
+// після виходу з функції detail не вмирає — його тримає UINavigationController</pre>
           </div>
           <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
-            <ul class="warn-list"><li>weak тільки для класів (reference-типів) — на struct не повісиш.</li><li>NotificationCenter.addObserver(forName:...) з closure повертає токен — його треба зберігати і знімати; сам closure легко захоплює self.</li><li>unowned виглядає «чистіше» (без optional), але один неправильний прогноз часу життя = креш у проді. Сумніваєшся — weak.</li><li>Пошук ліків: Debug Memory Graph (кнопка в Xcode) показує, ХТО тримає обʼєкт; Instruments → Leaks/Allocations; найпростіше — print у deinit.</li></ul>
+            <ul class="warn-list"><li>weak тільки для класів (reference-типів) — на struct не повісиш.</li><li>NotificationCenter.addObserver(forName:...) з closure повертає токен — його треба зберігати і знімати; сам closure легко захоплює self.</li><li>unowned виглядає «чистіше» (без optional), але один неправильний прогноз часу життя = креш у проді. Сумніваєшся — weak.</li><li>Пошук ліків: Debug Memory Graph (кнопка в Xcode) показує, ХТО тримає обʼєкт; Instruments → Leaks/Allocations; найпростіше — print у deinit.</li><li>weak не можна оголосити для локальної змінної або параметра функції — тільки для властивості класу.</li><li>Після [weak self] тип стає Optional: або self?.method(), або guard let self else { return } першим рядком.</li></ul>
           </div>
           <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
-            <ul><li>Як ARC відрізняється від garbage collection — плюси й мінуси?</li><li>Таблиця strong/weak/unowned: чи тримає, чи optional, що при звертанні до мертвого?</li><li>Чому delegate — weak? Що станеться, якщо зробити strong?</li><li>Як ти шукав/шукав би memory leak у реальному проєкті — покроково?</li></ul>
+            <ul><li>Як ARC відрізняється від garbage collection — плюси й мінуси?</li><li>Таблиця strong/weak/unowned: чи тримає, чи optional, що при звертанні до мертвого?</li><li>Чому delegate — weak? Що станеться, якщо зробити strong?</li><li>Як ти шукав/шукав би memory leak у реальному проєкті — покроково?</li><li>Що означає «власник» обʼєкта і як із цього правила виводиться, де ставити weak?</li><li>Чому weak не можна оголосити для локальної змінної або параметра функції?</li><li>Хто утримує DetailViewController після того, як функція, яка його створила, завершилась?</li></ul>
           </div>
           <div class="blk cmt-blk">
             <button class="cmt-btn" data-term="ARC, memory management, retain cycles">💬 Показати коментарі до теми</button>
@@ -360,13 +396,13 @@ a() // 99        b() // 0</pre>
         <summary>Розгорнути тему</summary>
         <div class="topic-body">
           <div class="blk"><div class="blk-t accent">Що це і як працює</div>
-            <p>GCD (Grand Central Dispatch) — API черг задач поверх пулу потоків. Serial черга виконує задачі по одній у порядку додавання; concurrent — кілька одночасно. main — serial черга головного потоку (весь UI). Global-черги — concurrent, з рівнями QoS: userInteractive &gt; userInitiated &gt; utility &gt; background — система розподіляє ресурси за пріоритетом.</p><p>async — «поклади задачу і не чекай»; sync — «поклади і заблокуйся до завершення». DispatchGroup — дочекатися групи задач; barrier — задача-«шлюз» у concurrent черзі: чекає всі попередні, виконується сама, потім пускає наступні (патерн readers-writers).</p>
+            <p>GCD (Grand Central Dispatch) — API черг задач поверх пулу потоків. Serial черга виконує задачі по одній у порядку додавання; concurrent — кілька одночасно. main — serial черга головного потоку (весь UI). Global-черги — concurrent, з рівнями QoS: userInteractive &gt; userInitiated &gt; utility &gt; background — система розподіляє ресурси за пріоритетом.</p><p>async — «поклади задачу і не чекай»; sync — «поклади і заблокуйся до завершення». DispatchGroup — дочекатися групи задач; barrier — задача-«шлюз» у concurrent черзі: чекає всі попередні, виконується сама, потім пускає наступні (патерн readers-writers).</p><p>Застосунок починає життя на Main Thread: main() → UIApplicationMain → AppDelegate → SceneDelegate → UIWindow → перший ViewController → viewDidLoad. Main Thread (він же UI Thread; main queue — логічна черга на ньому) відповідає за весь інтерфейс: малювання, натискання, жести, анімації, скрол списків, переходи, Auto Layout. Звідси правило Apple: UI змінюємо ЛИШЕ на main, а важку роботу (мережа, JSON, диск, база, обробка фото, обчислення) виносимо у фонові черги.</p><p>DispatchQueue ≠ Thread — типова плутанина новачків: черга це лише список задач, потік — місце, де вони реально виконуються, а який саме потік узяти, вирішує GCD. Усі черги працюють за FIFO, але це гарантія лише порядку СТАРТУ: у concurrent черзі задачі можуть завершитися у будь-якому порядку.</p>
           </div>
           <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
             <p>Вирішує дві проблеми: (1) не блокувати main thread важкою роботою — інакше фризи UI і креш від watchdog; (2) керувати паралелізмом без ручного створення потоків. Race condition — коли результат залежить від порядку виконання потоків; data race — одночасний неатомарний доступ до памʼяті (мінімум один запис) — це UB, ловиться Thread Sanitizer.</p>
           </div>
           <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
-            <ul><li>Класичний сендвіч: DispatchQueue.global().async { важка робота } → DispatchQueue.main.async { оновити UI }.</li><li>Декодування великого JSON, ресайз картинок, робота з диском — усе поза main.</li><li>DispatchGroup: зібрати 3 запити (меню + промо + профіль) і показати екран, коли ВСІ готові — твій реальний кейс на home page.</li><li>Serial черга як памʼятка синхронізації: усі звертання до спільного кеша через одну serial чергу = потокобезпечність без локів.</li></ul>
+            <ul><li>Класичний сендвіч: DispatchQueue.global().async { важка робота } → DispatchQueue.main.async { оновити UI }.</li><li>Декодування великого JSON, ресайз картинок, робота з диском — усе поза main.</li><li>DispatchGroup: зібрати 3 запити (меню + промо + профіль) і показати екран, коли ВСІ готові — твій реальний кейс на home page.</li><li>Serial черга як памʼятка синхронізації: усі звертання до спільного кеша через одну serial чергу = потокобезпечність без локів.</li><li>QoS за призначенням: .userInteractive — анімації, жести, миттєвий відгук UI; .userInitiated — користувач уже чекає результат (пошук, відкриття документа, запит після тапу; найчастіший вибір); .default — середній, коли не вказано; .utility — довге, про що юзер знає і не поспішає (імпорт, експорт, бекап, завантаження відео); .background — те, чого юзер не помічає (очищення кешу, синхронізація, індексація, аналітика).</li><li>Тільки на main: label.text, imageView.image, tableView.reloadData(), view.backgroundColor — будь-яка зміна UI. Якщо є дві задачі одночасно, .userInteractive отримає ресурси раніше за .background — саме тому інтерфейс лишається плавним.</li></ul>
           </div>
           <div class="blk"><div class="blk-t info">Приклад</div>
             <pre>let group = DispatchGroup()
@@ -377,13 +413,23 @@ group.notify(queue: .main) { self.render(menu, promos) }
 
 // Потокобезпечний доступ: concurrent + barrier
 queue.async(flags: .barrier) { self.cache[key] = value }  // запис — ексклюзивно
-queue.sync { return self.cache[key] }                     // читання — паралельно</pre>
+queue.sync { return self.cache[key] }                     // читання — паралельно
+
+// Типовий сендвіч: важка робота у фоні → повернення на main
+DispatchQueue.global(qos: .userInitiated).async {
+    guard let data = try? Data(contentsOf: url) else { return }  // мережа/диск
+    let users = self.parse(json: data)                           // парсинг
+    DispatchQueue.main.async {
+        self.users = users
+        self.tableView.reloadData()                              // UI — тільки main
+    }
+}</pre>
           </div>
           <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
-            <ul class="warn-list"><li>DispatchQueue.main.sync { } з main thread = миттєвий deadlock: main чекає задачу, яка чекає main. Питання №1 на співбесідах.</li><li>sync на будь-якій serial черзі зсередини неї самої — той самий deadlock.</li><li>Забутий group.leave() (наприклад, у гілці помилки) — notify не спрацює ніколи.</li><li>GCD не скасовує задачі, що вже виконуються; DispatchWorkItem.cancel() — лише прапорець isCancelled. Потрібне справжнє скасування/залежності — OperationQueue або Swift Concurrency.</li></ul>
+            <ul class="warn-list"><li>DispatchQueue.main.sync { } з main thread = миттєвий deadlock: main чекає задачу, яка чекає main. Питання №1 на співбесідах.</li><li>sync на будь-якій serial черзі зсередини неї самої — той самий deadlock.</li><li>Забутий group.leave() (наприклад, у гілці помилки) — notify не спрацює ніколи.</li><li>GCD не скасовує задачі, що вже виконуються; DispatchWorkItem.cancel() — лише прапорець isCancelled. Потрібне справжнє скасування/залежності — OperationQueue або Swift Concurrency.</li><li>Зміна UI із фонової черги не завжди падає одразу: буває попередження Xcode, дивна верстка і випадковий креш пізніше — саме той баг, що «не відтворюється».</li><li>Важка робота на main = «додаток завис»: кнопки не тиснуться, скрол стоїть, анімації стоять — далі watchdog вбиває процес.</li><li>Усередині closure Swift вимагає явний self — це не примха компілятора, а підказка, що closure захоплює обʼєкт.</li><li>[weak self] у GCD зазвичай не потрібен (closure виконується один раз і звільняється), але потрібен для довгих задач, якщо екран може закритися раніше: async { [weak self] in guard let self else { return } … }.</li></ul>
           </div>
           <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
-            <ul><li>Що станеться при DispatchQueue.main.sync {} з main thread — і чому саме?</li><li>Serial vs concurrent, sync vs async — чотири комбінації, поясни кожну.</li><li>Як завантажити 3 ресурси паралельно і оновити UI, коли всі готові — GCD і async/await варіанти?</li><li>Race condition vs data race — різниця? Як ловити (TSan)?</li></ul>
+            <ul><li>Що станеться при DispatchQueue.main.sync {} з main thread — і чому саме?</li><li>Serial vs concurrent, sync vs async — чотири комбінації, поясни кожну.</li><li>Як завантажити 3 ресурси паралельно і оновити UI, коли всі готові — GCD і async/await варіанти?</li><li>Race condition vs data race — різниця? Як ловити (TSan)?</li><li>Чим DispatchQueue відрізняється від Thread — і хто вирішує, на якому потоці виконається задача?</li><li>FIFO гарантує порядок старту чи порядок завершення? Що це означає для concurrent черги?</li><li>Назви всі пʼять QoS і по одному реальному прикладу до кожного.</li><li>Що станеться, якщо змінити label.text із DispatchQueue.global() — і чому це найгірший вид бага?</li></ul>
           </div>
           <div class="blk cmt-blk">
             <button class="cmt-btn" data-term="GCD і класична багатопотоковість">💬 Показати коментарі до теми</button>
@@ -1966,7 +2012,7 @@ func testLoadSuccess() async {
         <summary>Розгорнути тему</summary>
         <div class="topic-body">
           <div class="blk"><div class="blk-t accent">Що це і як працює</div>
-            <p>Стани застосунку: not running → inactive (працює, не отримує події — дзвінок, шторка) → active → background (обмежений час на завершення справ) → suspended (у памʼяті, не виконується; система може вбити без попередження). Повернення з suspended — НЕ новий запуск, стан живий.</p><p>AppDelegate — події рівня ПРОЦЕСУ: запуск (didFinishLaunching — конфіг Firebase, DI, пуші), токен пушів, background fetch. SceneDelegate — події рівня ВІКНА/UI (для multi-window на iPad): створення window, sceneDidBecomeActive, sceneDidEnterBackground. До iOS 13 усе було в AppDelegate.</p>
+            <p>Стани застосунку: not running → inactive (працює, не отримує події — дзвінок, шторка) → active → background (обмежений час на завершення справ) → suspended (у памʼяті, не виконується; система може вбити без попередження). Повернення з suspended — НЕ новий запуск, стан живий.</p><p>AppDelegate — події рівня ПРОЦЕСУ: запуск (didFinishLaunching — конфіг Firebase, DI, пуші), токен пушів, background fetch. SceneDelegate — події рівня ВІКНА/UI (для multi-window на iPad): створення window, sceneDidBecomeActive, sceneDidEnterBackground. До iOS 13 усе було в AppDelegate.</p><p>В iOS два РІЗНІ життєві цикли, і на співбесіді їх люблять змішувати. App Lifecycle керує всім застосунком: scene(_:willConnectTo:), sceneDidBecomeActive(), sceneWillResignActive(), sceneDidEnterBackground(), sceneWillEnterForeground(), sceneDidDisconnect() — тут реагують на запуск, паузу, перехід у фон і повернення з фону. ViewController Lifecycle керує ОКРЕМИМ екраном: loadView → viewDidLoad → viewWillAppear → viewDidAppear → viewWillDisappear → viewDidDisappear. Перший — про процес і вікно, другий — про один екран.</p>
           </div>
           <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
             <p>Розуміння станів вирішує реальні продакшн-проблеми: де оновити застарілі дані після повернення з фону (willEnterForeground, не didFinishLaunching — його не буде при поверненні з suspended!), де зберегти стан перед смертю (didEnterBackground — гарантований момент), чому таймери/запити «зупинились» (background = виконання заморожене).</p>
@@ -1988,13 +2034,18 @@ func userNotificationCenter(_ c: UNUserNotificationCenter,
     let userInfo = response.notification.request.content.userInfo
     deepLinkRouter.handle(userInfo)      // тап по пушу → екран замовлення
     done()
-}</pre>
+}
+
+// Як переплітаються при запуску: scene створює вікно, далі живе екран
+// scene(_:willConnectTo:)  →  створюється RootViewController
+//     loadView()  →  viewDidLoad()  →  viewWillAppear()
+// sceneDidBecomeActive()   →  viewDidAppear()</pre>
           </div>
           <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
             <ul class="warn-list"><li>Повернення з suspended НЕ викликає didFinishLaunching — ініціалізація «раз на показ» має жити у willEnterForeground/didBecomeActive.</li><li>У background маєш ~секунди; довша робота — beginBackgroundTask, інакше система вбʼє процес.</li><li>deviceToken може змінюватись — відправляй на бекенд при кожному didRegister, не кешуй вічно.</li><li>didReceiveRemoteNotification для тихих пушів (content-available) не гарантований — система може не розбудити застосунок (низький заряд, rate limit).</li></ul>
           </div>
           <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
-            <ul><li>Проведи застосунок через усі стани: користувач згорнув і відкрив через годину — які колбеки і в якому порядку?</li><li>Чому оновлення токена сесії — НЕ в didFinishLaunching?</li><li>Розкажи повний шлях пуша: від реєстрації до відкриття екрана замовлення по тапу (твій робочий флоу).</li><li>AppDelegate vs SceneDelegate — що куди і навіщо розділили?</li></ul>
+            <ul><li>Проведи застосунок через усі стани: користувач згорнув і відкрив через годину — які колбеки і в якому порядку?</li><li>Чому оновлення токена сесії — НЕ в didFinishLaunching?</li><li>Розкажи повний шлях пуша: від реєстрації до відкриття екрана замовлення по тапу (твій робочий флоу).</li><li>AppDelegate vs SceneDelegate — що куди і навіщо розділили?</li><li>App Lifecycle vs ViewController Lifecycle: чим керує кожен і які в кожного основні методи?</li><li>Назви повний порядок при запуску, де scene-колбеки переплітаються з колбеками RootViewController.</li></ul>
           </div>
           <div class="blk cmt-blk">
             <button class="cmt-btn" data-term="App lifecycle: AppDelegate, SceneDelegate, стани">💬 Показати коментарі до теми</button>
@@ -2016,16 +2067,25 @@ func userNotificationCenter(_ c: UNUserNotificationCenter,
         <summary>Розгорнути тему</summary>
         <div class="topic-body">
           <div class="blk"><div class="blk-t accent">Що це і як працює</div>
-            <p>Ланцюг: init → loadView (створює self.view; переозначають лише для повністю кастомного root view) → viewDidLoad (view створено, розміри НЕ фінальні; один раз на життя VC) → viewWillAppear (перед кожною появою) → viewWillLayoutSubviews / viewDidLayoutSubviews (після проходу AutoLayout — тут розміри ВЖЕ валідні; може викликатись багато разів) → viewDidAppear (на екрані, анімація переходу завершена) → viewWillDisappear / viewDidDisappear → deinit.</p><p>Containment (child view controllers): addChild(child) → view.addSubview(child.view) → child.didMove(toParent: self) — вбудовування VC у VC (сегменти, вкладки, твої UIHostingController-вставки).</p>
+            <p>Ланцюг: init → loadView (створює self.view; переозначають лише для повністю кастомного root view) → viewDidLoad (view створено, розміри НЕ фінальні; один раз на життя VC) → viewWillAppear (перед кожною появою) → viewWillLayoutSubviews / viewDidLayoutSubviews (після проходу AutoLayout — тут розміри ВЖЕ валідні; може викликатись багато разів) → viewDidAppear (на екрані, анімація переходу завершена) → viewWillDisappear / viewDidDisappear → deinit.</p><p>Containment (child view controllers): addChild(child) → view.addSubview(child.view) → child.didMove(toParent: self) — вбудовування VC у VC (сегменти, вкладки, твої UIHostingController-вставки).</p><p>init — контролер створено, але його view ще НЕ існує (view == nil): тут dependency injection, ініціалізація властивостей, передача моделей, підготовка даних. Звертатися до view чи до IBOutlet тут не можна — їх ще немає.</p><p>loadView — створює головну view контролера; викликається один раз і лише якщо view ще не створена. Переозначають, коли root view — не звичайний UIView, а WKWebView, UITableView, UIScrollView чи власна вʼюха: створив обʼєкт → одразу налаштував delegate / dataSource / navigationDelegate / configuration → присвоїв self.view. У Storyboard/XIB loadView робить система і сама створює всі IBOutlet, тому налаштування там живе у viewDidLoad.</p><p>deinit — контролер видаляється з памʼяті. Практична цінність не в очищенні (ARC зробить сам), а в перевірці: print у deinit — найдешевший детектор memory leak. Не вивелось при закритті екрана — контролер хтось тримає.</p>
           </div>
           <div class="blk"><div class="blk-t accent">Яку проблему вирішує</div>
             <p>Знання «що і де робити» прибирає цілий клас багів: підписки в viewDidLoad без відписки → дублікати обробників після повернення; робота з frame у viewDidLoad → верстка під старий розмір; важке в viewWillAppear → лаг переходу. Правила: одноразова настройка — viewDidLoad; підписки/таймери — willAppear + зняття в didDisappear; усе залежне від розмірів — viewDidLayoutSubviews.</p>
           </div>
           <div class="blk"><div class="blk-t accent">Де використовується на практиці</div>
-            <ul><li>viewDidLoad: addSubview + констрейнти, конфіг таблиці, привʼязка VM.</li><li>viewWillAppear: оновити дані, які могли змінитись, поки екран був у стеку (повернулись із деталей — список освіжити); почати спостереження.</li><li>viewDidLayoutSubviews: градієнтний CALayer під розмір вʼюхи (layer не в AutoLayout!), скругления, залежні від фактичної ширини.</li><li>viewDidAppear: стартувати анімації, запросити дозволи (не лякати юзера до появи екрана), почати відеоплеєр.</li></ul>
+            <ul><li>viewDidLoad: addSubview + констрейнти, конфіг таблиці, привʼязка VM.</li><li>viewWillAppear: оновити дані, які могли змінитись, поки екран був у стеку (повернулись із деталей — список освіжити); почати спостереження.</li><li>viewDidLayoutSubviews: градієнтний CALayer під розмір вʼюхи (layer не в AutoLayout!), скругления, залежні від фактичної ширини.</li><li>viewDidAppear: стартувати анімації, запросити дозволи (не лякати юзера до появи екрана), почати відеоплеєр.</li><li>init(photo:) — передати модель у контролер: найпоширеніший вигляд DI у UIKit (і одразу відповідь на «як ви передаєте дані між екранами»).</li><li>loadView: webView = WKWebView(); webView.navigationDelegate = self; view = webView — коли екран і є однією вʼюхою.</li><li>viewWillAppear: приховати/показати Navigation Bar, перевірити авторизацію, оновити badge — усе, що має бути свіжим на КОЖНІЙ появі.</li><li>viewWillDisappear: зберегти чернетку, view.endEditing(true) — закрити клавіатуру, завершити редагування перед переходом.</li><li>viewDidDisappear: зупинити відео і таймери, вимкнути GPS, звільнити тимчасові ресурси — інакше екран, якого не видно, продовжує їсти батарею.</li></ul>
           </div>
           <div class="blk"><div class="blk-t info">Приклад</div>
-            <pre>override func viewDidLoad() {
+            <pre>init(photo: Photo) {                     // view ще не існує — тільки дані
+    self.photo = photo
+    super.init(nibName: nil, bundle: nil)
+}
+override func loadView() {               // root view — не UIView, а WKWebView
+    let webView = WKWebView()
+    webView.navigationDelegate = self    // налаштовуємо одразу при створенні
+    view = webView                       // super.loadView() тут НЕ викликаємо
+}
+override func viewDidLoad() {
     super.viewDidLoad()
     setupSubviews()                    // один раз
 }
@@ -2041,13 +2101,14 @@ override func viewDidDisappear(_ animated: Bool) {
 override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
     gradientLayer.frame = headerView.bounds  // розміри вже фінальні
-}</pre>
+}
+deinit { print("OrderVC deinit") }       // не вивелось → екран тече</pre>
           </div>
           <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
-            <ul class="warn-list"><li>frame/bounds у viewDidLoad — ще від XIB/дефолту, НЕ фінальні (інші пристрої, rotation). Валідні — у viewDidLayoutSubviews.</li><li>viewWillAppear без парного «зняття» у didDisappear — подвійні підписки після повернення.</li><li>viewWillAppear викликався, а viewDidAppear ні — можливо: interactive pop скасовано на півдорозі (свайп назад відпущено).</li><li>Пропущений didMove(toParent:) при containment — зламані appearance-колбеки дитини.</li></ul>
+            <ul class="warn-list"><li>frame/bounds у viewDidLoad — ще від XIB/дефолту, НЕ фінальні (інші пристрої, rotation). Валідні — у viewDidLayoutSubviews.</li><li>viewWillAppear без парного «зняття» у didDisappear — подвійні підписки після повернення.</li><li>viewWillAppear викликався, а viewDidAppear ні — можливо: interactive pop скасовано на півдорозі (свайп назад відпущено).</li><li>Пропущений didMove(toParent:) при containment — зламані appearance-колбеки дитини.</li><li>У init view == nil: звертання до self.view звідси примусово викличе loadView надто рано, а IBOutlet усе одно будуть nil.</li><li>У власному loadView() не викликай super.loadView() і не звертайся до self.view до присвоєння — отримаєш рекурсивне завантаження view.</li><li>viewWillAppear/viewDidAppear викликаються при КОЖНІЙ появі, а viewDidLoad — один раз: важка робота, поставлена у willAppear, гальмує кожне повернення назад.</li></ul>
           </div>
           <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
-            <ul><li>Повний порядок колбеків від init до deinit? Що викликається один раз, що — багато?</li><li>Чому frame невалідний у viewDidLoad і де валідний?</li><li>Що робити в viewWillAppear vs viewDidLoad — правило?</li><li>Як правильно вбудувати child VC (три кроки) — і де ти це робиш із UIHostingController?</li></ul>
+            <ul><li>Повний порядок колбеків від init до deinit? Що викликається один раз, що — багато?</li><li>Чому frame невалідний у viewDidLoad і де валідний?</li><li>Що робити в viewWillAppear vs viewDidLoad — правило?</li><li>Як правильно вбудувати child VC (три кроки) — і де ти це робиш із UIHostingController?</li><li>Що вже існує в init, а чого ще немає? Що туди можна класти, а що ні?</li><li>Коли переозначають loadView і чим цей випадок відрізняється від Storyboard-флоу?</li><li>Що зупиняти у viewDidDisappear і чому це насправді питання про батарею?</li><li>Як найпростіше перевірити, що контролер справді звільнився з памʼяті?</li></ul>
           </div>
           <div class="blk cmt-blk">
             <button class="cmt-btn" data-term="UIViewController lifecycle">💬 Показати коментарі до теми</button>
