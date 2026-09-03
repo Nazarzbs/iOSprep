@@ -46,12 +46,64 @@ module.exports = {
         "didReceiveRemoteNotification для тихих пушів (content-available) не гарантований — система може не розбудити застосунок (низький заряд, rate limit).",
       ],
       qs: [
-        "Проведи застосунок через усі стани: користувач згорнув і відкрив через годину — які колбеки і в якому порядку?",
-        "Чому оновлення токена сесії — НЕ в didFinishLaunching?",
-        "Розкажи повний шлях пуша: від реєстрації до відкриття екрана замовлення по тапу (твій робочий флоу).",
-        "AppDelegate vs SceneDelegate — що куди і навіщо розділили?",
-        "App Lifecycle vs ViewController Lifecycle: чим керує кожен і які в кожного основні методи?",
-        "Назви повний порядок при запуску, де scene-колбеки переплітаються з колбеками RootViewController.",
+        {
+          q: "Проведи застосунок через усі стани: користувач згорнув і відкрив через годину — які колбеки і в якому порядку?",
+          a: [
+            "Згортання: sceneWillResignActive → sceneDidEnterBackground, і за кілька секунд система переводить процес у suspended — він у памʼяті, але не виконується.",
+            "Через годину, якщо процес вижив: sceneWillEnterForeground → sceneDidBecomeActive. didFinishLaunching НЕ викликається — це не новий запуск, весь стан лишився на місці.",
+            "Якщо система вбила процес під тиском памʼяті, буде повний запуск: didFinishLaunching → scene(_:willConnectTo:) → willEnterForeground → didBecomeActive, і кошик у памʼяті зникне. Саме тому чернетку кошика зберігають у didEnterBackground.",
+          ],
+        },
+        {
+          q: "Чому оновлення токена сесії — НЕ в didFinishLaunching?",
+          a: [
+            "Бо didFinishLaunching трапляється один раз на життя процесу. Юзер може тримати застосунок згорнутим тижнями — і при поверненні цей метод не викличеться взагалі.",
+            "Симптом бага: юзер відкриває аппку через годину, бачить старий статус замовлення, а перший же запит падає з 401. Правильне місце — sceneWillEnterForeground (або sceneDidBecomeActive): воно спрацьовує на КОЖНЕ повернення.",
+          ],
+        },
+        {
+          q: "Розкажи повний шлях пуша: від реєстрації до відкриття екрана замовлення по тапу (твій робочий флоу).",
+          a: [
+            "Реєстрація: requestAuthorization → registerForRemoteNotifications → didRegisterForRemoteNotificationsWithDeviceToken → токен на бекенд. Токен відправляю при КОЖНОМУ didRegister, а не кешую: він змінюється після переустановки чи відновлення з бекапу.",
+            "Прийом: пуш у foreground → willPresent — тут вирішую, показувати банер чи ні (не показую пуш про замовлення, якщо юзер уже на екрані цього замовлення). Тап → didReceive(response) → userInfo → deepLinkRouter → екран замовлення → done().",
+            "Пастка холодного старту: тап по пушу може прийти раніше, ніж готове вікно і стек навігації. Роутер налаштовуємо в didFinishLaunching, а сам перехід ставимо в чергу, поки root не готовий — інакше тап «нічого не робить».",
+          ],
+        },
+        {
+          q: "AppDelegate vs SceneDelegate — що куди і навіщо розділили?",
+          a: [
+            "AppDelegate — події рівня ПРОЦЕСУ: didFinishLaunching (конфіг Firebase, DI, реєстрація пушів), deviceToken, background fetch. SceneDelegate — події рівня ВІКНА: willConnectTo (створення window і root), sceneDidBecomeActive, sceneDidEnterBackground.",
+            "Розділили під multi-window на iPad: один процес може мати кілька вікон, і кожне активується та йде у фон незалежно. «Став активним» просто не має сенсу на рівні процесу, коли вікон два.",
+            "Практичний висновок: усе, що робиться раз на запуск — в AppDelegate; усе, що реагує на видимість UI — в SceneDelegate.",
+          ],
+        },
+        {
+          q: "App Lifecycle vs ViewController Lifecycle: чим керує кожен і які в кожного основні методи?",
+          a: [
+            "App/Scene Lifecycle — про процес і вікно: scene(_:willConnectTo:), sceneDidBecomeActive, sceneWillResignActive, sceneDidEnterBackground, sceneWillEnterForeground, sceneDidDisconnect. Він не знає, який екран зараз відкритий.",
+            "ViewController Lifecycle — про ОДИН екран: loadView → viewDidLoad → viewWillAppear → viewDidAppear → viewWillDisappear → viewDidDisappear. Він не знає, що застосунок згорнули.",
+            "Це і є пастка: коли юзер згортає аппку, viewWillDisappear у видимого екрана НЕ викликається — екран нікуди не подівся. Тому «поставити на паузу відео» треба слухати з двох боків: didDisappear і sceneWillResignActive.",
+          ],
+        },
+        {
+          q: "Назви повний порядок при запуску, де scene-колбеки переплітаються з колбеками RootViewController.",
+          a: [
+            "application(_:didFinishLaunchingWithOptions:) → scene(_:willConnectTo:) — тут створюю window, root controller і makeKeyAndVisible. Далі одразу вмикається цикл екрана: loadView() → viewDidLoad() → viewWillAppear().",
+            "Потім sceneDidBecomeActive() → viewDidAppear(). Між willConnectTo і didBecomeActive система ще кличе sceneWillEnterForeground.",
+            "Ключове для співбесіди: scene-колбеки — зовнішня рамка, VC-колбеки живуть усередині неї; root VC не існує до willConnectTo, тому нічого «про UI» у didFinishLaunching робити не можна.",
+          ],
+          code: [
+            "func scene(_ scene: UIScene, willConnectTo session: UISceneSession,",
+            "           options: UIScene.ConnectionOptions) {",
+            "    guard let windowScene = scene as? UIWindowScene else { return }",
+            "    let window = UIWindow(windowScene: windowScene)",
+            "    window.rootViewController = UINavigationController(",
+            "        rootViewController: RootViewController())",
+            "    window.makeKeyAndVisible()   // ← звідси loadView/viewDidLoad/viewWillAppear",
+            "    self.window = window",
+            "}",
+          ],
+        },
       ],
     },
     {
@@ -114,14 +166,98 @@ module.exports = {
         "viewWillAppear/viewDidAppear викликаються при КОЖНІЙ появі, а viewDidLoad — один раз: важка робота, поставлена у willAppear, гальмує кожне повернення назад.",
       ],
       qs: [
-        "Повний порядок колбеків від init до deinit? Що викликається один раз, що — багато?",
-        "Чому frame невалідний у viewDidLoad і де валідний?",
-        "Що робити в viewWillAppear vs viewDidLoad — правило?",
-        "Як правильно вбудувати child VC (три кроки) — і де ти це робиш із UIHostingController?",
-        "Що вже існує в init, а чого ще немає? Що туди можна класти, а що ні?",
-        "Коли переозначають loadView і чим цей випадок відрізняється від Storyboard-флоу?",
-        "Що зупиняти у viewDidDisappear і чому це насправді питання про батарею?",
-        "Як найпростіше перевірити, що контролер справді звільнився з памʼяті?",
+        {
+          q: "Повний порядок колбеків від init до deinit? Що викликається один раз, що — багато?",
+          a: [
+            "init → loadView → viewDidLoad → viewWillAppear → viewWillLayoutSubviews / viewDidLayoutSubviews → viewDidAppear → viewWillDisappear → viewDidDisappear → deinit.",
+            "Один раз за життя контролера: init, loadView, viewDidLoad, deinit. Багато разів: will/didAppear і will/didDisappear — на кожну появу й зникнення (повернувся з деталей — знову), а layoutSubviews — на кожну зміну bounds: rotation, поява клавіатури, зміна тексту.",
+            "Звідси і правило: важку роботу класти у viewDidLoad, а не у viewWillAppear, інакше кожне повернення назад буде з лагом.",
+          ],
+        },
+        {
+          q: "Чому frame невалідний у viewDidLoad і де валідний?",
+          a: [
+            "У viewDidLoad view створена, але прохід AutoLayout ще не відбувався: frame — те, що прийшло з XIB або дефолт (часто 320×480 чи розмір з іншого пристрою). Solver порахує реальні розміри пізніше.",
+            "Валідні розміри — у viewDidLayoutSubviews (для вʼюхи — у layoutSubviews). Там і оновлюю все, що не бере участі в AutoLayout: frame градієнтного CAGradientLayer, shadowPath, cornerRadius, залежний від фактичної ширини.",
+            "Симптом помилки: градієнт покриває пів кнопки або тінь відстає від картки після повороту чи на іншій моделі iPhone.",
+          ],
+        },
+        {
+          q: "Що робити в viewWillAppear vs viewDidLoad — правило?",
+          a: [
+            "viewDidLoad — одноразовий сетап: addSubview, констрейнти, конфіг таблиці (delegate, dataSource, register), привʼязка ViewModel. Те, що не має сенсу робити двічі.",
+            "viewWillAppear — усе, що має бути СВІЖИМ на кожній появі: оновити дані, які могли змінитись, поки екран лежав у стеку (повернувся з деталей страви — перерахувати кошик у хедері), показати/приховати navigation bar, почати спостереження.",
+            "Пастка: підписка у willAppear без парного зняття у didDisappear — після третього повернення на екран обробник викликається тричі, і, наприклад, аналітика шле три івенти на один тап.",
+          ],
+        },
+        {
+          q: "Як правильно вбудувати child VC (три кроки) — і де ти це робиш із UIHostingController?",
+          a: [
+            "Три кроки: addChild(child) → view.addSubview(child.view) плюс констрейнти → child.didMove(toParent: self). Прибирання — у зворотному порядку: willMove(toParent: nil) → removeFromSuperview → removeFromParent.",
+            "Пропущений didMove(toParent:) — і в дитини ламаються appearance-колбеки: viewWillAppear/viewDidAppear можуть не прийти, а екран виглядає нормально. Баг знаходиться пізно й важко.",
+            "У нас так вставляються SwiftUI-екрани: UIHostingController(rootView:) — це звичайний child VC, тому нові фічі живуть у SwiftUI усередині старого UIKit-екрана без окремого флоу.",
+          ],
+          code: [
+            "let host = UIHostingController(rootView: DishOptionsView(model: model))",
+            "addChild(host)                                  // 1",
+            "containerView.addSubview(host.view)             // 2",
+            "host.view.translatesAutoresizingMaskIntoConstraints = false",
+            "NSLayoutConstraint.activate([",
+            "    host.view.topAnchor.constraint(equalTo: containerView.topAnchor),",
+            "    host.view.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),",
+            "    host.view.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),",
+            "    host.view.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)",
+            "])",
+            "host.didMove(toParent: self)                    // 3",
+          ],
+        },
+        {
+          q: "Що вже існує в init, а чого ще немає? Що туди можна класти, а що ні?",
+          a: [
+            "У init існує сам обʼєкт контролера і його властивості. View ще немає — view == nil, IBOutlet усі nil. Тому init — місце для dependency injection: передати модель, сервіс, ViewModel і зберегти у let.",
+            "Чого не можна: торкатись self.view, налаштовувати лейбли, читати розміри. Звертання до view з init примусово викличе loadView надто рано — контролер створить вʼюху ще до того, як його показали, а outlets усе одно будуть nil.",
+            "Це і є найпоширеніший вигляд DI у UIKit: init(order: Order, service: OrdersService) — і одразу відповідь на «як ви передаєте дані між екранами».",
+          ],
+          code: [
+            "init(order: Order, service: OrdersService) {",
+            "    self.order = order          // тільки дані — view ще не існує",
+            "    self.service = service",
+            "    super.init(nibName: nil, bundle: nil)",
+            "}",
+            "required init?(coder: NSCoder) { fatalError(\"init(coder:) has not been implemented\") }",
+          ],
+        },
+        {
+          q: "Коли переозначають loadView і чим цей випадок відрізняється від Storyboard-флоу?",
+          a: [
+            "loadView переозначають, коли root view контролера — не звичайний UIView, а конкретний обʼєкт: WKWebView, UITableView, UIScrollView або власна вʼюха. Створив → одразу налаштував delegate/configuration → присвоїв self.view.",
+            "Дві умови: super.loadView() тут не викликаємо і до self.view не звертаємось до присвоєння — інакше отримаємо рекурсивне завантаження view.",
+            "У Storyboard/XIB-флоу loadView робить система: вона підіймає nib і сама створює всі IBOutlet. Тому там точка налаштування — viewDidLoad, коли outlets уже звʼязані; свій loadView у цьому флоу просто ламає завантаження nib.",
+          ],
+          code: [
+            "override func loadView() {",
+            "    let webView = WKWebView()",
+            "    webView.navigationDelegate = self",
+            "    view = webView            // super.loadView() НЕ викликаємо",
+            "}",
+          ],
+        },
+        {
+          q: "Що зупиняти у viewDidDisappear і чому це насправді питання про батарею?",
+          a: [
+            "Зупиняти все, що продовжує працювати без глядача: таймери (invalidate), відеоплеєр, GPS-трекінг курʼєра, анімації, підписки на NotificationCenter і KVO, активні мережеві полінги.",
+            "Питання про батарею, бо контролер, який зник з екрана, зазвичай НЕ звільняється: він лишається у стеку навігації. Таймер щосекунди, слухач локації і polling статусу замовлення й далі крутяться на екрані, якого не видно.",
+            "У нас це відчутно на карті доставки: не вимкнув оновлення локації при переході на деталі — і телефон гріється, а користувач бачить розряд без причини.",
+          ],
+        },
+        {
+          q: "Як найпростіше перевірити, що контролер справді звільнився з памʼяті?",
+          a: [
+            "print у deinit. Закрив екран — рядок не вивівся, отже контролер хтось тримає. Це найдешевший детектор ліку, і працює без Instruments.",
+            "Далі — Debug Memory Graph у Xcode: він показує не факт ліку, а ХТО саме тримає обʼєкт (стрілка від власника). Якщо тече не контролер, а щось глибше — Instruments (Leaks/Allocations).",
+            "Типові підозрювані у такому порядку: збережений closure без [weak self], strong delegate, таймер без invalidate, спостерігач без відписки, child VC без removeFromParent.",
+          ],
+        },
       ],
     },
     {
@@ -157,10 +293,50 @@ module.exports = {
         "Дебаг: view.constraintsAffectingLayout(for: .vertical), symbolic breakpoint UIViewAlertForUnsatisfiableConstraints, Debug View Hierarchy.",
       ],
       qs: [
-        "Два лейбли в рядку, місця мало — який стиснеться? Як гарантувати, що ціна ніколи не обріжеться?",
-        "hugging vs compression resistance — що кожен контролює?",
-        "setNeedsLayout vs layoutIfNeeded — різниця і чому layoutIfNeeded потрібен в анімації?",
-        "Як дебажиш Unable to satisfy constraints у великому XIB — покроково?",
+        {
+          q: "Два лейбли в рядку, місця мало — який стиснеться? Як гарантувати, що ціна ніколи не обріжеться?",
+          a: [
+            "Стиснеться той, у кого нижчий compression resistance. За дефолтом він у обох 750 — тоді solver обирає сам, і результат виглядає як лотерея: на одному пристрої обрізається назва, на іншому ціна.",
+            "Фікс — розставити пріоритети явно: у ціни compression resistance .required, у назви .defaultLow. Тоді назва отримає «…», а «249 ₴» лишиться цілим. Плюс ціні високий hugging, щоб вона не розтягувалась на пів рядка.",
+            "Це наш щоденний кейс на 10+ локалізацій: німецька назва страви довша за англійську в 1.5 раза, і без явних пріоритетів обрізається саме те, що не можна обрізати.",
+          ],
+          code: [
+            "nameLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)",
+            "priceLabel.setContentCompressionResistancePriority(.required, for: .horizontal)",
+            "priceLabel.setContentHuggingPriority(.required, for: .horizontal)",
+            "nameLabel.lineBreakMode = .byTruncatingTail",
+          ],
+        },
+        {
+          q: "hugging vs compression resistance — що кожен контролює?",
+          a: [
+            "Обидва — про intrinsic content size, тобто про власний розмір контенту. Hugging (дефолт 251) — опір РОЗТЯГУВАННЮ: «не хочу бути більшим за свій текст». Compression resistance (дефолт 750) — опір СТИСКАННЮ: «не дам себе обрізати».",
+            "Мнемоніка: hugging тримає межу згори (максимум), resistance — знизу (мінімум). Тому дефолти й такі несиметричні: обрізати контент гірше, ніж додати порожнього місця, тож resistance значно вищий.",
+            "Практично: місця БАГАТО і лейбл розтягнувся — крути hugging. Місця МАЛО і зʼявились «…» не там, де треба — крути compression resistance.",
+          ],
+        },
+        {
+          q: "setNeedsLayout vs layoutIfNeeded — різниця і чому layoutIfNeeded потрібен в анімації?",
+          a: [
+            "setNeedsLayout лише помічає вʼюху «брудною» — перерахунок буде на наступному проході циклу верстки. Дешево і батчиться: сто викликів дадуть один перерахунок. layoutIfNeeded рахує НЕГАЙНО і синхронно, якщо є помічені зміни.",
+            "В анімації потрібен саме layoutIfNeeded, бо UIView.animate анімує зміни frame, які встигли статись усередині блоку. Зміна constant сама frame не рухає — її мусить розкрутити solver, і зробити це треба всередині блоку.",
+            "Симптом помилки: забув layoutIfNeeded у блоці — панель не анімується, а стрибає у нову позицію одним кадром.",
+          ],
+          code: [
+            "heightConstraint.constant = isExpanded ? 300 : 80",
+            "UIView.animate(withDuration: 0.3) {",
+            "    self.view.layoutIfNeeded()   // без цього рядка зміна стрибне без анімації",
+            "}",
+          ],
+        },
+        {
+          q: "Як дебажиш Unable to satisfy constraints у великому XIB — покроково?",
+          a: [
+            "1) Читаю лог до кінця: там перелічені конфліктні констрейнти і рядок «Will attempt to recover by breaking constraint» — саме той, який система викинула. Часто цього достатньо, щоб побачити зайвий констрейнт.",
+            "2) Symbolic breakpoint на UIViewAlertForUnsatisfiableConstraints — ловлю момент конфлікту і бачу стек: хто саме активував констрейнт. 3) Debug View Hierarchy або view.constraintsAffectingLayout(for: .vertical) — для конкретної вʼюхи.",
+            "Причина зазвичай одна з двох: два required (1000) констрейнти суперечать один одному — один з них роблю 999; або забув translatesAutoresizingMaskIntoConstraints = false на вʼюсі, створеній кодом, і мої констрейнти конфліктують з автогенерованими.",
+          ],
+        },
       ],
     },
     {
@@ -201,10 +377,67 @@ module.exports = {
         "Self-sizing: повний ланцюг вертикальних констрейнтів у contentView + estimatedRowHeight; розриви = нульова висота.",
       ],
       qs: [
-        "Чому при скролі зʼявляються «чужі» картинки і які три кроки фіксу?",
-        "Навіщо prepareForReuse і що в ньому робити/не робити?",
-        "Чим diffable data source кращий за reloadData і performBatchUpdates?",
-        "Як би ти зверстав home page з горизонтальними каруселями — compositional layout: item/group/section?",
+        {
+          q: "Чому при скролі зʼявляються «чужі» картинки і які три кроки фіксу?",
+          a: [
+            "Бо клітинка переюзається, а завантаження асинхронне. Ти попросив картинку для страви №3, клітинка поїхала за екран і повернулась уже як №17 — і відповідь на старий запит спокійно проставляє картинку борщу в піцу.",
+            "Три кроки: (1) у prepareForReuse скасувати стару загрузку (у нас Kingfisher: thumbView.kf.cancelDownloadTask()); (2) одразу поставити плейсхолдер, щоб не світилась попередня картинка; (3) у cellForRowAt вантажити за URL САМЕ цієї моделі, а не тримати URL у полі клітинки.",
+            "Альтернативно можна перевіряти в completion, що indexPath ще актуальний, але скасування чистіше: воно ще й економить трафік при швидкому скролі меню.",
+          ],
+          code: [
+            "final class DishCell: UITableViewCell {",
+            "    override func prepareForReuse() {",
+            "        super.prepareForReuse()",
+            "        thumbView.kf.cancelDownloadTask()   // 1",
+            "        thumbView.image = placeholder       // 2",
+            "    }",
+            "}",
+            "// 3 — у cellForRowAt: cell.thumbView.kf.setImage(with: dish.imageURL)",
+          ],
+        },
+        {
+          q: "Навіщо prepareForReuse і що в ньому робити/не робити?",
+          a: [
+            "Система тримає пул клітинок приблизно під видиму область, і dequeueReusableCell видає клітинку зі СТАРИМ вмістом. prepareForReuse — місце скинути стан до чистого: скасувати завантаження картинки, повернути плейсхолдер, обнулити прапорці (isSelected-стилі, розкритий/згорнутий), зняти таймери й підписки.",
+            "Чого там НЕ робити: наповнювати клітинку даними. Даних там ще немає — модель приходить у cellForRowAt. І не створювати subviews: prepareForReuse викликається на кожному проході скролу.",
+            "Симптом пропущеного скидання: чужі картинки, «залиплий» бейдж «Немає в наявності» на доступній страві, або лічильник у кошику з попередньої позиції.",
+          ],
+        },
+        {
+          q: "Чим diffable data source кращий за reloadData і performBatchUpdates?",
+          a: [
+            "Ти описуєш НОВИЙ стан снапшотом (секції + item identifiers), а diff система рахує сама. Замість «вставити 3 рядки, видалити 1, перемістити 2» ти кажеш «ось як має бути» — і отримуєш коректні анімації без ручної арифметики.",
+            "Це прибирає цілий клас крешів від performBatchUpdates — той самий «number of rows before update is not equal to the number of rows after update». І на відміну від reloadData, не втрачає виділення й не смикає скрол посеред анімації.",
+            "Умова: identifiers мусять бути УНІКАЛЬНІ й стабільні — дублікати дають креш. У снапшот кладу ID, а не цілі моделі. У нас це добре лягло на server-driven UI: прийшов новий конфіг сторінки — новий снапшот, секції самі переанімувались.",
+          ],
+          code: [
+            "var snapshot = NSDiffableDataSourceSnapshot<Section, MenuItem.ID>()",
+            "snapshot.appendSections([.promo, .dishes])",
+            "snapshot.appendItems(promoIDs, toSection: .promo)",
+            "snapshot.appendItems(dishIDs, toSection: .dishes)",
+            "dataSource.apply(snapshot, animatingDifferences: true)",
+          ],
+        },
+        {
+          q: "Як би ти зверстав home page з горизонтальними каруселями — compositional layout: item/group/section?",
+          a: [
+            "Compositional layout — три рівні: item (розмір однієї клітинки) → group (як items складаються в рядок або колонку) → section (своя геометрія, інсети, хедер і власний скрол). Для каруселі беру horizontal group і ставлю секції orthogonalScrollingBehavior = .continuous.",
+            "Так кожна секція home page живе за своїми правилами: банери — широкі сторінки з .groupPaging, категорії — маленькі айтеми в .continuous, рекомендації — вертикальний список. І все це в ОДНІЙ collection view.",
+            "Головна вигода: не треба вкладених collection views у клітинках — а разом з ними зникають їх класичні баги (переюз внутрішньої таблиці, збитий стан скролу, конфлікт жестів). Для server-driven конфіга секцій це ідеально: layout будую з того ж масиву секцій, що й снапшот.",
+          ],
+          code: [
+            "let item = NSCollectionLayoutItem(layoutSize: .init(",
+            "    widthDimension: .absolute(160), heightDimension: .absolute(200)))",
+            "let group = NSCollectionLayoutGroup.horizontal(",
+            "    layoutSize: .init(widthDimension: .estimated(160),",
+            "                      heightDimension: .absolute(200)),",
+            "    subitems: [item])",
+            "let section = NSCollectionLayoutSection(group: group)",
+            "section.orthogonalScrollingBehavior = .continuous   // карусель",
+            "section.interGroupSpacing = 12",
+            "section.contentInsets = .init(top: 8, leading: 16, bottom: 8, trailing: 16)",
+          ],
+        },
       ],
     },
     {
@@ -238,10 +471,51 @@ module.exports = {
         "UIStackView сам не малюється (non-rendering) — background до iOS 14 не працював.",
       ],
       qs: [
-        "frame vs bounds — коли не збігаються? Як через bounds пояснити UIScrollView?",
-        "Як зробити тінь + cornerRadius без offscreen rendering?",
-        "Що тригерить layoutSubviews?",
-        "Чим відрізняються view і layer за відповідальністю?",
+        {
+          q: "frame vs bounds — коли не збігаються? Як через bounds пояснити UIScrollView?",
+          a: [
+            "frame — прямокутник вʼюхи у координатах СУПЕРВʼЮХИ («де я стою»). bounds — власна система координат («що я вважаю своїм нулем»), origin зазвичай 0,0.",
+            "Розходяться у двох випадках: після transform (frame стає undefined — читати й писати його не можна, працюй з bounds + center) і при скролі — UIScrollView просто рухає власний bounds.origin.",
+            "Через це весь скрол описується одним реченням: контент стоїть на місці, рухається «вікно» — тобто bounds.origin скролвʼюхи. Звідси й contentOffset — це фактично той самий origin, а не зміщення підвʼюх.",
+          ],
+        },
+        {
+          q: "Як зробити тінь + cornerRadius без offscreen rendering?",
+          a: [
+            "Проблема в тому, що тінь малюється ЗОВНІ вʼюхи, а masksToBounds ріже все, що виходить за межі — на одному layer вони несумісні: включив clipping і тінь зникла. Плюс тінь без явного shadowPath змушує GPU шукати контур у проміжному буфері — це і є offscreen rendering.",
+            "Рішення — два шари: зовнішній контейнер несе shadowColor/shadowOpacity/shadowOffset і ОБОВʼЯЗКОВО shadowPath (готовий контур — GPU нічого не обчислює), а внутрішня вʼюха з контентом несе cornerRadius + masksToBounds. Контейнер clipping не має.",
+            "shadowPath треба переставляти при зміні розмірів, у layoutSubviews — інакше після повороту чи зміни висоти картки тінь відстане від краю. Перевірка: Simulator → Debug → Color Offscreen-Rendered Yellow: у списку страв жовтого бути не повинно.",
+          ],
+          code: [
+            "containerView.layer.shadowColor = UIColor.black.cgColor",
+            "containerView.layer.shadowOpacity = 0.15",
+            "containerView.layer.shadowOffset = CGSize(width: 0, height: 4)",
+            "contentView.layer.cornerRadius = 16",
+            "contentView.layer.masksToBounds = true    // ріже ВНУТРІШНІЙ вміст",
+            "",
+            "override func layoutSubviews() {",
+            "    super.layoutSubviews()",
+            "    containerView.layer.shadowPath = UIBezierPath(",
+            "        roundedRect: containerView.bounds, cornerRadius: 16).cgPath",
+            "}",
+          ],
+        },
+        {
+          q: "Що тригерить layoutSubviews?",
+          a: [
+            "Зміна bounds вʼюхи (не frame як таке — саме розмір), addSubview і removeFromSuperview, явний setNeedsLayout/layoutIfNeeded, зміна констрейнтів, поворот пристрою, скрол UIScrollView, зміна контенту, що змінює intrinsic size.",
+            "Практичний висновок: layoutSubviews викликається БАГАТО разів, тому туди не можна класти створення обʼєктів, підписки чи мережеві запити — тільки геометрію. Створив CAGradientLayer у layoutSubviews — і за кілька скролів у тебе десяток градієнтів один поверх одного.",
+            "І саме тут місце для всього, що не бере участі в AutoLayout: frame CALayer-ів, shadowPath, маски.",
+          ],
+        },
+        {
+          q: "Чим відрізняються view і layer за відповідальністю?",
+          a: [
+            "Кожен UIView — обгортка над своїм CALayer. View відповідає за взаємодію: обробку дотиків, hit testing, responder chain, участь в AutoLayout. Layer — за візуальне: малювання, геометрію, кути, тіні, анімації, композицію на GPU.",
+            "Звідси два практичних наслідки. Перший: layer не знає про констрейнти — його frame ти виставляєш руками у layoutSubviews. Другий: layer не приймає дотиків, тому кнопку не можна зробити з голого CALayer.",
+            "Навзаєм layer дає те, чого немає в UIView API: анімацію по шляху, strokeEnd для прогрес-кільця, градієнти. Тому кастомні анімації робимо на CABasicAnimation / CAShapeLayer, а події лишаємо вʼюсі.",
+          ],
+        },
       ],
     },
     {
@@ -278,10 +552,54 @@ module.exports = {
         "hitTest викликається двічі на дотик — не клади туди side effects.",
       ],
       qs: [
-        "Кнопка стирчить за межі батьківської вʼюхи — чому не тапається і два способи фіксу?",
-        "Опиши рекурсію hitTest: порядок, умови відсікання.",
-        "Hit testing vs responder chain — що шукає, що доставляє?",
-        "Як розвʼязати конфлікт двох жестів (скрол + свайп клітинки)?",
+        {
+          q: "Кнопка стирчить за межі батьківської вʼюхи — чому не тапається і два способи фіксу?",
+          a: [
+            "Бо hit testing іде згори вниз і відсікає РАНО: hitTest батька спершу питає власний point(inside:), тобто перевіряє свій bounds. Точка поза bounds батька — і обхід дітей навіть не починається. Кнопку видно (clipping вимкнений), але для дотиків її там немає.",
+            "Спосіб перший: переозначити hitTest у батька — якщо super нічого не знайшов, вручну перевірити виступаючу дитину, сконвертувавши точку в її координати. Спосіб другий: переозначити point(inside:) у батька так, щоб він включав зону дитини (bounds.union або insetBy з відʼємним значенням).",
+            "Той самий механізм використовуємо, щоб збільшити тач-зону дрібної кнопки «×» на бейджі кошика: point(inside:) з bounds.insetBy(dx: -12, dy: -12) — Apple вимагає ~44pt, а дизайн дає 24.",
+          ],
+          code: [
+            "override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {",
+            "    if let v = super.hitTest(point, with: event) { return v }",
+            "    let p = overflowButton.convert(point, from: self)",
+            "    return overflowButton.point(inside: p, with: event) ? overflowButton : nil",
+            "}",
+          ],
+        },
+        {
+          q: "Опиши рекурсію hitTest: порядок, умови відсікання.",
+          a: [
+            "hitTest(_:with:) на вʼюсі спершу питає власний point(inside:). Якщо точка не всередині — повертає nil і глибше не йде. Якщо всередині — обходить subviews у ЗВОРОТНОМУ порядку (остання додана, тобто верхня, перевіряється першою) і рекурсивно кличе hitTest у кожної. Перший непорожній результат і є відповіддю; якщо жодна дитина не взяла — повертає себе.",
+            "Вʼюха випадає з пошуку повністю, якщо: isUserInteractionEnabled = false, isHidden = true, alpha < 0.01, або точка поза її bounds. Останні два — джерело «містичних» багів: анімував кнопку в alpha 0.005 замість 0 і вона перестала тапатись.",
+            "Ще одна деталь із практики: hitTest викликається кілька разів на один дотик, тому side effects (аналітика, зміна стану) туди класти не можна — тільки чиста геометрія.",
+          ],
+        },
+        {
+          q: "Hit testing vs responder chain — що шукає, що доставляє?",
+          a: [
+            "Це два різні механізми, які легко переплутати. Hit testing — ПОШУК: обхід дерева зверху вниз, щоб знайти найглибшу вʼюху під пальцем. Результат — один обʼєкт, first responder для цього дотику.",
+            "Responder chain — ДОСТАВКА, якщо знайдений не обробив подію: view → superview → … → UIViewController → UIWindow → UIApplication. Тому touchesBegan, не оброблений у клітинці, може «дійти» до контролера.",
+            "І окремо: UIGestureRecognizer-и працюють поверх raw touches і мають пріоритет — вони можуть скасувати дотики у вʼюхи. Саме тому tap recognizer на фоні «зʼїдає» тапи по кнопках, поки не поставиш cancelsTouchesInView = false.",
+          ],
+        },
+        {
+          q: "Як розвʼязати конфлікт двох жестів (скрол + свайп клітинки)?",
+          a: [
+            "Через UIGestureRecognizerDelegate. Три інструменти: shouldRecognizeSimultaneouslyWith — дозволити обом працювати разом; require(toFail:) — «мій жест спрацює лише якщо той провалився»; shouldReceive(touch:) / gestureRecognizerShouldBegin — відсіяти дотик за місцем або напрямком.",
+            "Для свайпу по клітинці проти вертикального скролу правильний хід — не вимикати скрол, а зробити свій pan-жест напрямленим: у gestureRecognizerShouldBegin порівняти translation по x і y і почати лише при переважно горизонтальному русі. Тоді вертикальний скрол лишається живим.",
+            "Класична пастка: tap recognizer на view контролера (щоб закрити клавіатуру) забирає тапи по клітинках і кнопках. Фікс — cancelsTouchesInView = false, або перевірка touch.view у shouldReceive.",
+          ],
+          code: [
+            "func gestureRecognizerShouldBegin(_ g: UIGestureRecognizer) -> Bool {",
+            "    guard let pan = g as? UIPanGestureRecognizer else { return true }",
+            "    let t = pan.translation(in: pan.view)",
+            "    return abs(t.x) > abs(t.y)      // тільки горизонтальний свайп",
+            "}",
+            "",
+            "dismissKeyboardTap.cancelsTouchesInView = false   // не крадемо тапи кнопок",
+          ],
+        },
       ],
     },
     {
@@ -321,10 +639,55 @@ module.exports = {
         "Passing data: синглтони/глобальний стан замість init injection — нетестовано і звʼязує все з усім.",
       ],
       qs: [
-        "Чому «VC сам пушить наступний VC» — антипатерн? Три причини.",
-        "Як екран Б повертає результат екрану А — delegate, closure, async? Тредофи?",
-        "Спроєктуй координатор для server-driven checkout — як конфіг визначає флоу?",
-        "push vs present — семантика вибору (не технічна різниця, а КОЛИ що)?",
+        {
+          q: "Чому «VC сам пушить наступний VC» — антипатерн? Три причини.",
+          a: [
+            "Перша: неможливо перевикористати. Екран «адреса доставки» знає, що після нього йде оплата — і його вже не вставиш у флоу редагування профілю. Друга: неможливо тестувати — щоб перевірити логіку кроку, треба підняти половину дерева екранів.",
+            "Третя: порядок кроків розповзається по екранах. Змінити послідовність checkout означає правити N файлів, і жодне місце не показує флоу цілком.",
+            "У нашому випадку це критично: порядок кроків checkout приходить з бекенда конфігом. Екран фізично не може знати, що далі — рішення «куди далі» мусить бути в координатора, а екран лише повідомляє «я закінчив» через closure або delegate.",
+          ],
+        },
+        {
+          q: "Як екран Б повертає результат екрану А — delegate, closure, async? Тредофи?",
+          a: [
+            "Closure — найдешевше для однієї події: var onAddressSelected: ((Address) -> Void)? Мінімум коду, читається на місці створення. Ціна — retain cycle, якщо захопив self сильно, тому [weak self] у тілі.",
+            "Delegate — коли подій кілька і вони формують контракт (didSave, didCancel, didRequestDelete). Протокол з AnyObject і weak var delegate, інакше екран Б триматиме А і жоден не звільниться. Симптом strong-делегата: закрив модалку, а старий екран живий і отримує колбеки двічі.",
+            "async/await через withCheckedContinuation виглядає найкраще для лінійного «показав — отримав значення», але легко вистрелити в ногу: якщо юзер закриє екран свайпом і continuation не викличеться, таск підвисне назавжди. Тому в проді ми лишаємо closure, а async беремо там, де скасування контролюється явно.",
+          ],
+        },
+        {
+          q: "Спроєктуй координатор для server-driven checkout — як конфіг визначає флоу?",
+          a: [
+            "Координатор володіє навігацією: тримає UINavigationController, масив кроків з конфіга бекенда і поточний індекс. start() показує перший крок; кожен екран отримує onCompleted і не знає нічого про сусідів. next() рухає індекс і або показує наступний крок, або завершує замовлення.",
+            "Фабрика makeViewController(for: step) мапить тип кроку на екран — тут же init-injection сервісів. Додався новий крок «промокод» на бекенді — на клієнті потрібен лише новий case у фабриці, порядок правити не треба.",
+            "Дві пастки. Координатора мусить хтось тримати: батько зберігає дітей у childCoordinators і прибирає після завершення флоу — інакше він деініциться і колбеки мовчки перестають працювати. І [weak self] у колбеках: closure екрана захоплює координатор, координатор тримає екран.",
+          ],
+          code: [
+            "final class CheckoutCoordinator {",
+            "    private let nav: UINavigationController",
+            "    private let steps: [CheckoutStep]          // конфіг з бекенда",
+            "    private var index = 0",
+            "    func start() { show(steps[0]) }",
+            "    private func show(_ step: CheckoutStep) {",
+            "        let vc = makeViewController(for: step)",
+            "        vc.onCompleted = { [weak self] in self?.next() }",
+            "        nav.pushViewController(vc, animated: true)",
+            "    }",
+            "    private func next() {",
+            "        index += 1",
+            "        index < steps.count ? show(steps[index]) : finishOrder()",
+            "    }",
+            "}",
+          ],
+        },
+        {
+          q: "push vs present — семантика вибору (не технічна різниця, а КОЛИ що)?",
+          a: [
+            "push — коли юзер іде ГЛИБШЕ в тій самій темі: меню → страва → опції. Є природне «назад», зберігається контекст, працює свайп, шлях лінійний.",
+            "present — коли починається ОКРЕМИЙ флоу, який треба завершити або скасувати: авторизація, checkout, вибір фото, підтвердження. Модалка каже юзеру «ти вийшов зі стрічки, тут треба або зробити, або закрити».",
+            "Дві практичні деталі. present у стилі fullScreen НЕ викликає viewWillAppear у батька після dismiss — дані, які ти звик освіжати у willAppear, лишаться старими; оновлюй у completion блоці dismiss. І present поверх present дає «Attempt to present … which is already presenting» — презентуй з topmost контролера.",
+          ],
+        },
       ],
     },
     {
@@ -350,9 +713,36 @@ module.exports = {
         "Таймер — не точний інструмент: спрацює після поточної ітерації RunLoop; для точних кадрів — CADisplayLink.",
       ],
       qs: [
-        "Чому таймер зупиняється при скролі й як полагодити?",
-        "Чому Timer(target: self) створює цикл і як уникнути?",
-        "Що таке RunLoop mode і навіщо common?",
+        {
+          q: "Чому таймер зупиняється при скролі й як полагодити?",
+          a: [
+            "RunLoop потоку працює в режимах (modes). Звичайна робота — default mode, а поки юзер скролить, main RunLoop перемикається в tracking mode. Таймер, доданий у default, у tracking просто не бачать — він завмирає, а після відпускання пальця продовжує.",
+            "Фікс: додати таймер у .common — обʼєднання режимів, тобто він живий і під час скролу. Timer.scheduledTimer робить це саме неправильно: кладе в default.",
+            "Наш прямий кейс: каруселька промо-банерів на home перестає гортатись, поки юзер скролить меню — виглядає як «залипла» аппка, хоча все живе. Створюю Timer(timeInterval:repeats:) і додаю руками через RunLoop.main.add(timer, forMode: .common).",
+          ],
+          code: [
+            "let timer = Timer(timeInterval: 3, repeats: true) { [weak self] _ in",
+            "    self?.scrollToNextBanner()",
+            "}",
+            "RunLoop.main.add(timer, forMode: .common)   // не завмирає при скролі",
+          ],
+        },
+        {
+          q: "Чому Timer(target: self) створює цикл і як уникнути?",
+          a: [
+            "Бо Timer тримає свій target СИЛЬНО — і тримає до invalidate(), а не до звільнення власника. Контролер тримає таймер, таймер тримає контролер: класичне коло. Екран закрився, а deinit не викликався.",
+            "Симптом у проді саме такий: закрив екран замовлення, а таймер оновлення статусу далі шле запити щосекунди — трафік, батарея, і в логах аналітики івенти з екрана, якого вже немає. І deinit ніколи не спрацює, отже invalidate у deinit не допоможе.",
+            "Виходи: block-based API Timer(timeInterval:repeats:) з [weak self] — таймер не тримає контролер; і обовʼязково invalidate у viewDidDisappear (або там, де екран лишає сцену). Одного [weak self] недостатньо: без invalidate таймер продовжить тікати, просто вже вхолосту.",
+          ],
+        },
+        {
+          q: "Що таке RunLoop mode і навіщо common?",
+          a: [
+            "Mode — набір джерел подій, які RunLoop обслуговує в конкретний момент: таймери, порти, спостерігачі. Перемикаючи режим, система вирішує, що зараз важливо. default — звичайна робота; tracking — час скролу, коли пріоритет у плавності; common — псевдорежим, обʼєднання набору режимів.",
+            "common потрібен, щоб джерело події (наприклад, таймер) обслуговувалось і в default, і в tracking — тобто працювало завжди, включно зі скролом.",
+            "Тут же і відповідь, чому «UI лише з main»: main RunLoop — однопотоковий цикл, який послідовно обробляє події й малює кадри. UIKit під це і спроєктований, тому виклик з фонового потоку дає гонки й падіння; Main Thread Checker ловить такі місця фіолетовими варнінгами.",
+          ],
+        },
       ],
     },
     {
@@ -375,14 +765,43 @@ module.exports = {
         "                                         for: indexPath) as! DishCell",
       ],
       traps: [
-        "IBOutlet — сучасна рекомендація strong (weak — спадок часів viewDidUnload); але weak теж працює, головне розуміти чому.",
+        "IBOutlet зазвичай роблять strong: weak — спадок часів viewDidUnload, коли система могла вивантажити view. weak теж працює, бо outlet тримає ієрархія subviews; головне — розуміти, чому саме.",
         "Забутий registerNib → креш dequeue; стрінгові ідентифікатори — винось у константи/SwiftGen (у вас він є!).",
         "XIB + кастомний init: awakeFromNib викликається ПІСЛЯ звʼязування outlets — конфігуруй там, не в init.",
       ],
       qs: [
-        "Аргументуй ваш вибір XIB + код без Storyboard — плюси, мінуси, чому не інакше?",
-        "Як влаштований пайплайн переюзабельної вʼюхи з XIB у вашому проєкті?",
-        "Чому великі команди тікають від Storyboard?",
+        {
+          q: "Аргументуй ваш вибір XIB + код без Storyboard — плюси, мінуси, чому не інакше?",
+          a: [
+            "Це усвідомлений компроміс. XIB — один файл на одну вʼюху або екран: дає візуальний огляд і швидкість для статичних форм і клітинок, а конфлікт при мерджі локалізується одним екраном. Код — повний контроль для динаміки, найкращий diff і єдине джерело правди.",
+            "Storyboard не беремо, бо це один XML на десятки екранів: конфлікт на кожному PR, погане ревʼю (дифи неможливо читати), стрінгові ідентифікатори segue, які падають у рантаймі, і повільний Interface Builder на великих файлах.",
+            "Мінуси нашого підходу теж чесно називаю: два різні способи верстки в одній кодовій базі (треба конвенція, що де), IBOutlet-и, які можна відʼєднати й отримати креш при завантаженні nib, і немає загальної картинки флоу — її замінюють координатори. Нові екрани в нас уже на SwiftUI, XIB лишились як legacy.",
+          ],
+        },
+        {
+          q: "Як влаштований пайплайн переюзабельної вʼюхи з XIB у вашому проєкті?",
+          a: [
+            "Для клітинок: реєструю nib через tableView.register(UINib(nibName:bundle:), forCellReuseIdentifier:) і далі звичайний dequeueReusableCell. Ідентифікатор тримаю не рядком у місці виклику, а константою або через SwiftGen — забутий register або одруківка в рядку дають креш на dequeue.",
+            "Для самостійної вʼюхи — owner-патерн: у init роблю Bundle.main.loadNibNamed(_:owner: self, options: nil), беру перший обʼєкт як contentView, додаю його subview і пінюю по краях.",
+            "Головна деталь: awakeFromNib викликається ПІСЛЯ звʼязування outlets, тому вся конфігурація (шрифти, скруглення, локалізація) живе там, а не в init — в init outlets ще nil.",
+          ],
+          code: [
+            "tableView.register(UINib(nibName: \"DishCell\", bundle: nil),",
+            "                   forCellReuseIdentifier: DishCell.reuseID)",
+            "",
+            "let cell = tableView.dequeueReusableCell(",
+            "    withIdentifier: DishCell.reuseID, for: indexPath) as! DishCell",
+            "cell.configure(with: dishes[indexPath.row])",
+          ],
+        },
+        {
+          q: "Чому великі команди тікають від Storyboard?",
+          a: [
+            "Через мердж і ревʼю. Storyboard — один величезний XML на багато екранів, який Xcode перезаписує навіть коли ти просто відкрив файл. Двоє людей у різних екранах одного storyboard = конфлікт, який руками не розвʼязується, і диф, який ревʼювер не може прочитати.",
+            "Друге — крихкість у рантаймі: segue та ідентифікатори клітинок звʼязані рядками, компілятор їх не перевіряє. Перейменував ідентифікатор — падає не збірка, а екран у юзера.",
+            "Третє — швидкість роботи: на великому storyboard Interface Builder відкривається секундами, а логіка «звідки прийшли й куди йдемо» розмазана між segue і prepare(for:sender:). У командному проєкті це дорожче, ніж виграш від візуального редактора.",
+          ],
+        },
       ],
     },
     {
@@ -606,15 +1025,120 @@ module.exports = {
         "UINavigationController і UITabBarController — контейнери, не екрани з контентом.",
       ],
       qs: [
-        "У чому різниця між UIViewController + let tableView = UITableView() і UITableViewController? Що ти повинен зробити в кожному варіанті?",
-        "Чому зараз частіше UIViewController + UITableView? Наведи приклад екрана з кількома елементами.",
-        "Що всередині UITableViewController — чому не потрібен addSubview?",
-        "Поясни UINavigationController як стек: push Home → Profile → Settings, потім Back.",
-        "Як влаштований UITabBarController? Що в кожній вкладці і навіщо Nav всередині?",
-        "Намалюй дерево UIKit-app: TabBar → Nav → VC для food-delivery.",
-        "Коли UITableViewController, а коли UICollectionViewController?",
-        "Чим PHPicker кращий за UIImagePicker для photo library?",
-        "UIViewController vs UINavigationController vs UITabBarController — хто малює контент, хто керує навігацією?",
+        {
+          q: "У чому різниця між UIViewController + let tableView = UITableView() і UITableViewController? Що ти повинен зробити в кожному варіанті?",
+          a: [
+            "Різниця не в рядку коду, а в тому, ХТО створює таблицю і чи є вона view контролера. У UIViewController таблиця — звичайна subview: ти сам створюєш UITableView, робиш addSubview, ставиш констрейнти, призначаєш delegate і dataSource, реєструєш клітинки. Більше роботи — але ти контролюєш, де таблиця стоїть відносно інших елементів.",
+            "У UITableViewController tableView уже готова і водночас Є view контролера. Тобі лишається register клітинок і робота з даними; безкоштовно приходить refreshControl для pull-to-refresh.",
+            "Ціна другого варіанта: view контролера і є таблиця, тому додати над нею search bar чи закріпити знизу кнопку кошика не виходить — subview, додана у view, поїде разом зі скролом контенту.",
+          ],
+        },
+        {
+          q: "Чому зараз частіше UIViewController + UITableView? Наведи приклад екрана з кількома елементами.",
+          a: [
+            "Бо сучасний екран рідко складається лише зі списку. Наше меню ресторану: search bar зверху → промо-банер → UITableView зі стравами → floating «Кошик · 249 ₴», закріплений над safe area. Три з чотирьох елементів — не таблиця.",
+            "Таку композицію просто зробити на UIViewController: кожен елемент — окрема subview зі своїми констрейнтами, таблиця пінується між банером і кнопкою. UITableViewController заточений під «таблиця = весь екран», і будь-який додатковий елемент доводиться туди пропихати.",
+            "Формула для співбесіди: UITableViewController — для простих full-screen списків; UIViewController + UITableView — для реальних екранів зі змішаним UI. У продакшн-проєктах майже завжди другий.",
+          ],
+        },
+        {
+          q: "Що всередині UITableViewController — чому не потрібен addSubview?",
+          a: [
+            "Спрощено це UIViewController, у якого вже є властивість tableView, і ця таблиця присвоєна як self.view. Тобто view контролера і Є таблиця — тому addSubview не потрібен: таблиця вже займає весь екран за визначенням, а не завдяки констрейнтам.",
+            "Реальна реалізація складніша: контролер сам виставляє себе delegate і dataSource, керує contentInsetAdjustmentBehavior і safe area, дає готовий refreshControl.",
+            "Наслідок, який і перевіряють цим питанням: view === tableView. Тому «додам кнопку у view» тут працює не так, як ти очікуєш — кнопка стане частиною скролюваного контенту й поїде вгору разом зі списком.",
+          ],
+        },
+        {
+          q: "Поясни UINavigationController як стек: push Home → Profile → Settings, потім Back.",
+          a: [
+            "UINavigationController нічого не малює — він керує стеком контролерів за принципом LIFO і показує спільний navigation bar. viewControllers — це і є масив стеку.",
+            "Старт: nav з rootViewController: Home — у стеку [Home]. pushViewController(Profile) → [Home, Profile]. push(Settings) → [Home, Profile, Settings], видно верхній. Back (кнопка або свайп) → popViewController → [Home, Profile]; popToRootViewController одразу дає [Home].",
+            "Важлива деталь про памʼять: стек тримає контролери СИЛЬНО. Home живий, поки ти в Settings — його viewDidLoad не буде викликаний повторно при поверненні, спрацює тільки viewWillAppear. Саме тому дані, які могли змінитись, освіжають у willAppear, а не в didLoad.",
+          ],
+          code: [
+            "let nav = UINavigationController(rootViewController: HomeViewController())",
+            "nav.pushViewController(ProfileViewController(), animated: true)",
+            "nav.pushViewController(SettingsViewController(), animated: true)",
+            "// стек: [Home, Profile, Settings]",
+            "nav.popViewController(animated: true)        // → [Home, Profile]",
+            "nav.popToRootViewController(animated: true)  // → [Home]",
+          ],
+        },
+        {
+          q: "Як влаштований UITabBarController? Що в кожній вкладці і навіщо Nav всередині?",
+          a: [
+            "UITabBarController керує розділами: viewControllers — масив, по одному контролеру на вкладку, selectedIndex перемикає програмно. Сам він, як і navigation controller, контент не малює.",
+            "У кожну вкладку кладу не екран, а UINavigationController — інакше всередині вкладки не буде push/pop: тапнув по замовленню, а показати деталі нікуди. І кожна вкладка тримає СВІЙ стек: пішов у деталі страви в «Меню», перемкнувся на «Профіль», повернувся — і ти досі на деталях. Це те, чого юзер очікує.",
+            "Типова структура нашого застосунку: TabBar → Menu | Orders | Profile, кожна вкладка обгорнута в Nav. Модальні флоу (login, checkout) презентуються поверх усього таб-бару, а не всередині вкладки.",
+          ],
+          code: [
+            "let tabBar = UITabBarController()",
+            "tabBar.viewControllers = [",
+            "    UINavigationController(rootViewController: MenuVC()),",
+            "    UINavigationController(rootViewController: OrdersVC()),",
+            "    UINavigationController(rootViewController: ProfileVC())",
+            "]",
+            "// Menu | Orders | Profile — у кожної вкладки власний стек",
+          ],
+        },
+        {
+          q: "Намалюй дерево UIKit-app: TabBar → Nav → VC для food-delivery.",
+          a: [
+            "Корінь — UITabBarController. Під ним три UINavigationController, у кожному свій стек екранів. Усі листки — звичайні UIViewController: контейнери лише керують структурою.",
+            "Окремо від дерева живуть модальні флоу: login і checkout презентуються поверх таб-бару, бо це завершувані процеси, а не розділи застосунку. Deep link з пуша розбирає AppCoordinator: вибирає вкладку, будує стек до потрібного екрана і вже потім показує.",
+            "Правило, яке варто сказати вголос: 90% екранів — звичайний UIViewController; Nav і TabBar не малюють UI, вони керують навігацією.",
+          ],
+          code: [
+            "// UITabBarController  (корінь)",
+            "// │",
+            "// ├── UINavigationController   [Menu]",
+            "// │      ├── MenuViewController        (search + banner + table + cart)",
+            "// │      └── DishDetailsViewController",
+            "// │",
+            "// ├── UINavigationController   [Orders]",
+            "// │      ├── OrdersListViewController",
+            "// │      └── OrderDetailsViewController",
+            "// │",
+            "// └── UINavigationController   [Profile]",
+            "//        ├── ProfileViewController",
+            "//        └── SettingsViewController",
+            "//",
+            "// present поверх усього: LoginVC, CheckoutCoordinator",
+          ],
+        },
+        {
+          q: "Коли UITableViewController, а коли UICollectionViewController?",
+          a: [
+            "Обидва — той самий підхід «контролер уже має готовий список», різниця в геометрії. Table — одна колонка рядків повної ширини. Collection — довільний макет: сітка, мозаїка, горизонтальний скрол, різні розміри клітинок у межах однієї секції.",
+            "Практично: список налаштувань, чат, простий перелік — таблиця. Галерея фото, каталог плитками, home page з каруселями — collection. З compositional layout collection закриває і випадки, які колись робили таблицею з різними типами клітинок.",
+            "Але вибір між ними — другорядний. Обидва готові контролери підходять лише коли список = ВЕСЬ екран. Щойно зʼявляється header, фільтр чи floating-кнопка — беру UIViewController і кладу table або collection як subview.",
+          ],
+        },
+        {
+          q: "Чим PHPicker кращий за UIImagePicker для photo library?",
+          a: [
+            "Головне — privacy: PHPickerViewController працює позасистемно, у власному процесі, тому НЕ потребує дозволу на доступ до фотобібліотеки. Юзер не бачить алерту, ти не обробляєш відмову, а застосунок отримує тільки те, що людина сама вибрала.",
+            "Плюс мультивибір з коробки (selectionLimit), пошук у бібліотеці, фільтри за типом медіа. UIImagePickerController для бібліотеки застарілий і давав лише одне фото за раз.",
+            "Деталь, на якій спотикаються: PHPicker повертає не UIImage, а PHPickerResult з itemProvider — картинку треба вантажити асинхронно, вже після закриття пікера. Для КАМЕРИ UIImagePickerController лишається робочим варіантом — PHPicker про бібліотеку, не про зʼйомку.",
+          ],
+          code: [
+            "var config = PHPickerConfiguration()",
+            "config.selectionLimit = 5",
+            "config.filter = .images",
+            "let picker = PHPickerViewController(configuration: config)",
+            "picker.delegate = self",
+            "present(picker, animated: true)   // дозвіл на фотобібліотеку не потрібен",
+          ],
+        },
+        {
+          q: "UIViewController vs UINavigationController vs UITabBarController — хто малює контент, хто керує навігацією?",
+          a: [
+            "Контент малює тільки UIViewController: він володіє своєю view, subviews і констрейнтами. UINavigationController і UITabBarController — контейнери: перший керує стеком (push/pop) і показує navigation bar, другий перемикає розділи і показує tab bar. Власного контенту в них немає.",
+            "Технічно вони теж UIViewController — саме тому їх можна вкладати один в одного: TabBar тримає Nav, Nav тримає екрани. Але їхня view — це рамка з контейнером, у який вони вставляють view дитини.",
+            "Практичний висновок: не намагайся додати кнопку «у navigation controller» чи верстати щось у tab bar controller. Усе, що видно юзеру, живе у звичайних контролерах усередині; контейнерам ти лише кажеш, що і в якому порядку показувати.",
+          ],
+        },
       ],
     },
     {
@@ -794,12 +1318,102 @@ module.exports = {
         "Property injection небезпечний з implicit unwrap (var userID: String!) — краще let + init, якщо дані обовʼязкові.",
       ],
       qs: [
-        "Класифікуй механізми передачі даних: forward / back / global event / shared state.",
-        "Delegate vs closure — коли що? Які плюси/мінуси?",
-        "Чому delegate зазвичай weak? Який протокол для цього потрібен?",
-        "Коли NotificationCenter доречний, а коли це «code smell»?",
-        "Чим DI кращий за Singleton? Як би ти передав UsersService у UsersVC?",
-        "Як уникнути retain cycle у callback closure?",
+        {
+          q: "Класифікуй механізми передачі даних: forward / back / global event / shared state.",
+          a: [
+            "Forward (A → B): property injection для простих параметрів і init-based DI для залежностей — батько налаштовує дитину ДО показу. Back (B → A): delegate, коли подій кілька і вони формують контракт, або closure, коли подія одна.",
+            "Global event: NotificationCenter — коли відправник і слухачі не мусять знати одне про одного («userLoggedOut», «orderUpdated»). Shared state: окремий store з явним API (CartStore, Session) — стан, який читають кілька екранів.",
+            "Вибір роблю за трьома питаннями: хто володіє даними — батько чи дитина; це одноразова передача чи потік подій; чи потрібна відписка. Синглтон — крайній варіант: він приховує залежності й ламає тести, тому за замовчуванням DI.",
+          ],
+          code: [
+            "// Forward:      init / props      (батько → дитина, до показу)",
+            "// Back:         delegate / closure (дитина → батько, після дії)",
+            "// Global event: NotificationCenter (багато слухачів, ніхто нікого не знає)",
+            "// Shared state: Store             (стан для кількох екранів)",
+          ],
+        },
+        {
+          q: "Delegate vs closure — коли що? Які плюси/мінуси?",
+          a: [
+            "Delegate — коли подій кілька і разом вони контракт: didSave, didCancel, didRequestDelete. Протокол читається як документація, реалізація зібрана в одному місці, менше ризику циклу (weak — норма патерну). Ціна — шаблонний код: протокол, властивість, присвоєння, методи.",
+            "Closure — коли подія одна, максимум дві-три: var onAddressSelected: ((Address) -> Void)?. Коротко і, головне, логіка обробки стоїть ПОРУЧ із створенням екрана — не треба стрибати у інший файл. Ціна — retain cycle, якщо захопив self сильно, і кілька closure-властивостей швидко перетворюються на кашу.",
+            "Моє правило: одна подія — closure, три і більше — delegate. У координаторах майже завжди closure, бо там і створення екрана, і рішення «куди далі» стоять в одному методі.",
+          ],
+        },
+        {
+          q: "Чому delegate зазвичай weak? Який протокол для цього потрібен?",
+          a: [
+            "Бо власник тут — батько: він створив дитину і показує її, тому тримає її сильно. Якщо дитина ще й сильно тримає делегата-батька, виходить коло, і жоден з двох не звільниться. Delegate — це не власність, а канал звʼязку.",
+            "Щоб weak був можливий, протокол мусить обмежуватись AnyObject: weak працює лише з class-типами, а протокол без цього обмеження може бути реалізований структурою. Без AnyObject компілятор просто не дасть написати weak var delegate.",
+            "Симптом strong-делегата у проді: закрив модалку «редагувати адресу», а старий екран живий — далі приходять нотифікації, обробники дублюються, аналітика шле подію двічі, і print у deinit не виводиться.",
+          ],
+          code: [
+            "protocol EditAddressDelegate: AnyObject {          // AnyObject — обовʼязково",
+            "    func editAddress(_ vc: EditAddressVC, didSave address: Address)",
+            "    func editAddressDidCancel(_ vc: EditAddressVC)",
+            "}",
+            "",
+            "final class EditAddressVC: UIViewController {",
+            "    weak var delegate: EditAddressDelegate?       // не власність → weak",
+            "}",
+          ],
+        },
+        {
+          q: "Коли NotificationCenter доречний, а коли це «code smell»?",
+          a: [
+            "Доречний, коли подія глобальна і слухачів кілька невідомих: «userLoggedOut» — і всі відкриті екрани мусять відреагувати; «cartUpdated» — бейдж на таб-барі, хедер меню і кнопка кошика оновлюються незалежно. Зводити це до delegate означало б протягнути посилання через півдодатка.",
+            "Code smell, коли ним передають ДАНІ між двома конкретними екранами замість init injection або closure. Ознаки: userInfo з ключами-рядками і кастами, one-to-one звʼязок через центр, і неможливість зрозуміти з коду, хто ж це слухає.",
+            "Ціна теж реальна: слабка типізація і життєвий цикл підписки. Підписався у viewWillAppear без зняття — після трьох повернень обробник спрацьовує тричі, і юзер бачить три однакові алерти. Використовую token-API і знімаю observer у deinit.",
+          ],
+          code: [
+            "private var token: NSObjectProtocol?",
+            "token = NotificationCenter.default.addObserver(",
+            "    forName: .userLoggedOut, object: nil, queue: .main) { [weak self] _ in",
+            "    self?.showLogin()",
+            "}",
+            "deinit { if let token { NotificationCenter.default.removeObserver(token) } }",
+          ],
+        },
+        {
+          q: "Чим DI кращий за Singleton? Як би ти передав UsersService у UsersVC?",
+          a: [
+            "DI робить залежності ЯВНИМИ: подивившись на init, я бачу все, що екрану потрібно для роботи. Синглтон приховує це — залежність зʼявляється десь у глибині методу, і клас неможливо перевірити, не підіймаючи весь застосунок.",
+            "Друге — тестованість: якщо тип залежності протокол, у тест підставляється mock, який повертає порожній список або помилку. З Session.shared цього не зробиш, а глобальний мутабельний стан ще й тече між тестами: один тест залогінив юзера, наступний падає.",
+            "Передаю через init: private let service: UsersService, збірка — у composition root (AppCoordinator або SceneDelegate). Синглтон лишаю для справді процес-рівневих речей і навіть їх ховаю за протоколом, щоб екран залежав від абстракції, а не від .shared.",
+          ],
+          code: [
+            "protocol UsersService { func fetchUsers() async throws -> [User] }",
+            "",
+            "final class UsersVC: UIViewController {",
+            "    private let service: UsersService",
+            "    init(service: UsersService) {",
+            "        self.service = service",
+            "        super.init(nibName: nil, bundle: nil)",
+            "    }",
+            "    required init?(coder: NSCoder) { fatalError(\"init(coder:) has not been implemented\") }",
+            "}",
+            "",
+            "// composition root:",
+            "let vc = UsersVC(service: APIUsersService())   // у тесті — UsersServiceMock()",
+          ],
+        },
+        {
+          q: "Як уникнути retain cycle у callback closure?",
+          a: [
+            "Цикл виникає тільки коли closure ЗБЕРІГАЄТЬСЯ у властивість: обʼєкт тримає closure, closure сильно захоплює self. Одноразові closure (UIView.animate, completion у dismiss) циклу не дають — вони звільняються після виклику, тому [weak self] там не обовʼязковий.",
+            "Фікс — [weak self] у списку захоплення і далі або опційний доступ self?.updateUI(), або guard let self = self else { return } на початку, якщо потрібно кілька дій. unowned беру лише коли гарантовано впевнений, що self переживе виклик — інакше це краш замість тихого no-op.",
+            "Перевіряю завжди однаково: print у deinit. Закрив екран, рядок не вивівся — іду в Debug Memory Graph дивитись, хто тримає. Класичний винуватець у нас — збережений onCompleted у координаторі та completion-хендлер сервісу, збережений у властивість.",
+          ],
+          code: [
+            "let vc = ChooseAddressVC()",
+            "vc.onChoose = { [weak self] address in      // збережений closure → weak",
+            "    guard let self else { return }",
+            "    self.selectedAddress = address",
+            "    self.updateUI()",
+            "}",
+            "navigationController?.pushViewController(vc, animated: true)",
+          ],
+        },
       ],
     },
   ],

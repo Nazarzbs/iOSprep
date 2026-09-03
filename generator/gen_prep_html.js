@@ -9,11 +9,27 @@ const pillars = [
 
 const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
+// Контрольне питання: або рядок (без відповіді), або { q, a, code }
+const qsHTML = item => {
+  if (typeof item === "string") return `<li>${esc(item)}</li>`;
+  const paras = (Array.isArray(item.a) ? item.a : [item.a]).filter(Boolean);
+  const code = item.code && item.code.length ? `<pre>${esc(item.code.join("\n"))}</pre>` : "";
+  return `<li class="qa"><details class="ans"><summary>${esc(item.q)}</summary>`
+       + `<div class="ans-body">${paras.map(p => `<p>${esc(p)}</p>`).join("")}${code}</div>`
+       + `</details></li>`;
+};
+
 const SITE = "https://nazarzbs.github.io/iOSprep/prep.html";
 const REPO = "https://github.com/Nazarzbs/iOSprep";
 
 let topicsHTML = "";
 let total = 0;
+
+// id → назва теми: для рядка «поряд» під заголовком
+const idName = {};
+for (const { key, data } of pillars) {
+  data.topics.forEach((t, i) => { idName[`${key}-${i}`] = t.name; });
+}
 
 for (const { key, data } of pillars) {
   topicsHTML += `
@@ -43,9 +59,11 @@ for (const { key, data } of pillars) {
         <input type="checkbox" aria-label="закрито">
         <h3>${esc(topic.name)}</h3>
         <button class="note-btn open-cmt" title="Коментарі до цієї теми">💬</button>
+        ${topic.sections?.length ? `<span class="prio step" title="Довгий розбір по кроках, а не конспект">🪜 по кроках</span>` : ""}
         <a class="note-btn" href="${esc(threadsURL)}" target="_blank" rel="noopener" title="Гілки цієї теми на GitHub">🧵</a>
         <span class="prio ${topic.p}">${topic.p}</span>
       </div>
+      ${topic.also?.length ? `<div class="also">Поряд: ${topic.also.map(id => `<a href="#${id}">${esc(idName[id] || id)}</a>`).join(" · ")}</div>` : ""}
       <details>
         <summary>Розгорнути тему</summary>
         <div class="topic-body">
@@ -61,8 +79,8 @@ for (const { key, data } of pillars) {
           <div class="blk"><div class="blk-t warn">Пастки та типові помилки</div>
             <ul class="warn-list">${topic.traps.map(t => `<li>${esc(t)}</li>`).join("")}</ul>
           </div>
-          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв → став ✓</div>
-            <ul>${topic.qs.map(q => `<li>${esc(q)}</li>`).join("")}</ul>
+          <div class="blk qs"><div class="blk-t good">Контрольні питання — відповів уголос за 1–2 хв, тоді розгорни й порівняй</div>
+            <ul>${topic.qs.map(qsHTML).join("")}</ul>
           </div>
           <div class="blk cmt-blk">
             <button class="cmt-btn" data-term="${esc(topic.name)}">💬 Показати коментарі до теми</button>
@@ -75,21 +93,6 @@ for (const { key, data } of pillars) {
   });
   topicsHTML += `</section>`;
 }
-
-const weeks = [
-  ["Тиждень 1", "Swift: памʼять + closures + types", "Value/reference, optionals, properties, closures, ARC і retain cycles. Це половина всіх «валящих» питань. Щодня — одна тема: шість блоків, приклад коду рукою, контрольні питання вголос."],
-  ["Тиждень 2", "Swift: конкурентність + протоколи", "GCD (2 дні — найважче), async/await + actors (2 дні), протоколи/generics/dispatch (2 дні). Пиши приклади у Playground — на співбесіді просять код."],
-  ["Тиждень 3", "UIKit повністю + суміжне", "Lifecycle, AutoLayout, таблиці — по дню, ти це знаєш з роботи, треба структурувати відповіді. Далі responder chain, navigation, networking, persistence."],
-  ["Тиждень 4", "SwiftUI + архітектура + мок-співбесіди", "Data flow та identity (2 дні), layout/navigation/animations (2 дні). Останні 2 дні — прогін по контрольних питаннях уголос, англійською і українською."],
-];
-
-const tips = [
-  "Кожну теорію привʼязуй до свого досвіду: «weak delegate — у нас в Eatery Club так звʼязані...». У блоках «Де використовується» позначені твої робочі кейси — це готові відповіді.",
-  "Структура відповіді: яку проблему вирішує (1 речення) → як працює (2–3 речення) → пастка або приклад з практики. Відповідь «від проблеми» звучить на рівень вище.",
-  "Не знаєш — кажи чесно і міркуй уголос: «точно не скажу, але логічно припускаю...» — це цінують більше за мовчання.",
-  "Підготуй 3 готові історії: складний баг; фіча, якою пишаєшся (Live Activities!); дедлайн/конфлікт — для поведінкової частини.",
-  "Live coding: тренуй руками без автокомпліту — окремий тренажер із 22 завданнями в тебе вже є (iOS_LiveCoding_Trainer.html).",
-];
 
 const html = `<!doctype html>
 <html lang="uk">
@@ -132,7 +135,7 @@ const html = `<!doctype html>
   .topic { background: var(--card); border: 1px solid var(--line); border-radius: 13px; margin-bottom: 11px; overflow: hidden; scroll-margin-top: 150px; }
   .topic.done { opacity: .6; }
   .topic:target { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-wash); }
-  .topic-head { display: grid; grid-template-columns: auto 1fr auto auto auto; gap: 10px; align-items: center; padding: 13px 16px; }
+  .topic-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 13px 16px; }
   .note-btn { text-decoration: none; font-size: 15px; line-height: 1; padding: 4px 6px; border-radius: 8px; border: 1px solid transparent; opacity: .55; background: none; cursor: pointer; }
   .note-btn:hover { opacity: 1; border-color: var(--line); background: var(--ground); }
   .cmt-btn { font-family: var(--sans); font-size: 13px; font-weight: 600; cursor: pointer; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--ground); color: var(--muted); }
@@ -140,12 +143,16 @@ const html = `<!doctype html>
   .cmt-slot { margin-top: 10px; }
   .cmt-slot iframe { width: 100%; }
   .topic-head input { width: 19px; height: 19px; accent-color: var(--good); cursor: pointer; }
-  .topic-head h3 { margin: 0; font-size: 15.5px; font-weight: 700; }
+  .topic-head h3 { margin: 0; font-size: 15.5px; font-weight: 700; flex: 1 1 auto; min-width: 0; }
   .topic.done h3 { text-decoration: line-through; text-decoration-color: var(--faint); color: var(--faint); }
   .prio { font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: .05em; padding: 2px 9px; border-radius: 999px; }
   .prio.P0 { background: var(--accent-wash); color: var(--accent-deep); border: 1px solid #F6CFC6; }
   .prio.P1 { background: var(--warn-wash); color: var(--warn); border: 1px solid #EBD9B0; }
   .prio.P2 { background: var(--info-wash); color: var(--info); border: 1px solid #C4D9EE; }
+  .prio.step { background: var(--ground); color: var(--muted); border: 1px solid var(--line); font-family: var(--sans); font-weight: 600; }
+  .also { font-size: 12.5px; color: var(--faint); padding: 0 16px 11px; margin-top: -4px; }
+  .also a { color: var(--info); text-decoration: none; }
+  .also a:hover { text-decoration: underline; }
 
   details { border-top: 1px solid var(--line); }
   details summary { cursor: pointer; padding: 8px 16px; font-size: 13px; font-weight: 600; color: var(--info); list-style: none; user-select: none; background: #FBFCFD; }
@@ -167,6 +174,15 @@ const html = `<!doctype html>
   .blk li { font-size: 13.5px; padding: 2px 0; max-width: 76ch; }
   .warn-list li::marker { content: "⚠ "; }
   .qs { background: var(--good-wash); border: 1px solid #CBE5D3; border-radius: 10px; padding: 10px 14px; }
+  .qs li.qa { list-style: none; margin-left: -18px; }
+  .qs details.ans { border-top: none; }
+  .qs details.ans summary { padding: 2px 0; background: none; color: var(--ink); font-weight: 600; font-size: 13.5px; border-bottom: none; }
+  .qs details.ans summary::before { content: "▸ "; color: var(--good); }
+  .qs details.ans[open] summary { border-bottom: none; }
+  .qs details.ans[open] summary::before { content: "▾ "; }
+  .ans-body { margin: 5px 0 12px; padding-left: 13px; border-left: 2px solid #A8D2B8; }
+  .ans-body p { font-size: 13.5px; margin: 0 0 6px; color: #38556B; max-width: 78ch; }
+  .ans-body pre { font-size: 11.8px; margin-top: 6px; }
 
   pre { background: var(--code-bg); color: var(--code-ink); border-radius: 10px; padding: 13px 15px; overflow-x: auto; font-family: var(--mono); font-size: 12.2px; line-height: 1.5; margin: 4px 0 0; }
 
@@ -177,9 +193,6 @@ const html = `<!doctype html>
   .week p { margin: 0; font-size: 13.5px; color: var(--muted); max-width: 74ch; }
   @media (max-width: 560px) { .week { grid-template-columns: 1fr; gap: 3px; } }
 
-  .tips { background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 12px; padding: 16px 20px; margin-top: 16px; }
-  .tips ul { margin: 0; padding-left: 18px; }
-  .tips li { font-size: 13.5px; padding: 3px 0; max-width: 76ch; }
 
   footer { margin-top: 55px; font-size: 12.5px; color: var(--faint); border-top: 1px solid var(--line); padding-top: 14px; }
 </style>
@@ -189,7 +202,7 @@ const html = `<!doctype html>
 <div class="wrap">
   <div class="eyebrow">iOS Interview Prep · розширена версія</div>
   <h1>План підготовки до співбесід: ${total} тем углиб</h1>
-  <p class="lede">Кожна тема — шість блоків: як працює → яку проблему вирішує → де застосовується (з кейсами з твоєї роботи) → код → пастки → контрольні питання. Відповів на контрольні уголос за 1–2 хвилини — став галочку. Прогрес зберігається у браузері.</p>
+  <p class="lede">Кожна тема — шість блоків: як працює → яку проблему вирішує → де застосовується (з кейсами з твоєї роботи) → код → пастки → контрольні питання з еталонною відповіддю під спойлером. Теми з позначкою 🪜 — довгий розбір по кроках для першого знайомства; решта — конспект, щоб повторити перед співбесідою. Прогрес зберігається у браузері.</p>
 
   <div class="toolbar">
     <div class="filters" id="pillarFilters">
@@ -198,7 +211,8 @@ const html = `<!doctype html>
       <button class="fbtn" data-pillar="swiftui">SwiftUI</button>
       <button class="fbtn" data-pillar="uikit">UIKit</button>
       <button class="fbtn" data-pillar="adj">Суміжне</button>
-      <a class="fbtn" href="schedule.html" style="margin-left:auto">📅 Розклад</a>
+      <a class="fbtn" href="interview.html" style="margin-left:auto">🗣 Розмовна частина</a>
+      <a class="fbtn" href="mock.html">🎤 Мок-співбесіда</a>
     </div>
     <div class="filters" id="prioFilters">
       <button class="fbtn active" data-prio="all">Всі пріоритети</button>
@@ -344,4 +358,7 @@ const html = `<!doctype html>
 
 const path = require("path");
 fs.writeFileSync(path.join(__dirname, "..", "prep.html"), html);
-console.log("done,", total, "topics,", (html.length / 1024).toFixed(0) + " KB");
+console.log("prep.html:", total, "тем,", (html.length / 1024).toFixed(0) + " KB");
+
+require("./gen_mock_html.js")(pillars);
+require("./gen_interview_html.js")();
